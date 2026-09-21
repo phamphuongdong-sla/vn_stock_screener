@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Module gửi tin nhắn cảnh báo tới Telegram (Định dạng VNĐ ProMax)
+Module gửi tin nhắn cảnh báo tới Telegram (Định dạng ProMax đầy đủ tỷ lệ %)
 """
 import requests
 import config
@@ -8,6 +8,7 @@ import config
 def send_telegram_alert(signal_data: dict) -> bool:
     """
     Gửi cảnh báo phát hiện cổ phiếu có dòng tiền cá mập về Telegram
+    Bao gồm đầy đủ tỷ lệ % WinRate và % Lợi nhuận/Cắt lỗ như trên chỉ báo Pine Script
     """
     if not config.TELEGRAM_ENABLED:
         return False
@@ -30,34 +31,41 @@ def send_telegram_alert(signal_data: dict) -> bool:
     pattern = signal_data.get('pattern', '')
     is_whale = signal_data.get('is_whale', False)
     whale_badge = signal_data.get('whale_badge', '')
+    win_rate = signal_data.get('win_rate', 80.0)
     
     sl_vnd = signal_data.get('sl_vnd', '0 đ')
+    sl_pct = signal_data.get('sl_pct', -5.0)
     tp1_vnd = signal_data.get('tp1_vnd', '0 đ')
+    tp1_pct = signal_data.get('tp1_pct', 5.0)
     tp2_vnd = signal_data.get('tp2_vnd', '0 đ')
+    tp2_pct = signal_data.get('tp2_pct', 10.0)
     tp3_vnd = signal_data.get('tp3_vnd', '0 đ')
+    tp3_pct = signal_data.get('tp3_pct', 15.0)
 
     icon_change = "🟢" if change_pct >= 0 else "🔴"
 
     if is_whale:
-        header = f"🐋👑 *XÁC NHẬN CHẮC CHẮN CÓ CÁ MẬP (SMART MONEY)* 👑🐋\n🔥 *Mã:* `{symbol}` ({exchange})"
+        header = f"🐋👑 *CÁ MẬP GOM HÀNG [{win_rate:.0f}%]* 👑🐋\n🔥 *Mã Cổ Phiếu:* `{symbol}` ({exchange})"
     else:
-        header = f"📊 *TÍN HIỆU TIÊU CHUẨN — {symbol} ({exchange})*"
+        header = f"🚀 *TÍN HIỆU MUA TIÊU CHUẨN [{win_rate:.0f}%]*\n🔥 *Mã:* `{symbol}` ({exchange})"
 
     message = (
-        f"{header}\n\n"
+        f"{header}\n"
+        f"────────────────────────\n"
         f"🏷 *Phân Loại:* `{whale_badge}`\n"
-        f"📈 *Hành Vi Giá:* *{pattern}*\n\n"
+        f"📈 *Hành Vi Giá:* *{pattern}*\n"
+        f"🧠 *Độ Tin Cậy AI:* `{win_rate:.0f}%`\n\n"
         f"📊 *Thông Số Dòng Tiền:*\n"
         f"• Giá hiện tại: `{price_vnd}` ({icon_change} `{change_pct:+.2f}%`)\n"
         f"• Giá trị GD: `{trade_val_bil:,.1f}` Tỷ VNĐ\n"
         f"• Khối lượng: `{vol_current:,.0f}` (Gấp `{vol_ratio:.1f}x` TB 20 phiên)\n\n"
-        f"🎯 *Kế Hoạch Giao Dịch Đề Xuất (VNĐ):*\n"
+        f"🎯 *Kế Hoạch Giao Dịch Đề Xuất (VNĐ & %):*\n"
         f"• 💰 Điểm vào (Entry): `{price_vnd}`\n"
-        f"• 🛑 Cắt lỗ (SL): `{sl_vnd}`\n"
-        f"• 🎯 TP1 (R:R 1:1): `{tp1_vnd}` (+1R — Dời SL hòa vốn)\n"
-        f"• 🎯 TP2 (R:R 1:2): `{tp2_vnd}` (+2R)\n"
-        f"• 🎯 TP3 (R:R 1:3): `{tp3_vnd}` (+3R — Chốt toàn bộ)\n\n"
-        f"⏱ _Hệ thống đồng bộ trực tiếp với chỉ báo AI Whale ProMax._"
+        f"• 🎯 TP1 (+1R): `{tp1_vnd}` (`{tp1_pct:+.1f}%`) — _Dời SL hòa vốn_\n"
+        f"• 🎯 TP2 (+2R): `{tp2_vnd}` (`{tp2_pct:+.1f}%`) — _Chốt lời mục tiêu_\n"
+        f"• 🎯 TP3 (+3R): `{tp3_vnd}` (`{tp3_pct:+.1f}%`) — _Gồng lãi tối đa_\n"
+        f"• 🛑 Cắt lỗ (SL): `{sl_vnd}` (`{sl_pct:+.1f}%`) — _Dưới chân nến_\n\n"
+        f"⏱ _Đồng bộ 100% với Thẻ Card chỉ báo AI Whale ProMax._"
     )
 
     payload = {

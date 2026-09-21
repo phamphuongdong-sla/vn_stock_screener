@@ -38,7 +38,7 @@ def display_and_notify_results(signals: list):
     table_data = []
     for s in signals:
         table_data.append([
-            s['whale_badge'],
+            f"{s['whale_badge']} [{s.get('win_rate', 80):.0f}%]",
             s['symbol'],
             s['exchange'],
             s['price_vnd'],
@@ -46,10 +46,10 @@ def display_and_notify_results(signals: list):
             f"{s['vol_ratio']:.1f}x",
             f"{s['trade_value_bil']:.1f} Tỷ",
             s['pattern'],
-            s['sl_vnd'],
-            s['tp1_vnd'],
-            s['tp2_vnd'],
-            s['tp3_vnd']
+            f"{s['sl_vnd']} ({s.get('sl_pct', 0):+.1f}%)",
+            f"{s['tp1_vnd']} ({s.get('tp1_pct', 0):+.1f}%)",
+            f"{s['tp2_vnd']} ({s.get('tp2_pct', 0):+.1f}%)",
+            f"{s['tp3_vnd']} ({s.get('tp3_pct', 0):+.1f}%)"
         ])
 
     headers = [

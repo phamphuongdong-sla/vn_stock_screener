@@ -228,6 +228,18 @@ def analyze_stock(item: dict, exchange: str) -> Optional[Dict]:
     tp2 = matched_price + (risk * config.RR_TP2)
     tp3 = matched_price + (risk * config.RR_TP3)
 
+    # Tính tỷ lệ % lợi nhuận và cắt lỗ
+    sl_pct = ((sl - matched_price) / matched_price) * 100
+    tp1_pct = ((tp1 - matched_price) / matched_price) * 100
+    tp2_pct = ((tp2 - matched_price) / matched_price) * 100
+    tp3_pct = ((tp3 - matched_price) / matched_price) * 100
+
+    # Tính độ tin cậy AI (WinRate %) đồng bộ như chỉ báo Pine Script
+    if is_confirmed_whale:
+        win_rate = min(94.0, max(78.0, 75.0 + (vol_ratio - 1.5) * 8.0 + (lower_wick_ratio - 0.40) * 25.0))
+    else:
+        win_rate = min(77.0, max(65.0, 62.0 + (vol_ratio - 1.0) * 8.0))
+
     return {
         "symbol": symbol,
         "exchange": exchange,
@@ -241,15 +253,20 @@ def analyze_stock(item: dict, exchange: str) -> Optional[Dict]:
         "is_whale": is_confirmed_whale,
         "whale_badge": whale_badge,
         "pattern": pattern,
+        "win_rate": win_rate,
         "supertrend": "Tăng 🟢" if is_supertrend_bull else "Giảm 🔴",
         "sl": sl,
         "sl_vnd": format_vnd(sl),
+        "sl_pct": sl_pct,
         "tp1": tp1,
         "tp1_vnd": format_vnd(tp1),
+        "tp1_pct": tp1_pct,
         "tp2": tp2,
         "tp2_vnd": format_vnd(tp2),
+        "tp2_pct": tp2_pct,
         "tp3": tp3,
-        "tp3_vnd": format_vnd(tp3)
+        "tp3_vnd": format_vnd(tp3),
+        "tp3_pct": tp3_pct
     }
 
 def run_screener() -> List[Dict]:
