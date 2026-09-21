@@ -111,7 +111,7 @@ def check_single_stock(symbol: str, send_telegram: bool = True):
 
     if send_telegram:
         print("[*] Đang gửi kết quả phân tích mã này sang Telegram của bạn...")
-        sent = telegram_bot.send_telegram_alert(res)
+        sent = telegram_bot.send_telegram_alert(res, force=True)
         if sent:
             print(f"✅ Đã gửi phân tích mã {symbol} về Telegram thành công!")
         else:

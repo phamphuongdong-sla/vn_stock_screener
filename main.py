@@ -61,13 +61,18 @@ def display_and_notify_results(signals: list):
 
     # Gửi thông báo Telegram nếu được kích hoạt
     if config.TELEGRAM_ENABLED:
-        print("\n[*] Đang gửi thông báo kết quả tới Telegram...")
+        print(f"\n[*] Đang lọc và gửi các tín hiệu đạt từ {config.MIN_ALERT_WINRATE:.0f}% trở lên tới Telegram...")
+        alerted_count = 0
         for s in signals:
-            sent = send_telegram_alert(s)
-            if sent:
-                status = "🐋 CÁ MẬP" if s['is_whale'] else "Tiêu chuẩn"
-                print(f" -> Đã gửi cảnh báo mã {s['symbol']} ({status}) tới Telegram.")
-            time.sleep(0.5)
+            if s.get('win_rate', 0) >= config.MIN_ALERT_WINRATE:
+                sent = send_telegram_alert(s)
+                if sent:
+                    alerted_count += 1
+                    status = "🐋 CÁ MẬP" if s['is_whale'] else "Tiêu chuẩn"
+                    print(f" -> [ĐẠT {s.get('win_rate', 0):.0f}%] Đã gửi cảnh báo mã {s['symbol']} ({status}) tới Telegram.")
+                time.sleep(0.5)
+        if alerted_count == 0:
+            print(f" -> Không có mã nào đạt ngưỡng >= {config.MIN_ALERT_WINRATE:.0f}%, đã bỏ qua để bảo đảm chất lượng tín hiệu.")
 
 def main():
     print(r"""

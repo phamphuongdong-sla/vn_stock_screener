@@ -19,6 +19,10 @@ TELEGRAM_CHAT_ID = "2125548447"
 # Chỉ hiển thị và cảnh báo những mã CHẮC CHẮN CÓ CÁ MẬP (Nếu bật True, chỉ báo các mã có Logo Cá Mập)
 STRICT_WHALE_ONLY = False
 
+# Ngưỡng độ tin cậy tối thiểu để bắn cảnh báo về Telegram (%)
+# CHỈ GỬI TÍN HIỆU TỪ 90% TRỞ LÊN (Lọc sạch 100% tín hiệu trung bình)
+MIN_ALERT_WINRATE = 90.0
+
 # Giá trị giao dịch tối thiểu trong ngày (VNĐ) - Loại bỏ cổ phiếu rác, penny không thanh khoản
 MIN_TRADE_VALUE = 3_000_000_000   # 3 tỷ VNĐ trở lên
 

@@ -5,10 +5,10 @@ Module gửi tin nhắn cảnh báo tới Telegram (Định dạng ProMax đầy
 import requests
 import config
 
-def send_telegram_alert(signal_data: dict) -> bool:
+def send_telegram_alert(signal_data: dict, force: bool = False) -> bool:
     """
     Gửi cảnh báo phát hiện cổ phiếu có dòng tiền cá mập về Telegram
-    Bao gồm đầy đủ tỷ lệ % WinRate và % Lợi nhuận/Cắt lỗ như trên chỉ báo Pine Script
+    CHỈ GỬI KHI ĐỘ TIN CẬY AI ĐẠT TỪ 90% TRỞ LÊN (trừ khi force=True)
     """
     if not config.TELEGRAM_ENABLED:
         return False
@@ -17,6 +17,12 @@ def send_telegram_alert(signal_data: dict) -> bool:
     chat_id = config.TELEGRAM_CHAT_ID
     
     if not token or token == "YOUR_BOT_TOKEN_HERE":
+        return False
+
+    win_rate = signal_data.get('win_rate', 0.0)
+    
+    # BỘ LỌC NGHIÊM NGẶT: Chỉ gửi các tín hiệu đạt từ 90% trở lên
+    if not force and win_rate < config.MIN_ALERT_WINRATE:
         return False
 
     url = f"https://api.telegram.org/bot{token}/sendMessage"
