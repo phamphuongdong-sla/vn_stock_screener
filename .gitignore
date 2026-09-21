@@ -1,0 +1,16 @@
+# Môi trường ảo Python
+venv/
+.venv/
+env/
+
+# Python Cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# File tạm & Log lúc chạy
+bot.pid
+bot.log
+*.log
+.DS_Store
