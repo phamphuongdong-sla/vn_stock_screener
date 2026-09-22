@@ -28,16 +28,6 @@ def run_daemon():
     last_scan_time = 0
     last_update_id = 0
 
-    # Lấy update_id mới nhất trên Telegram để tránh nhận lại tin cũ
-    if config.TELEGRAM_ENABLED:
-        try:
-            r = requests.get(f"https://api.telegram.org/bot{config.TELEGRAM_BOT_TOKEN}/getUpdates", timeout=5)
-            updates = r.json().get("result", [])
-            if updates:
-                last_update_id = updates[-1]["update_id"]
-        except Exception as e:
-            log(f"[Cảnh báo] Không thể lấy update ban đầu từ Telegram: {e}")
-
     log("[*] Bot đã sẵn sàng chạy ngầm 24/7. Đang lắng nghe lệnh...")
 
     while True:
@@ -56,8 +46,8 @@ def run_daemon():
                             continue
                         
                         text = raw_text.upper()
-                        # Kiểm tra lệnh trợ giúp: /start, /help, /huongdan
-                        if text.startswith("/START") or text.startswith("/HELP") or text.startswith("/HUONGDAN"):
+                        # Kiểm tra lệnh trợ giúp: /start, /help, /huongdan (có hoặc không có dấu /)
+                        if text in ["/START", "/HELP", "/HUONGDAN", "START", "HELP", "HUONG DAN"] or text.startswith("/START") or text.startswith("/HELP") or text.startswith("/HUONGDAN"):
                             log(f"📖 Gửi hướng dẫn sử dụng tới Chat ID {chat_id}")
                             telegram_bot.send_welcome_help(str(chat_id))
                             continue
