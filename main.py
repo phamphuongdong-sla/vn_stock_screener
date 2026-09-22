@@ -30,7 +30,16 @@ def is_trading_hour() -> bool:
 
     return (t_0900 <= current_time <= t_1130) or (t_1300 <= current_time <= t_1500)
 
+alerted_stocks_today = set()
+last_alert_date = ""
+
 def display_and_notify_results(signals: list):
+    global alerted_stocks_today, last_alert_date
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    if today_str != last_alert_date:
+        alerted_stocks_today.clear()
+        last_alert_date = today_str
+
     if not signals:
         print("ℹ️ Hiện tại không tìm thấy mã nào thỏa mãn điều kiện Cá Mập.")
         return
@@ -61,18 +70,22 @@ def display_and_notify_results(signals: list):
 
     # Gửi thông báo Telegram nếu được kích hoạt
     if config.TELEGRAM_ENABLED:
-        print(f"\n[*] Đang lọc và gửi các tín hiệu đạt từ {config.MIN_ALERT_WINRATE:.0f}% trở lên tới Telegram...")
+        print(f"\n[*] Đang lọc và gửi các tín hiệu mới đạt từ {config.MIN_ALERT_WINRATE:.0f}% trở lên tới Telegram...")
         alerted_count = 0
         for s in signals:
+            sym = s.get('symbol')
+            if sym in alerted_stocks_today:
+                continue
             if s.get('win_rate', 0) >= config.MIN_ALERT_WINRATE:
                 sent = send_telegram_alert(s)
                 if sent:
+                    alerted_stocks_today.add(sym)
                     alerted_count += 1
                     status = "🐋 CÁ MẬP" if s['is_whale'] else "Tiêu chuẩn"
                     print(f" -> [ĐẠT {s.get('win_rate', 0):.0f}%] Đã gửi cảnh báo mã {s['symbol']} ({status}) tới Telegram.")
                 time.sleep(0.5)
         if alerted_count == 0:
-            print(f" -> Không có mã nào đạt ngưỡng >= {config.MIN_ALERT_WINRATE:.0f}%, đã bỏ qua để bảo đảm chất lượng tín hiệu.")
+            print(f" -> Không có tín hiệu MỚI nào cần gửi (đã gửi trước đó hoặc chưa đạt ngưỡng {config.MIN_ALERT_WINRATE:.0f}%).")
 
 def main():
     print(r"""
