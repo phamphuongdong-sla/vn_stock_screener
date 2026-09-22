@@ -1,0 +1,394 @@
+//@version=5
+indicator("AI Cá Mập ProMax (VNĐ)", shorttitle="AI Whale ProMax", overlay=true, max_labels_count=500, max_lines_count=500)
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  THƯ VIỆN BỔ TRỢ (LORENTZIAN ML)                              ║
+// ╚══════════════════════════════════════════════════════════════╝
+import jdehorty/MLExtensions/2 as ml
+import jdehorty/KernelFunctions/2 as kernels
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  1. CÀI ĐẶT THAM SỐ (INPUTS)                                  ║
+// ╚══════════════════════════════════════════════════════════════╝
+grpUI         = "🎨 Giao Diện & Tiền Tệ (UX/UI ProMax)"
+kieuTienTe    = input.string("VNĐ (Việt Nam)", "Định dạng giá", options=["VNĐ (Việt Nam)", "Số thập phân"], group=grpUI)
+hienDashboard = input.bool(true, "Hiển thị Bảng HUD Dashboard", group=grpUI)
+coHienNen     = input.bool(true, "Tô nền phát sáng khi có tín hiệu", group=grpUI)
+
+grpWhale      = "🐋 Tiêu Chuẩn Cá Mập (Smart Money)"
+heSoVolChuan  = input.float(1.5, "Ngưỡng bùng nổ Vol Cá Mập (x MA20)", minval=1.2, step=0.1, group=grpWhale)
+nguongTinCay  = input.float(75.0, "Độ tin cậy AI tối thiểu (%)", minval=60.0, maxval=95.0, step=5.0, group=grpWhale)
+
+grpRM         = "⚙️ Quản Lý Lợi Nhuận / Rủi Ro (TP/SL)"
+rrTp1         = input.float(1.0, "Mục tiêu TP1 (R:R)", minval=0.5, step=0.1, group=grpRM)
+rrTp2         = input.float(2.0, "Mục tiêu TP2 (R:R)", minval=1.0, step=0.1, group=grpRM)
+rrTp3         = input.float(3.0, "Mục tiêu TP3 (R:R)", minval=1.5, step=0.1, group=grpRM)
+lookbackSwing = input.int(10, "Chu kỳ đáy/đỉnh cắt lỗ", minval=5, group=grpRM)
+
+grpCore       = "📈 Hệ Thống Xu Hướng & AI"
+chuKyATR_ST   = input.int(10, "SuperTrend: Chu kỳ ATR", minval=1, group=grpCore)
+heSoNhan_ST   = input.float(3.0, "SuperTrend: Hệ số", minval=0.1, step=0.5, group=grpCore)
+neighborsCount= input.int(8, "Lorentzian: Hàng xóm (K)", minval=1, group=grpCore)
+maxBarsBack   = input.int(1000, "Lorentzian: Dữ liệu học", group=grpCore)
+h             = input.int(8, "Kernel: Lookback (H)", minval=3, group=grpCore)
+r             = input.float(8.0, "Kernel: Trọng số (R)", step=0.25, group=grpCore)
+x             = input.int(25, "Kernel: Cấp độ (X)", minval=2, group=grpCore)
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  2. HÀM ĐỊNH DẠNG TIỀN VIỆT NAM CHUẨN (VND FORMATTER)         ║
+// ╚══════════════════════════════════════════════════════════════╝
+f_vnd(float val) =>
+    if kieuTienTe == "VNĐ (Việt Nam)"
+        // Biểu đồ VN thường thể hiện theo nghìn đồng (ví dụ 25.4 là 25.400 đ)
+        float v = val < 1000 ? val * 1000 : val
+        int trieu = int(v / 1000000)
+        int nghin = int(math.floor(v % 1000000) / 1000)
+        int dong  = int(math.floor(v % 1000))
+        string res = ""
+        if trieu > 0
+            res := str.tostring(trieu) + "." + str.format("{0,number,000}", nghin) + "." + str.format("{0,number,000}", dong) + " đ"
+        else if nghin > 0
+            res := str.tostring(nghin) + "." + str.format("{0,number,000}", dong) + " đ"
+        else
+            res := str.tostring(int(v)) + " đ"
+        res
+    else
+        str.tostring(val, "#.##")
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  3. SUPERTREND & ICHIMOKU (CHẠY NGẦM)                         ║
+// ╚══════════════════════════════════════════════════════════════╝
+atrST = ta.atr(chuKyATR_ST)
+var float bienTren  = hl2
+var float bienDuoi  = hl2
+var int   xuHuongST = 1
+
+mucTren = hl2 + atrST * heSoNhan_ST
+mucDuoi = hl2 - atrST * heSoNhan_ST
+
+bienTren := close[1] < bienTren ? math.min(mucTren, bienTren) : mucTren
+bienDuoi := close[1] > bienDuoi ? math.max(mucDuoi, bienDuoi) : bienDuoi
+xuHuongST := close > bienTren ? 1 : close < bienDuoi ? -1 : nz(xuHuongST[1])
+
+donchian(len) => math.avg(ta.lowest(len), ta.highest(len))
+conversionLine = donchian(8)
+baseLine       = donchian(13)
+leadLine1      = math.avg(conversionLine, baseLine)
+leadLine2      = donchian(26)
+
+var int mtrend = 0
+var int trend  = 0
+CloudMin = math.min(leadLine1[12], leadLine2[12])
+CloudMax = math.max(leadLine1[12], leadLine2[12])
+mtrend  := close > CloudMax ? 1 : close < CloudMin ? -1 : mtrend
+Oscline = mtrend == 1 ? (close - CloudMin) : (close - CloudMax)
+Lagging = Oscline + (mtrend == 1 ? math.max(close - CloudMax[12], 0) : math.min(close - CloudMin[12], 0))
+
+tole = ta.atr(9) * 2.0
+if mtrend == 1
+    trend := mtrend[1] == -1 ? 0 : trend
+    if trend < 4 and close > CloudMax
+        trend := (Lagging > Oscline ? 1 : 0) + (conversionLine >= baseLine and (ta.change(conversionLine) > 0 or ta.change(baseLine) > 0) ? 1 : 0) + (leadLine1 >= leadLine2 ? 1 : 0) + 1
+    else
+        trend := conversionLine < baseLine - tole ? 0 : trend
+else if mtrend == -1
+    trend := mtrend[1] == 1 ? 0 : trend
+    if trend > -4 and close < CloudMin
+        trend := (Lagging < Oscline ? -1 : 0) - (conversionLine <= baseLine and (ta.change(conversionLine) < 0 or ta.change(baseLine) < 0) ? 1 : 0) - (leadLine1 <= leadLine2 ? 1 : 0) - 1
+    else
+        trend := conversionLine > baseLine + tole ? 0 : trend
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  4. AI LORENTZIAN KNN & HỒI QUY KERNEL                        ║
+// ╚══════════════════════════════════════════════════════════════╝
+type FeatureSeries
+    float f1
+    float f2
+    float f3
+    float f4
+    float f5
+
+series_from(f_str, _c, _h, _l, _hlc3, pA, pB) =>
+    switch f_str
+        "RSI" => ml.n_rsi(_c, pA, pB)
+        "WT"  => ml.n_wt(_hlc3, pA, pB)
+        "CCI" => ml.n_cci(_c, pA, pB)
+        "ADX" => ml.n_adx(_h, _l, _c, pA)
+
+fs1 = series_from("RSI", close, high, low, hlc3, 14, 1)
+fs2 = series_from("WT",  close, high, low, hlc3, 10, 11)
+fs3 = series_from("CCI", close, high, low, hlc3, 20, 1)
+fs4 = series_from("ADX", close, high, low, hlc3, 20, 2)
+fs5 = series_from("RSI", close, high, low, hlc3, 9, 1)
+featureSeries = FeatureSeries.new(fs1, fs2, fs3, fs4, fs5)
+
+var f1Array = array.new_float()
+var f2Array = array.new_float()
+var f3Array = array.new_float()
+var f4Array = array.new_float()
+var f5Array = array.new_float()
+
+array.push(f1Array, featureSeries.f1)
+array.push(f2Array, featureSeries.f2)
+array.push(f3Array, featureSeries.f3)
+array.push(f4Array, featureSeries.f4)
+array.push(f5Array, featureSeries.f5)
+
+y_train = close[4] < close[0] ? -1 : close[4] > close[0] ? 1 : 0
+var y_array = array.new_int(0)
+array.push(y_array, y_train)
+
+get_dist(int i, FeatureSeries fS) =>
+    d1 = math.log(1 + math.abs(fS.f1 - array.get(f1Array, i)))
+    d2 = math.log(1 + math.abs(fS.f2 - array.get(f2Array, i)))
+    d3 = math.log(1 + math.abs(fS.f3 - array.get(f3Array, i)))
+    d4 = math.log(1 + math.abs(fS.f4 - array.get(f4Array, i)))
+    d5 = math.log(1 + math.abs(fS.f5 - array.get(f5Array, i)))
+    d1 + d2 + d3 + d4 + d5
+
+var distances   = array.new_float(0)
+var predictions = array.new_float(0)
+array.clear(distances)
+array.clear(predictions)
+
+float lastDistance = -1.0
+int   startIndex   = math.max(0, bar_index - maxBarsBack)
+int   sizeLoop     = math.max(0, bar_index - 1)
+
+if sizeLoop > startIndex
+    for i = startIndex to sizeLoop
+        d = get_dist(i, featureSeries)
+        if d >= lastDistance and i % 4 != 0
+            lastDistance := d
+            array.push(distances, d)
+            array.push(predictions, math.round(array.get(y_array, i)))
+            if array.size(predictions) > neighborsCount
+                lastDistance := array.get(distances, math.round(neighborsCount * 3 / 4))
+                array.shift(distances)
+                array.shift(predictions)
+
+float prediction = array.size(predictions) > 0 ? array.sum(predictions) : 0.0
+
+yhat1           = kernels.rationalQuadratic(close, h, r, x)
+kernelCrossUp   = ta.crossover(yhat1, yhat1[1])
+kernelCrossDown = ta.crossunder(yhat1, yhat1[1])
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  5. XÁC NHẬN DẤU CHÂN CÁ MẬP (SMART MONEY FOOTPRINT)          ║
+// ╚══════════════════════════════════════════════════════════════╝
+volMa20      = ta.sma(volume, 20)
+isUltraVol   = volume >= (volMa20 * heSoVolChuan) or volume >= ta.highest(volume[1], 15)
+
+chieuDaiNen  = high - low
+rauDuoi      = math.min(open, close) - low
+rauTren      = high - math.max(open, close)
+thanNen      = math.abs(close - open)
+
+isHanhViMua  = chieuDaiNen > 0 and ((rauDuoi / chieuDaiNen >= 0.40) or (thanNen / chieuDaiNen >= 0.65 and close > open))
+isHanhViBan  = chieuDaiNen > 0 and ((rauTren / chieuDaiNen >= 0.40) or (thanNen / chieuDaiNen >= 0.65 and close < open))
+
+var float recentSwingLow  = na
+var float recentSwingHigh = na
+pl = ta.pivotlow(lookbackSwing, lookbackSwing)
+ph = ta.pivothigh(lookbackSwing, lookbackSwing)
+if pl
+    recentSwingLow := pl
+if ph
+    recentSwingHigh := ph
+
+// Tín hiệu kích hoạt
+buyCondition  = (trend == 4)  and (prediction > 0) and kernelCrossUp   and (xuHuongST == 1)
+sellCondition = (trend == -4) and (prediction < 0) and kernelCrossDown and (xuHuongST == -1)
+
+atrRM = ta.atr(14)
+var bool  dangGiuMua = false
+var float entryMua = na
+var float slMua = na
+var float tp1Mua = na
+var float tp2Mua = na
+var float tp3Mua = na
+var bool  daTP1Mua = false
+var bool  daTP2Mua = false
+var bool  daTP3Mua = false
+
+var bool  dangGiuBan = false
+var float entryBan = na
+var float slBan = na
+var float tp1Ban = na
+var float tp2Ban = na
+var float tp3Ban = na
+var bool  daTP1Ban = false
+var bool  daTP2Ban = false
+var bool  daTP3Ban = false
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  6. HIỂN THỊ THẺ CARD PROMAX (CARD TYPOGRAPHY)               ║
+// ╚══════════════════════════════════════════════════════════════╝
+// Mua
+if buyCondition
+    winRate = ((neighborsCount + math.abs(prediction)) / (2 * neighborsCount)) * 100
+    slPrice = not na(recentSwingLow) and recentSwingLow < close ? recentSwingLow : close - (atrRM * 1.5)
+    entryPrice = close
+    risk       = entryPrice - slPrice
+    tp1Price   = entryPrice + (risk * rrTp1)
+    tp2Price   = entryPrice + (risk * rrTp2)
+    tp3Price   = entryPrice + (risk * rrTp3)
+
+    chacChanCaMap = isUltraVol and isHanhViMua and (winRate >= nguongTinCay)
+
+    // Nội dung Thẻ Card ProMax
+    tieuDe = chacChanCaMap ? "🐋 CÁ MẬP MUA" : "🚀 MUA VÀO"
+    cardText = tieuDe + " [" + str.tostring(winRate, "#") + "%]\n" +
+               "─────────────────\n" +
+               "💰 Vào: " + f_vnd(entryPrice) + "\n" +
+               "🎯 TP1: " + f_vnd(tp1Price)   + " (+1R)\n" +
+               "🎯 TP2: " + f_vnd(tp2Price)   + " (+2R)\n" +
+               "🎯 TP3: " + f_vnd(tp3Price)   + " (+3R)\n" +
+               "🛑 SL : " + f_vnd(slPrice)     + " (-1R)"
+
+    mauCard = chacChanCaMap ? color.rgb(15, 45, 80) : color.rgb(6, 78, 59)
+    label.new(bar_index, low - atrRM, cardText, style=label.style_label_up, color=mauCard, textcolor=color.white, size=size.normal)
+
+    // Huy hiệu Cá Mập Vàng Kim riêng biệt
+    if chacChanCaMap
+        label.new(bar_index, low - (atrRM * 2.2), "🐋 CÁ MẬP", style=label.style_label_up, color=color.rgb(255, 184, 0), textcolor=color.rgb(20, 20, 20), size=size.small)
+
+    // Kẻ các đường mục tiêu có độ mờ thanh lịch
+    line.new(bar_index, tp3Price, bar_index + 12, tp3Price, color=color.new(color.teal, 0),  width=2, style=line.style_solid)
+    line.new(bar_index, tp2Price, bar_index + 12, tp2Price, color=color.new(color.teal, 30), width=2, style=line.style_dashed)
+    line.new(bar_index, tp1Price, bar_index + 12, tp1Price, color=color.new(color.teal, 60), width=2, style=line.style_dotted)
+    line.new(bar_index, slPrice,  bar_index + 12, slPrice,  color=color.new(color.red, 10),  width=2, style=line.style_solid)
+
+    dangGiuMua := true
+    entryMua := entryPrice
+    slMua := slPrice
+    tp1Mua := tp1Price
+    tp2Mua := tp2Price
+    tp3Mua := tp3Price
+    daTP1Mua := false
+    daTP2Mua := false
+    daTP3Mua := false
+    dangGiuBan := false
+
+// Bán
+if sellCondition
+    winRate = ((neighborsCount + math.abs(prediction)) / (2 * neighborsCount)) * 100
+    slPrice = not na(recentSwingHigh) and recentSwingHigh > close ? recentSwingHigh : close + (atrRM * 1.5)
+    entryPrice = close
+    risk       = slPrice - entryPrice
+    tp1Price   = entryPrice - (risk * rrTp1)
+    tp2Price   = entryPrice - (risk * rrTp2)
+    tp3Price   = entryPrice - (risk * rrTp3)
+
+    chacChanCaMap = isUltraVol and isHanhViBan and (winRate >= nguongTinCay)
+
+    tieuDe = chacChanCaMap ? "🐋 CÁ MẬP BÁN" : "🔻 BÁN RA"
+    cardText = tieuDe + " [" + str.tostring(winRate, "#") + "%]\n" +
+               "─────────────────\n" +
+               "💰 Vào: " + f_vnd(entryPrice) + "\n" +
+               "🎯 TP1: " + f_vnd(tp1Price)   + " (+1R)\n" +
+               "🎯 TP2: " + f_vnd(tp2Price)   + " (+2R)\n" +
+               "🎯 TP3: " + f_vnd(tp3Price)   + " (+3R)\n" +
+               "🛑 SL : " + f_vnd(slPrice)     + " (-1R)"
+
+    mauCard = chacChanCaMap ? color.rgb(80, 15, 25) : color.rgb(127, 29, 29)
+    label.new(bar_index, high + atrRM, cardText, style=label.style_label_down, color=mauCard, textcolor=color.white, size=size.normal)
+
+    if chacChanCaMap
+        label.new(bar_index, high + (atrRM * 2.2), "🐋 CÁ MẬP", style=label.style_label_down, color=color.rgb(255, 184, 0), textcolor=color.rgb(20, 20, 20), size=size.small)
+
+    line.new(bar_index, tp3Price, bar_index + 12, tp3Price, color=color.new(color.teal, 0),  width=2, style=line.style_solid)
+    line.new(bar_index, tp2Price, bar_index + 12, tp2Price, color=color.new(color.teal, 30), width=2, style=line.style_dashed)
+    line.new(bar_index, tp1Price, bar_index + 12, tp1Price, color=color.new(color.teal, 60), width=2, style=line.style_dotted)
+    line.new(bar_index, slPrice,  bar_index + 12, slPrice,  color=color.new(color.red, 10),  width=2, style=line.style_solid)
+
+    dangGiuBan := true
+    entryBan := entryPrice
+    slBan := slPrice
+    tp1Ban := tp1Price
+    tp2Ban := tp2Price
+    tp3Ban := tp3Price
+    daTP1Ban := false
+    daTP2Ban := false
+    daTP3Ban := false
+    dangGiuMua := false
+
+// Tô nền nhẹ nhàng không lóa mắt
+bgcolor(coHienNen and buyCondition  ? color.new(color.teal, 88) : na)
+bgcolor(coHienNen and sellCondition ? color.new(color.maroon, 88) : na)
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  7. QUẢN LÝ LỆNH: CHỐT LỜI / CẮT LỖ                           ║
+// ╚══════════════════════════════════════════════════════════════╝
+chamTP1Mua = dangGiuMua and not daTP1Mua and high >= tp1Mua
+chamTP2Mua = dangGiuMua and not daTP2Mua and high >= tp2Mua
+chamTP3Mua = dangGiuMua and not daTP3Mua and high >= tp3Mua
+chamSLMua  = dangGiuMua and low <= slMua
+
+if chamTP1Mua
+    daTP1Mua := true
+    label.new(bar_index, tp1Mua, "✅ TP1: " + f_vnd(tp1Mua), style=label.style_label_left, color=color.rgb(13, 148, 136), textcolor=color.white, size=size.small)
+if chamTP2Mua
+    daTP2Mua := true
+    label.new(bar_index, tp2Mua, "✅ TP2: " + f_vnd(tp2Mua), style=label.style_label_left, color=color.rgb(13, 148, 136), textcolor=color.white, size=size.small)
+if chamTP3Mua
+    daTP3Mua := true
+    dangGiuMua := false
+    label.new(bar_index, tp3Mua, "🏁 TP3 HOÀN TẤT (" + f_vnd(tp3Mua) + ")", style=label.style_label_left, color=color.rgb(5, 150, 105), textcolor=color.white, size=size.small)
+if chamSLMua
+    dangGiuMua := false
+    label.new(bar_index, slMua, "🛑 DÍNH SL: " + f_vnd(slMua), style=label.style_label_left, color=color.rgb(220, 38, 38), textcolor=color.white, size=size.small)
+
+chamTP1Ban = dangGiuBan and not daTP1Ban and low <= tp1Ban
+chamTP2Ban = dangGiuBan and not daTP2Ban and low <= tp2Ban
+chamTP3Ban = dangGiuBan and not daTP3Ban and low <= tp3Ban
+chamSLBan  = dangGiuBan and high >= slBan
+
+if chamTP1Ban
+    daTP1Ban := true
+    label.new(bar_index, tp1Ban, "✅ TP1: " + f_vnd(tp1Ban), style=label.style_label_left, color=color.rgb(190, 24, 93), textcolor=color.white, size=size.small)
+if chamTP2Ban
+    daTP2Ban := true
+    label.new(bar_index, tp2Ban, "✅ TP2: " + f_vnd(tp2Ban), style=label.style_label_left, color=color.rgb(190, 24, 93), textcolor=color.white, size=size.small)
+if chamTP3Ban
+    daTP3Ban := true
+    dangGiuBan := false
+    label.new(bar_index, tp3Ban, "🏁 TP3 HOÀN TẤT (" + f_vnd(tp3Ban) + ")", style=label.style_label_left, color=color.rgb(190, 24, 93), textcolor=color.white, size=size.small)
+if chamSLBan
+    dangGiuBan := false
+    label.new(bar_index, slBan, "🛑 DÍNH SL: " + f_vnd(slBan), style=label.style_label_left, color=color.rgb(220, 38, 38), textcolor=color.white, size=size.small)
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  8. BẢNG HUD DASHBOARD THỜI GIAN THỰC (GÓC MÀN HÌNH)          ║
+// ╚══════════════════════════════════════════════════════════════╝
+var table hudTable = table.new(position.top_right, 2, 4, bgcolor=color.new(color.rgb(15, 23, 42), 15), border_color=color.rgb(51, 65, 85), border_width=1)
+
+if barstate.islast and hienDashboard
+    // Header
+    table.cell(hudTable, 0, 0, "AI WHALE PROMAX", bgcolor=color.rgb(30, 41, 59), text_color=color.rgb(255, 184, 0), text_size=size.small)
+    table.cell(hudTable, 1, 0, syminfo.ticker + " — " + f_vnd(close), bgcolor=color.rgb(30, 41, 59), text_color=color.white, text_size=size.small)
+    
+    // Xu hướng
+    string strTrend = trend == 4 ? "TĂNG MẠNH 🟢" : trend == -4 ? "GIẢM MẠNH 🔴" : "SIDEWAY ⚪"
+    table.cell(hudTable, 0, 1, "Xu Hướng", text_color=color.rgb(148, 163, 184), text_size=size.small)
+    table.cell(hudTable, 1, 1, strTrend, text_color=color.white, text_size=size.small)
+    
+    // Dòng tiền
+    string strWhale = isUltraVol ? "🐋 CÁ MẬP VÀO" : "Bình Thường 📊"
+    table.cell(hudTable, 0, 2, "Dòng Tiền", text_color=color.rgb(148, 163, 184), text_size=size.small)
+    table.cell(hudTable, 1, 2, strWhale, text_color=isUltraVol ? color.rgb(255, 184, 0) : color.white, text_size=size.small)
+
+    // Trạng thái lệnh
+    string strTrangThai = dangGiuMua ? "MUA: " + f_vnd(entryMua) + " (SL: " + f_vnd(slMua) + ")" : dangGiuBan ? "BÁN: " + f_vnd(entryBan) + " (SL: " + f_vnd(slBan) + ")" : "Đang Chờ... ⏸"
+    table.cell(hudTable, 0, 3, "Lệnh Mở", text_color=color.rgb(148, 163, 184), text_size=size.small)
+    table.cell(hudTable, 1, 3, strTrangThai, text_color=dangGiuMua ? color.rgb(52, 211, 153) : dangGiuBan ? color.rgb(248, 113, 113) : color.rgb(148, 163, 184), text_size=size.small)
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  9. CẢNH BÁO (ALERTS)                                         ║
+// ╚══════════════════════════════════════════════════════════════╝
+alertcondition(buyCondition,  title="Lệnh MUA",  message="Tín hiệu MUA tại {{ticker}} (Giá: {{close}})")
+alertcondition(sellCondition, title="Lệnh BÁN",  message="🔻 Tín hiệu BÁN tại {{ticker}} (Giá: {{close}})")
+alertcondition(chamTP1Mua or chamTP1Ban, title="Chạm TP1", message="✅ Đã chạm TP1 tại {{ticker}}")
+alertcondition(chamTP2Mua or chamTP2Ban, title="Chạm TP2", message="✅ Đã chạm TP2 tại {{ticker}}")
+alertcondition(chamTP3Mua or chamTP3Ban, title="Chạm TP3", message="🏁 Đã chạm TP3 tại {{ticker}} — Chốt toàn bộ!")
+alertcondition(chamSLMua or chamSLBan,   title="Dính SL",  message="🛑 Đã dính Cắt Lỗ (SL) tại {{ticker}}")
