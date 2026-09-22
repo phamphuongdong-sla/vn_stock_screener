@@ -92,7 +92,12 @@ def check_single_stock(symbol: str, send_telegram: bool = True, target_chat_id: 
             recommendation = "Đang xu hướng Giảm 🔴 hoặc Dưới Mây Ichimoku. Chưa đạt tiêu chí chỉ báo, đứng ngoài quan sát."
             whale_badge = "🛑 [CHƯA CÓ ĐIỂM MUA]"
             pattern = "Chưa có dòng tiền vào (Đang điều chỉnh / tích lũy)"
-            win_rate = 60.0
+        elapsed_mins = screener.get_elapsed_trading_minutes()
+        if elapsed_mins < 270 and vol > 0:
+            projected_vol = (vol / elapsed_mins) * 270.0
+        else:
+            projected_vol = vol
+        projected_vol_ratio = projected_vol / vol_ma20 if vol_ma20 > 0 else 0.0
 
         res = {
             "symbol": symbol,
@@ -103,6 +108,8 @@ def check_single_stock(symbol: str, send_telegram: bool = True, target_chat_id: 
             "volume": vol,
             "vol_ma20": vol_ma20,
             "vol_ratio": vol_ratio,
+            "projected_vol": projected_vol,
+            "projected_vol_ratio": projected_vol_ratio,
             "trade_value_bil": (close * 1000 * vol if close < 1000 else close * vol) / 1e9,
             "is_whale": is_whale,
             "whale_badge": whale_badge,

@@ -69,11 +69,13 @@ def send_telegram_alert(signal_data: dict, force: bool = False, target_chat_id: 
     symbol = signal_data.get('symbol', 'N/A')
     exchange = signal_data.get('exchange', 'HOSE')
     price_vnd = signal_data.get('price_vnd', '0 đ')
-    change_pct = signal_data.get('change_pct', 0)
-    vol_ratio = signal_data.get('vol_ratio', 0)
-    trade_val_bil = signal_data.get('trade_value_bil', 0)
+    change_pct = signal_data.get('change_pct', 0.0)
+    vol_ratio = signal_data.get('vol_ratio', 0.0)
+    projected_vol_ratio = signal_data.get('projected_vol_ratio', vol_ratio)
+    trade_val_bil = signal_data.get('trade_value_bil', 0.0)
     pattern = signal_data.get('pattern', '')
     is_whale = signal_data.get('is_whale', False)
+    is_at_ceiling = signal_data.get('is_at_ceiling', False)
     supertrend = signal_data.get('supertrend', 'N/A')
     cloud_status = signal_data.get('cloud_status', 'N/A')
     candle_date = signal_data.get('candle_date', '')
@@ -81,48 +83,60 @@ def send_telegram_alert(signal_data: dict, force: bool = False, target_chat_id: 
     recommendation = signal_data.get('recommendation', '')
     
     sl_vnd = signal_data.get('sl_vnd', '0 đ')
-    sl_pct = signal_data.get('sl_pct', 0)
+    sl_pct = signal_data.get('sl_pct', 0.0)
     tp1_vnd = signal_data.get('tp1_vnd', '0 đ')
-    tp1_pct = signal_data.get('tp1_pct', 0)
+    tp1_pct = signal_data.get('tp1_pct', 0.0)
     tp2_vnd = signal_data.get('tp2_vnd', '0 đ')
-    tp2_pct = signal_data.get('tp2_pct', 0)
+    tp2_pct = signal_data.get('tp2_pct', 0.0)
     tp3_vnd = signal_data.get('tp3_vnd', '0 đ')
-    tp3_pct = signal_data.get('tp3_pct', 0)
+    tp3_pct = signal_data.get('tp3_pct', 0.0)
 
     icon_change = "🟢" if change_pct >= 0 else "🔴"
     clean_pattern = pattern.replace("🐋 CÁ MẬP ", "").replace("Tín hiệu ", "")
 
-    time_str = f"⏰ Cập nhật: `{updated_time}` (Nến `{candle_date}`)" if candle_date else f"⏰ Cập nhật: `{updated_time}`"
+    time_str = f"`{updated_time}` (Nến `{candle_date}`)" if candle_date else f"`{updated_time}`"
+    
+    vol_str = f"`{vol_ratio:.1f}x` MA20"
+    if projected_vol_ratio > vol_ratio and projected_vol_ratio >= 1.2:
+        vol_str += f" (Dự phóng: `{projected_vol_ratio:.1f}x`)"
+
+    ceiling_line = "\n⚠️ *CẢNH BÁO:* _Giá đã sát trần! Không mua đuổi (FOMO)._\n" if is_at_ceiling else ""
 
     if has_buy_signal:
-        if is_whale:
-            header = f"🔥🐋 *{symbol}* — CÓ ĐIỂM MUA CÁ MẬP `[{win_rate:.0f}%]`\n{time_str}"
-            signal_tag = "Cá Mập gom hàng (Quét thanh khoản)"
-        else:
-            header = f"🔥🚀 *{symbol}* — CÓ ĐIỂM MUA BỨT PHÁ (SOS) `[{win_rate:.0f}%]`\n{time_str}"
-            signal_tag = "Bứt phá SOS / Vượt cản"
-
+        badge_name = "🐋👑 CÁ MẬP GOM HÀNG" if is_whale else "🚀 BỨT PHÁ (SOS BREAKOUT)"
         message = (
-            f"{header}\n\n"
-            f"💵 *Vào (Entry):* `{price_vnd}` ({icon_change} `{change_pct:+.2f}%`)\n"
-            f"📊 *Vol:* `{vol_ratio:.1f}x` MA20 • *GTGD:* `{trade_val_bil:,.0f} Tỷ`\n"
-            f"⚡️ *Tín hiệu:* {signal_tag}\n"
-            f"📈 *Chỉ báo:* SuperTrend {supertrend} • {cloud_status}\n\n"
-            f"🎯 *TP1:* `{tp1_vnd}` (`{tp1_pct:+.1f}%`)\n"
-            f"🎯 *TP2:* `{tp2_vnd}` (`{tp2_pct:+.1f}%`)\n"
-            f"🎯 *TP3:* `{tp3_vnd}` (`{tp3_pct:+.1f}%`)\n"
-            f"🛑 *SL:*  `{sl_vnd}` (`{sl_pct:+.1f}%`)"
+            f"🔥 *{symbol}* — CÓ ĐIỂM MUA THEO CHỈ BÁO `[{win_rate:.0f}%]`\n"
+            f"━━━━━━━━━━━━━━━━━━━\n"
+            f"⏰ *Thời gian:* {time_str}\n"
+            f"🏢 *Sàn:* `{exchange}` • *Thị giá:* `{price_vnd}` ({icon_change} `{change_pct:+.2f}%`)\n\n"
+            f"📊 *Khối lượng:* {vol_str}\n"
+            f"💰 *Giá trị GD:* `{trade_val_bil:,.1f} Tỷ VNĐ`\n"
+            f"⚡️ *Dấu chân:* {badge_name}\n"
+            f"📈 *Hợp lưu:* SuperTrend {supertrend} • {cloud_status}{ceiling_line}\n"
+            f"───────────────────\n"
+            f"🎯 *KẾ HOẠCH GIAO DỊCH (R:R CHUẨN)*\n"
+            f"• 🎯 *TP1 (+1R):* `{tp1_vnd}` (`{tp1_pct:+.1f}%`) — _Dời SL hòa vốn_\n"
+            f"• 🎯 *TP2 (+2R):* `{tp2_vnd}` (`{tp2_pct:+.1f}%`) — _Mục tiêu chính_\n"
+            f"• 🎯 *TP3 (+3R):* `{tp3_vnd}` (`{tp3_pct:+.1f}%`) — _Gồng lãi tối đa_\n"
+            f"• 🛑 *SL:*       `{sl_vnd}` (`{sl_pct:+.1f}%`)\n"
+            f"━━━━━━━━━━━━━━━━━━━\n"
+            f"💡 _Quản trị rủi ro: Tối đa 2% NAV cho mỗi vị thế!_"
         )
     else:
-        header = f"⚪️ *{symbol}* — CHƯA CÓ ĐIỂM MUA `[{win_rate:.0f}%]`\n{time_str}"
         message = (
-            f"{header}\n\n"
-            f"💵 *Giá hiện tại:* `{price_vnd}` ({icon_change} `{change_pct:+.2f}%`)\n"
-            f"📊 *Vol:* `{vol_ratio:.1f}x` MA20 • *GTGD:* `{trade_val_bil:,.0f} Tỷ`\n"
+            f"⚪️ *{symbol}* — CHƯA CÓ ĐIỂM MUA `[{win_rate:.0f}%]`\n"
+            f"━━━━━━━━━━━━━━━━━━━\n"
+            f"⏰ *Thời gian:* {time_str}\n"
+            f"🏢 *Sàn:* `{exchange}` • *Thị giá:* `{price_vnd}` ({icon_change} `{change_pct:+.2f}%`)\n\n"
+            f"📊 *Khối lượng:* {vol_str}\n"
+            f"💰 *Giá trị GD:* `{trade_val_bil:,.1f} Tỷ VNĐ`\n"
             f"📈 *SuperTrend:* {supertrend}\n"
             f"☁️ *Mây Ichimoku:* {cloud_status}\n"
-            f"⚡️ *Dòng tiền:* {clean_pattern}\n\n"
-            f"👉 *Khuyến nghị:* {recommendation}"
+            f"⚡️ *Dòng tiền:* {clean_pattern}\n"
+            f"───────────────────\n"
+            f"👉 *Khuyến nghị:* {recommendation}\n"
+            f"━━━━━━━━━━━━━━━━━━━\n"
+            f"🔍 _Bot sẽ tự động cảnh báo khi mã kích hoạt điểm mua chuẩn!_"
         )
 
     payload = {

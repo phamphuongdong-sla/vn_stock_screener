@@ -9,6 +9,7 @@ Module quét và phân tích dữ liệu toàn bộ thị trường chứng kho�
 """
 
 import time
+from datetime import datetime
 import requests
 import pandas as pd
 import numpy as np
@@ -20,14 +21,58 @@ HEADERS = {
     "Accept": "application/json, text/plain, */*"
 }
 
-def format_vnd(val: float) -> str:
+def normalize_price_k(val) -> float:
     """
-    Định dạng giá tiền chuẩn Việt Nam: VD 25.4 -> 25.400 đ
+    Chuẩn hóa giá về đơn vị Nghìn VNĐ (đồng bộ với DNSE và hệ thống chỉ báo).
+    VD: 21100 -> 21.1, 21.1 -> 21.1
     """
-    if pd.isna(val) or val <= 0:
+    if pd.isna(val) or val is None:
+        return 0.0
+    try:
+        p = float(val)
+        if p >= 1000.0:
+            return p / 1000.0
+        return p
+    except Exception:
+        return 0.0
+
+def format_vnd(val) -> str:
+    """
+    Định dạng giá tiền chuẩn Việt Nam: VD 25.4 hoặc 25400 -> 25.400 đ
+    """
+    if pd.isna(val) or val is None or float(val) <= 0:
         return "0 đ"
-    v = val * 1000 if val < 1000 else val
+    v = float(val)
+    if v < 1000.0:
+        v = v * 1000.0
     return f"{int(round(v)):,} đ".replace(",", ".")
+
+def get_elapsed_trading_minutes(now_dt: Optional[datetime] = None) -> int:
+    """
+    Tính số phút giao dịch đã trôi qua trong ngày (Tổng 270 phút: Sáng 150p, Chiều 120p)
+    """
+    if now_dt is None:
+        now_dt = datetime.now()
+    if now_dt.weekday() > 4:
+        return 270
+    t = now_dt.time()
+    t_0900 = datetime.strptime("09:00", "%H:%M").time()
+    t_1130 = datetime.strptime("11:30", "%H:%M").time()
+    t_1300 = datetime.strptime("13:00", "%H:%M").time()
+    t_1500 = datetime.strptime("15:00", "%H:%M").time()
+
+    if t < t_0900:
+        return 270
+    elif t <= t_1130:
+        mins = (now_dt.hour - 9) * 60 + now_dt.minute
+        return max(15, mins)
+    elif t < t_1300:
+        return 150
+    elif t <= t_1500:
+        mins = 150 + (now_dt.hour - 13) * 60 + now_dt.minute
+        return max(165, mins)
+    else:
+        return 270
 
 def get_exchange_symbols_snapshot(exchange: str) -> List[Dict]:
     """
@@ -131,7 +176,7 @@ def calculate_indicators(df: pd.DataFrame):
 
 def analyze_stock(item: dict, exchange: str) -> Optional[Dict]:
     """
-    Phân tích cổ phiếu: Kết hợp cả SuperTrend + Ichimoku + Bộ lọc Cá mập
+    Phân tích cổ phiếu: Kết hợp cả SuperTrend + Ichimoku + Bộ lọc Cá mập + Ngoại suy khối lượng
     """
     symbol = item.get("stockSymbol") or item.get("ssi_symbol") or item.get("symbol")
     if not symbol or len(symbol) != 3 or not symbol.isalpha():
@@ -141,24 +186,39 @@ def analyze_stock(item: dict, exchange: str) -> Optional[Dict]:
     if df is None or len(df) < 35:
         return None
 
-    matched_price = item.get("matchedPrice", 0) or item.get("lastPrice", 0) or item.get("close", 0)
-    total_vol = item.get("totalVol", 0) or item.get("nmTotalTradedQty", 0)
+    raw_price = (
+        item.get("matchedPrice") or 
+        item.get("lastPrice") or 
+        item.get("expectedMatchedPrice") or 
+        item.get("close", 0)
+    )
+    raw_vol = (
+        item.get("totalVol") or 
+        item.get("nmTotalTradedQty") or 
+        item.get("expectedMatchedVolume", 0)
+    )
 
     # Nếu ngoài giờ giao dịch hoặc phiên chưa bắt đầu, tự động lấy nến phiên gần nhất
-    if matched_price <= 0 or total_vol <= 0:
+    if not raw_price or float(raw_price) <= 0 or not raw_vol or float(raw_vol) <= 0:
         matched_price = df['close'].iloc[-1]
-        total_vol = df['volume'].iloc[-1]
+        total_vol = float(df['volume'].iloc[-1])
         today_open = df['open'].iloc[-1]
         today_high = df['high'].iloc[-1]
         today_low = df['low'].iloc[-1]
-        change_pct = ((matched_price - df['close'].iloc[-2]) / df['close'].iloc[-2]) * 100 if len(df) >= 2 else 0
+        change_pct = ((matched_price - df['close'].iloc[-2]) / df['close'].iloc[-2]) * 100.0 if len(df) >= 2 else 0.0
     else:
-        today_open = item.get("open", 0) or df['open'].iloc[-1]
-        today_high = item.get("high", 0) or df['high'].iloc[-1]
-        today_low = item.get("low", 0) or df['low'].iloc[-1]
-        change_pct = item.get("changePercent", 0) or item.get("matchedPricePercent", 0) or 0
+        matched_price = normalize_price_k(raw_price)
+        total_vol = float(raw_vol)
+        today_open = normalize_price_k(item.get("open")) or df['open'].iloc[-1]
+        today_high = normalize_price_k(item.get("high")) or df['high'].iloc[-1]
+        today_low = normalize_price_k(item.get("low")) or df['low'].iloc[-1]
+        today_high = max(today_high, matched_price)
+        today_low = min(today_low, matched_price)
+        change_pct = float(item.get("changePercent") or item.get("matchedPricePercent") or item.get("expectedPriceChangePercent") or 0.0)
+        if change_pct == 0.0 and len(df) >= 2 and df['close'].iloc[-2] > 0:
+            change_pct = ((matched_price - df['close'].iloc[-2]) / df['close'].iloc[-2]) * 100.0
 
-    total_val = item.get("totalVal", 0) or (matched_price * 1000 * total_vol if matched_price < 1000 else matched_price * total_vol)
+    total_val = float(item.get("totalVal") or (matched_price * 1000.0 * total_vol))
 
     # Lọc thanh khoản tối thiểu (>= 3 tỷ VNĐ)
     if total_val < config.MIN_TRADE_VALUE:
@@ -167,11 +227,20 @@ def analyze_stock(item: dict, exchange: str) -> Optional[Dict]:
     # Tính toán toàn bộ chỉ báo
     calculate_indicators(df)
 
-    vol_ma20 = df['vol_ma20'].iloc[-1]
+    vol_ma20 = float(df['vol_ma20'].iloc[-1])
     if pd.isna(vol_ma20) or vol_ma20 <= 0:
         return None
 
-    vol_ratio = total_vol / vol_ma20
+    # Ngoại suy khối lượng cả ngày (Volume Projection)
+    elapsed_mins = get_elapsed_trading_minutes()
+    if elapsed_mins < 270 and total_vol > 0:
+        projected_vol = (total_vol / elapsed_mins) * 270.0
+    else:
+        projected_vol = total_vol
+
+    current_vol_ratio = total_vol / vol_ma20
+    projected_vol_ratio = projected_vol / vol_ma20
+    effective_vol_ratio = max(current_vol_ratio, projected_vol_ratio)
 
     # 1. KIỂM TRA ĐIỀU KIỆN SUPERTREND & ICHIMOKU
     is_supertrend_bull = df['supertrend'].iloc[-1] == 1
@@ -182,12 +251,11 @@ def analyze_stock(item: dict, exchange: str) -> Optional[Dict]:
     if not is_supertrend_bull and not is_above_cloud:
         return None
 
-    # Thông số nến ngày
-    today_open = item.get("open", 0) or df['open'].iloc[-1]
-    today_high = item.get("high", 0) or df['high'].iloc[-1]
-    today_low = item.get("low", 0) or df['low'].iloc[-1]
-    change_pct = item.get("changePercent", 0) or item.get("matchedPricePercent", 0) or 0
+    # Kiểm tra giá trần
+    ceiling_k = normalize_price_k(item.get("ceiling"))
+    is_at_ceiling = (ceiling_k > 0) and (matched_price >= ceiling_k * 0.998)
 
+    # Thông số nến ngày
     candle_range = today_high - today_low
     if candle_range <= 0:
         return None
@@ -200,26 +268,26 @@ def analyze_stock(item: dict, exchange: str) -> Optional[Dict]:
     # 2. XÁC NHẬN DẤU CHÂN CÁ MẬP (SMART MONEY)
     is_spring = lower_wick_ratio >= config.WHALE_LOWER_WICK_RATIO
     recent_high_15 = df['high'].tail(15).max()
-    is_sos_breakout = (matched_price >= recent_high_15 * 0.98) and (change_pct >= 2.0) and (body_ratio >= 0.60)
+    is_sos_breakout = (matched_price >= recent_high_15 * 0.98) and (change_pct >= 1.5) and (body_ratio >= 0.50)
     
-    # Volume siêu khủng (>= 1.5x MA20 hoặc cao nhất 15 phiên)
-    is_ultra_vol = (vol_ratio >= config.WHALE_VOLUME_RATIO) or (total_vol >= df['volume'].tail(15).max())
+    # Volume siêu khủng (khối lượng hiện tại hoặc dự phóng cả ngày >= 1.5x MA20)
+    is_ultra_vol = (effective_vol_ratio >= config.WHALE_VOLUME_RATIO) or (total_vol >= df['volume'].tail(15).max())
     is_confirmed_whale = is_ultra_vol and (is_spring or is_sos_breakout)
 
     if config.STRICT_WHALE_ONLY and not is_confirmed_whale:
         return None
 
     # Nếu không phải cá mập và cũng không có tín hiệu kỹ thuật thì bỏ qua
-    if not is_confirmed_whale and (vol_ratio < 1.1 or (lower_wick_ratio < 0.25 and not is_sos_breakout)):
+    if not is_confirmed_whale and (effective_vol_ratio < 1.1 or (lower_wick_ratio < 0.25 and not is_sos_breakout)):
         return None
 
     # Tên & Logo hiển thị
     if is_confirmed_whale:
         whale_badge = "🐋👑 [CÁ MẬP]"
-        pattern = "🐋 CÁ MẬP GOM HÀNG (Quét SL)" if is_spring else "🐋 CÁ MẬP ĐẨY GIÁ (SOS Breakout)"
+        pattern = "Cá Mập gom hàng (Quét thanh khoản)" if is_spring else "Cá Mập đẩy giá (Bứt phá SOS)"
     else:
         whale_badge = "📊 [TIÊU CHUẨN]"
-        pattern = "Tín hiệu hồi phục / Bứt phá"
+        pattern = "Bứt phá / Hồi phục kỹ thuật"
 
     # 3. TÍNH TOÁN TP1, TP2, TP3 VÀ STOP LOSS (THEO ĐÚNG PINE SCRIPT)
     recent_swing_low = df['low'].tail(10).min()
@@ -233,7 +301,6 @@ def analyze_stock(item: dict, exchange: str) -> Optional[Dict]:
     tp2 = matched_price + (risk * config.RR_TP2)
     tp3 = matched_price + (risk * config.RR_TP3)
 
-    # Tính tỷ lệ % lợi nhuận và cắt lỗ
     sl_pct = ((sl - matched_price) / matched_price) * 100
     tp1_pct = ((tp1 - matched_price) / matched_price) * 100
     tp2_pct = ((tp2 - matched_price) / matched_price) * 100
@@ -241,11 +308,10 @@ def analyze_stock(item: dict, exchange: str) -> Optional[Dict]:
 
     # Tính độ tin cậy AI (WinRate %) đồng bộ như chỉ báo Pine Script
     if is_confirmed_whale:
-        win_rate = min(94.0, max(78.0, 75.0 + (vol_ratio - 1.5) * 8.0 + (lower_wick_ratio - 0.40) * 25.0))
+        win_rate = min(94.0, max(78.0, 75.0 + (effective_vol_ratio - 1.5) * 8.0 + (lower_wick_ratio - 0.40) * 25.0))
     else:
-        win_rate = min(77.0, max(65.0, 62.0 + (vol_ratio - 1.0) * 8.0))
+        win_rate = min(77.0, max(65.0, 62.0 + (effective_vol_ratio - 1.0) * 8.0))
 
-    from datetime import datetime
     candle_ts = df['time'].iloc[-1] if 'time' in df.columns else None
     if candle_ts:
         candle_date = datetime.fromtimestamp(int(candle_ts)).strftime("%d/%m/%Y")
@@ -262,9 +328,12 @@ def analyze_stock(item: dict, exchange: str) -> Optional[Dict]:
         "change_pct": change_pct,
         "volume": total_vol,
         "vol_ma20": vol_ma20,
-        "vol_ratio": vol_ratio,
-        "trade_value_bil": total_val / 1_000_000_000,
+        "vol_ratio": current_vol_ratio,
+        "projected_vol": projected_vol,
+        "projected_vol_ratio": projected_vol_ratio,
+        "trade_value_bil": total_val / 1_000_000_000.0,
         "is_whale": is_confirmed_whale,
+        "is_at_ceiling": is_at_ceiling,
         "whale_badge": whale_badge,
         "pattern": pattern,
         "win_rate": win_rate,
@@ -293,28 +362,43 @@ def run_screener() -> List[Dict]:
     print(f"\n{'='*75}")
     print(f"🚀 BẮT ĐẦU QUÉT THỊ TRƯỜNG CHỨNG KHOÁN VIỆT NAM ({', '.join(config.EXCHANGES)})")
     print(f"[*] Hợp lưu: SuperTrend + Mây Ichimoku + Bộ Lọc Cá Mập Siêu Bùng Nổ")
+    print(f"[*] Kiến trúc: Lọc 2 tầng siêu tốc (2-Stage Pipeline) + Ngoại suy khối lượng")
     print(f"{'='*75}")
 
     for exchange in config.EXCHANGES:
         print(f"[*] Đang tải dữ liệu toàn sàn {exchange}...")
         items = get_exchange_symbols_snapshot(exchange)
-        print(f" -> Nhận được {len(items)} mã trên sàn {exchange}. Đang phân tích kỹ thuật...")
+        print(f" -> Nhận được {len(items)} mã trên sàn {exchange}.")
 
-        for idx, item in enumerate(items):
+        # TẦNG 1: LỌC NHANH TRÊN SNAPSHOT
+        candidates = []
+        for item in items:
+            sym = item.get("stockSymbol") or item.get("symbol")
+            if not sym or len(sym) != 3 or not sym.isalpha():
+                continue
+            p = normalize_price_k(item.get("matchedPrice") or item.get("lastPrice") or item.get("expectedMatchedPrice") or item.get("refPrice") or 0)
+            v = float(item.get("totalVol") or item.get("nmTotalTradedQty") or item.get("expectedMatchedVolume") or 0)
+            val = float(item.get("totalVal") or (p * 1000.0 * v))
+            
+            if val >= config.MIN_TRADE_VALUE or (val >= 1_000_000_000 and float(item.get("changePercent", 0) or 0) >= 1.0):
+                candidates.append(item)
+
+        print(f" -> Tầng 1 đã chọn {len(candidates)} mã tiềm năng (loại bỏ {len(items) - len(candidates)} mã thanh khoản yếu). Đang phân tích chuyên sâu...")
+
+        # TẦNG 2: PHÂN TÍCH CHUYÊN SÂU
+        for item in candidates:
             try:
                 result = analyze_stock(item, exchange)
                 if result:
                     if result["is_whale"]:
-                        print(f"  🐋👑 [CÁ MẬP] {result['symbol']} | Giá: {result['price_vnd']} ({result['change_pct']:+.2f}%) | Vol: {result['vol_ratio']:.1f}x MA20 | {result['pattern']}")
+                        print(f"  🐋👑 [CÁ MẬP] {result['symbol']} | Giá: {result['price_vnd']} ({result['change_pct']:+.2f}%) | Vol: {result['vol_ratio']:.1f}x MA20 (Dự phóng: {result['projected_vol_ratio']:.1f}x) | {result['pattern']}")
                     else:
                         print(f"  📊 [Chuẩn] {result['symbol']} | Giá: {result['price_vnd']} ({result['change_pct']:+.2f}%) | Vol: {result['vol_ratio']:.1f}x MA20")
                     signals.append(result)
             except Exception:
                 continue
-                
-    # Ưu tiên xếp các mã CÁ MẬP lên đầu
-    signals = sorted(signals, key=lambda x: (x["is_whale"], x["vol_ratio"]), reverse=True)
 
+    signals = sorted(signals, key=lambda x: (x["is_whale"], x["vol_ratio"]), reverse=True)
     print(f"{'='*75}")
     whale_count = sum(1 for s in signals if s["is_whale"])
     print(f"✅ HOÀN TẤT QUÉT! Tìm thấy {len(signals)} mã (Trong đó có {whale_count} mã XÁC NHẬN CÓ CÁ MẬP 🐋).")
