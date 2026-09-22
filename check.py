@@ -25,6 +25,13 @@ def check_single_stock(symbol: str, send_telegram: bool = True, target_chat_id: 
     df = screener.get_ticker_history(symbol, count=60)
     if df is None or len(df) < 30:
         print(f"❌ Không tìm thấy dữ liệu cho mã '{symbol}'. Vui lòng kiểm tra lại mã cổ phiếu!")
+        if send_telegram and target_chat_id:
+            try:
+                token = config.TELEGRAM_BOT_TOKEN
+                url = f"https://api.telegram.org/bot{token}/sendMessage"
+                requests.post(url, json={"chat_id": target_chat_id, "text": f"❌ Không tìm thấy dữ liệu cho mã *{symbol}*. Vui lòng kiểm tra lại mã cổ phiếu!", "parse_mode": "Markdown"}, timeout=5)
+            except Exception:
+                pass
         return None
 
     # Lấy dữ liệu thời gian thực từ bảng giá
@@ -126,16 +133,28 @@ def check_single_stock(symbol: str, send_telegram: bool = True, target_chat_id: 
             projected_vol_ratio = vol_ratio
 
         # HUD Dòng tiền chuẩn Pine Script
-        is_ultra_vol = (vol_ratio >= 1.3) or (elapsed_mins >= 45 and vol_ratio >= 0.7 and projected_vol_ratio >= 1.5)
+        highest_vol_15 = df_eval['volume'].iloc[-16:-1].max() if len(df_eval) >= 16 else df_eval['volume'].max()
+        effective_vol = max(vol, projected_vol)
+        is_ultra_vol = (vol >= vol_ma20 * config.WHALE_VOLUME_RATIO) or (vol >= highest_vol_15) or (effective_vol >= vol_ma20 * config.WHALE_VOLUME_RATIO)
         hud_money = "🐋 CÁ MẬP VÀO" if is_ultra_vol else "Bình Thường ⏳"
-        hud_order = f"MUA tại {screener.format_vnd(close)} (SL: {screener.format_vnd(sl)})" if has_buy_signal else "Đang Chờ... ⏸"
 
-        recent_swing_low = df['low'].tail(10).min()
-        sl = min(low * 0.99, recent_swing_low)
-        risk = max(close - sl, close * 0.03)
-        tp1 = close + risk * 1.0
-        tp2 = close + risk * 2.0
-        tp3 = close + risk * 3.0
+        # Pine Script: slPrice = not na(recentSwingLow) and recentSwingLow < close ? recentSwingLow : close - (atrRM * 1.5)
+        recent_swing_low = df_eval['low'].iloc[-11:-1].min() if len(df_eval) > 11 else df_eval['low'].min()
+        atr14_val = float(df_eval['atr14'].iloc[-1]) if 'atr14' in df_eval.columns and pd.notna(df_eval['atr14'].iloc[-1]) else (close * 0.03)
+
+        if pd.notna(recent_swing_low) and recent_swing_low < close and (close - recent_swing_low) <= (close * 0.15):
+            sl = recent_swing_low
+        else:
+            sl = close - (atr14_val * 1.5)
+
+        risk = close - sl
+        if risk <= 0:
+            risk = close * 0.03
+            sl = close - risk
+
+        tp1 = close + (risk * config.RR_TP1)
+        tp2 = close + (risk * config.RR_TP2)
+        tp3 = close + (risk * config.RR_TP3)
 
         sl_pct = ((sl - close) / close) * 100
         tp1_pct = ((tp1 - close) / close) * 100
@@ -144,6 +163,7 @@ def check_single_stock(symbol: str, send_telegram: bool = True, target_chat_id: 
 
         # Đánh giá đúng theo chỉ báo: Có điểm mua hay chưa có điểm mua
         has_buy_signal = False
+        hud_order = f"MUA tại {screener.format_vnd(close)} (SL: {screener.format_vnd(sl)})" if has_buy_signal else "Đang Chờ... ⏸"
         if current_trend == 4:
             status_label = "CHƯA CÓ ĐIỂM MUA MỚI"
             recommendation = "Cổ phiếu đang giữ xu hướng TĂNG MẠNH 🟢 & Trên Mây nhưng chưa xuất hiện điểm gom / bùng nổ mới hôm nay (Lệnh Mở: Đang Chờ... ⏸). Ưu tiên quan sát hoặc nắm giữ vị thế cũ."

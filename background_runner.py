@@ -65,9 +65,12 @@ def run_daemon():
 
                         if target_symbol and len(target_symbol) == 3 and target_symbol.isalpha():
                             log(f"📲 Nhận lệnh từ Chat ID {chat_id} yêu cầu soi mã: {target_symbol}")
-                            check.check_single_stock(target_symbol, send_telegram=True, target_chat_id=str(chat_id))
-            except Exception:
-                pass
+                            try:
+                                check.check_single_stock(target_symbol, send_telegram=True, target_chat_id=str(chat_id))
+                            except Exception as e:
+                                log(f"❌ Lỗi khi soi mã {target_symbol}: {e}")
+            except Exception as e:
+                log(f"⚠️ [Lỗi kết nối Telegram] {e}")
 
         # 2. Quét định kỳ toàn sàn trong giờ giao dịch
         current_now = time.time()
