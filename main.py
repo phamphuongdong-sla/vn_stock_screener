@@ -190,7 +190,7 @@ def main():
     print("-" * 75)
     print("Chọn chế độ chạy:")
     print(" 1. Quét toàn bộ sàn ngay lập tức (In bảng kết quả định dạng VNĐ)")
-    print(" 2. Tự động chạy lặp liên tục trong phiên giao dịch (5 phút/lần)")
+    print(f" 2. Tự động chạy lặp liên tục trong phiên giao dịch ({config.SCAN_INTERVAL_SECONDS}s/lần — thời gian thực)")
     print(" 3. Soi chi tiết 1 mã bất kỳ (Nhập mã: HPG, SSI, VCB, FPT...)")
     
     choice = input("\nNhập lựa chọn (1, 2 hoặc 3) [Mặc định: 1]: ").strip()
