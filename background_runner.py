@@ -46,16 +46,18 @@ def run_daemon():
                             continue
                         
                         text = raw_text.upper()
-                        # Kiểm tra lệnh trợ giúp: /start, /help, /huongdan (có hoặc không có dấu /)
-                        if text in ["/START", "/HELP", "/HUONGDAN", "START", "HELP", "HUONG DAN"] or text.startswith("/START") or text.startswith("/HELP") or text.startswith("/HUONGDAN"):
+                        parts = text.split()
+                        cmd = parts[0].split('@')[0] if parts else ""
+
+                        # Kiểm tra lệnh trợ giúp: /start, /help, /huongdan (hỗ trợ cả /help@bot)
+                        if cmd in ["/START", "/HELP", "/HUONGDAN", "START", "HELP", "HUONGDAN"]:
                             log(f"📖 Gửi hướng dẫn sử dụng tới Chat ID {chat_id}")
                             telegram_bot.send_welcome_help(str(chat_id))
                             continue
 
                         # Kiểm tra lệnh soi mã: /soi, /check hoặc gõ thẳng 3 chữ cái
                         target_symbol = None
-                        if text.startswith("/CHECK") or text.startswith("/SOI"):
-                            parts = text.split()
+                        if cmd in ["/CHECK", "/SOI"]:
                             if len(parts) > 1:
                                 target_symbol = parts[1]
                         elif len(text) == 3 and text.isalpha():
