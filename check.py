@@ -27,7 +27,15 @@ def check_single_stock(symbol: str, send_telegram: bool = True, target_chat_id: 
     item = {"stockSymbol": symbol}
     res = screener.analyze_stock(item, "HOSE/HNX")
     
-    # Nếu analyze_stock trả về None do chưa đạt tiêu chuẩn khắt khe, ta vẫn tính toán đầy đủ để hiển thị hiện trạng của mã
+    from datetime import datetime
+    candle_ts = df['time'].iloc[-1] if 'time' in df.columns else None
+    if candle_ts:
+        candle_date = datetime.fromtimestamp(int(candle_ts)).strftime("%d/%m/%Y")
+    else:
+        candle_date = datetime.now().strftime("%d/%m/%Y")
+    updated_time = datetime.now().strftime("%H:%M %d/%m/%Y")
+
+    # Nếu analyze_stock trả về None do chưa đạt tiêu chuẩn khắt khe, ta tính toán hiện trạng thực tế
     if res is None:
         screener.calculate_indicators(df)
         close = df['close'].iloc[-1]
@@ -46,6 +54,8 @@ def check_single_stock(symbol: str, send_telegram: bool = True, target_chat_id: 
         st = df['supertrend'].iloc[-1]
         c_max = df['cloud_max'].iloc[-1]
         is_above_cloud = (c_max == c_max) and (close >= c_max * 0.99)
+        cloud_status = "Trên Mây 🟢" if is_above_cloud else "Dưới Mây 🔴"
+        is_supertrend_bull = (st == 1)
 
         recent_swing_low = df['low'].tail(10).min()
         sl = min(low * 0.99, recent_swing_low)
@@ -60,9 +70,29 @@ def check_single_stock(symbol: str, send_telegram: bool = True, target_chat_id: 
         tp3_pct = ((tp3 - close) / close) * 100
 
         is_whale = (vol_ratio >= 1.5) and (lower_wick_ratio >= 0.40)
-        whale_badge = "🐋👑 [CÁ MẬP]" if is_whale else "📊 [THEO DÕI]"
-        pattern = "Cá mập gom hàng" if is_whale else "Chưa có đột biến dòng tiền"
-        win_rate = 88.0 if is_whale else 70.0
+        
+        # Đánh giá đúng theo chỉ báo: Có điểm mua hay chưa có điểm mua
+        if is_supertrend_bull and is_above_cloud and is_whale:
+            has_buy_signal = True
+            status_label = "CÓ ĐIỂM MUA THEO CHỈ BÁO"
+            recommendation = "Cá Mập gom hàng đạt chuẩn tín hiệu. Xem kế hoạch giải ngân bên dưới."
+            whale_badge = "🐋👑 [CÁ MẬP GOM HÀNG]"
+            pattern = "Cá mập gom hàng (Quét thanh khoản)"
+            win_rate = 88.0
+        elif is_supertrend_bull and is_above_cloud:
+            has_buy_signal = False
+            status_label = "CHƯA CÓ ĐIỂM MUA MỚI"
+            recommendation = "Đang giữ xu hướng Tăng 🟢 & Trên Mây. Chưa xuất hiện phiên gom mới hôm nay, ưu tiên nắm giữ."
+            whale_badge = "📈 [GIỮ TREND]"
+            pattern = "Xu hướng tăng ổn định (Chưa có điểm mua mới)"
+            win_rate = 70.0
+        else:
+            has_buy_signal = False
+            status_label = "CHƯA CÓ ĐIỂM MUA"
+            recommendation = "Đang xu hướng Giảm 🔴 hoặc Dưới Mây Ichimoku. Chưa đạt tiêu chí chỉ báo, đứng ngoài quan sát."
+            whale_badge = "🛑 [CHƯA CÓ ĐIỂM MUA]"
+            pattern = "Chưa có dòng tiền vào (Đang điều chỉnh / tích lũy)"
+            win_rate = 60.0
 
         res = {
             "symbol": symbol,
@@ -78,7 +108,13 @@ def check_single_stock(symbol: str, send_telegram: bool = True, target_chat_id: 
             "whale_badge": whale_badge,
             "pattern": pattern,
             "win_rate": win_rate,
-            "supertrend": "Tăng 🟢" if st == 1 else "Giảm 🔴",
+            "supertrend": "Tăng 🟢" if is_supertrend_bull else "Giảm 🔴",
+            "cloud_status": cloud_status,
+            "has_buy_signal": has_buy_signal,
+            "status_label": status_label,
+            "recommendation": recommendation,
+            "candle_date": candle_date,
+            "updated_time": updated_time,
             "sl": sl,
             "sl_vnd": screener.format_vnd(sl),
             "sl_pct": sl_pct,
@@ -92,21 +128,31 @@ def check_single_stock(symbol: str, send_telegram: bool = True, target_chat_id: 
             "tp3_vnd": screener.format_vnd(tp3),
             "tp3_pct": tp3_pct
         }
+    else:
+        # Nếu analyze_stock đã lọc ra (đạt chuẩn chỉ báo)
+        res["has_buy_signal"] = True
+        res["candle_date"] = candle_date
+        res["updated_time"] = updated_time
 
     # In thông số chi tiết
     print(f"📊 Thông tin cơ bản: {res['symbol']} ({res['exchange']})")
+    print(f"• Thời gian: {res.get('updated_time', '')} (Nến {res.get('candle_date', '')})")
     print(f"• Giá hiện tại: {res['price_vnd']} ({res['change_pct']:+.2f}%)")
     print(f"• Khối lượng phiên gần nhất: {int(res['volume']):,} cp (Gấp {res['vol_ratio']:.1f}x TB 20 phiên)")
     print(f"• Giá trị giao dịch: {res['trade_value_bil']:.1f} Tỷ VNĐ")
     print(f"• Xu hướng SuperTrend: {res['supertrend']}")
-    print(f"• Trạng thái: {res['whale_badge']} [{res.get('win_rate', 80):.0f}%] - {res['pattern']}")
-    print(f"-" * 50)
-    print(f"🎯 Kế hoạch giao dịch đề xuất (Có tỷ lệ %):")
-    print(f"• Điểm vào lệnh (Entry): {res['price_vnd']}")
-    print(f"• Chốt lời TP1 (+1R):     {res['tp1_vnd']} ({res.get('tp1_pct', 0):+.1f}%) — Dời SL hòa vốn")
-    print(f"• Chốt lời TP2 (+2R):     {res['tp2_vnd']} ({res.get('tp2_pct', 0):+.1f}%) — Mục tiêu chính")
-    print(f"• Chốt lời TP3 (+3R):     {res['tp3_vnd']} ({res.get('tp3_pct', 0):+.1f}%) — Gồng lãi tối đa")
-    print(f"• Cắt lỗ (SL):           {res['sl_vnd']} ({res.get('sl_pct', 0):+.1f}%)")
+    print(f"• Mây Ichimoku: {res.get('cloud_status', 'N/A')}")
+    print(f"• Trạng thái chỉ báo: {'🟢 CÓ ĐIỂM MUA' if res.get('has_buy_signal') else '⚪️ CHƯA CÓ ĐIỂM MUA'} [{res.get('win_rate', 70):.0f}%]")
+    print(f"• Khuyến nghị: {res.get('recommendation', '')}")
+
+    if res.get('has_buy_signal'):
+        print(f"-" * 50)
+        print(f"🎯 Kế hoạch giao dịch đề xuất (Có tỷ lệ %):")
+        print(f"• Điểm vào lệnh (Entry): {res['price_vnd']}")
+        print(f"• Chốt lời TP1 (+1R):     {res['tp1_vnd']} ({res.get('tp1_pct', 0):+.1f}%) — Dời SL hòa vốn")
+        print(f"• Chốt lời TP2 (+2R):     {res['tp2_vnd']} ({res.get('tp2_pct', 0):+.1f}%) — Mục tiêu chính")
+        print(f"• Chốt lời TP3 (+3R):     {res['tp3_vnd']} ({res.get('tp3_pct', 0):+.1f}%) — Gồng lãi tối đa")
+        print(f"• Cắt lỗ (SL):           {res['sl_vnd']} ({res.get('sl_pct', 0):+.1f}%)")
     print(f"{'='*70}\n")
 
     if send_telegram:
