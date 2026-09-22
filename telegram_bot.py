@@ -109,6 +109,10 @@ def send_telegram_alert(signal_data: dict, force: bool = False, target_chat_id: 
 
     ceiling_line = "\n⚠️ *CẢNH BÁO:* _Giá đã sát trần! Không mua đuổi (FOMO)._\n" if is_at_ceiling else ""
 
+    hud_trend = signal_data.get('hud_trend', supertrend)
+    hud_money = signal_data.get('hud_money', '🐋 CÁ MẬP VÀO' if is_whale else 'Bình Thường ⏳')
+    hud_order = signal_data.get('hud_order', f"MUA ({sl_vnd})" if has_buy_signal else "Đang Chờ... ⏸")
+
     if has_buy_signal:
         badge_name = "🐋👑 CÁ MẬP GOM HÀNG" if is_whale else "🚀 BỨT PHÁ (SOS BREAKOUT)"
         message = (
@@ -118,8 +122,10 @@ def send_telegram_alert(signal_data: dict, force: bool = False, target_chat_id: 
             f"🏢 *Sàn:* `{exchange}` • *Thị giá:* `{price_vnd}` ({icon_change} `{change_pct:+.2f}%`)\n\n"
             f"📊 *Khối lượng:* {vol_str}\n"
             f"💰 *Giá trị GD:* `{trade_val_bil:,.1f} Tỷ VNĐ`\n"
-            f"⚡️ *Dấu chân:* {badge_name}\n"
-            f"📈 *Hợp lưu:* SuperTrend {supertrend} • {cloud_status}{ceiling_line}\n"
+            f"📈 *Xu Hướng:* {hud_trend} ({cloud_status})\n"
+            f"⚡️ *Dòng Tiền:* {hud_money}\n"
+            f"🎯 *Lệnh Mở:* `{hud_order}`\n"
+            f"⚡️ *Dấu chân:* {badge_name}{ceiling_line}\n"
             f"───────────────────\n"
             f"🎯 *KẾ HOẠCH GIAO DỊCH (R:R CHUẨN)*\n"
             f"• 🎯 *TP1 (+1R):* `{tp1_vnd}` (`{tp1_pct:+.1f}%`) — _Dời SL hòa vốn_\n"
@@ -137,9 +143,9 @@ def send_telegram_alert(signal_data: dict, force: bool = False, target_chat_id: 
             f"🏢 *Sàn:* `{exchange}` • *Thị giá:* `{price_vnd}` ({icon_change} `{change_pct:+.2f}%`)\n\n"
             f"📊 *Khối lượng:* {vol_str}\n"
             f"💰 *Giá trị GD:* `{trade_val_bil:,.1f} Tỷ VNĐ`\n"
-            f"📈 *SuperTrend:* {supertrend}\n"
-            f"☁️ *Mây Ichimoku:* {cloud_status}\n"
-            f"⚡️ *Dòng tiền:* {clean_pattern}\n"
+            f"📈 *Xu Hướng:* {hud_trend} ({cloud_status})\n"
+            f"⚡️ *Dòng Tiền:* {hud_money}\n"
+            f"🎯 *Lệnh Mở:* `{hud_order}`\n"
             f"───────────────────\n"
             f"👉 *Khuyến nghị:* {recommendation}\n"
             f"━━━━━━━━━━━━━━━━━━━\n"

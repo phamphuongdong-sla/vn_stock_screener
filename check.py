@@ -8,6 +8,9 @@ Cách dùng:
 """
 
 import sys
+import time
+import pandas as pd
+import numpy as np
 import screener
 import main
 import telegram_bot
@@ -42,10 +45,8 @@ def check_single_stock(symbol: str, send_telegram: bool = True, target_chat_id: 
         time_display = f"{now_str} (Chốt phiên {last_candle_date})"
         session_tag = f"Chốt phiên {last_candle_date}"
 
-    # Nếu analyze_stock trả về None do chưa đạt tiêu chuẩn khắt khe, ta tính toán hiện trạng thực tế
+    # Nếu analyze_stock trả về None do chưa có điểm mua mới, ta tính toán hiện trạng bảng HUD chuẩn xác
     if res is None:
-        screener.calculate_indicators(df)
-        
         raw_price = (
             item.get("matchedPrice") or 
             item.get("lastPrice") or 
@@ -62,10 +63,20 @@ def check_single_stock(symbol: str, send_telegram: bool = True, target_chat_id: 
         if not raw_price or float(raw_price) <= 0:
             close = df['close'].iloc[-1]
             vol = float(df['volume'].iloc[-1])
+            open_ = df['open'].iloc[-1]
+            high = df['high'].iloc[-1]
+            low = df['low'].iloc[-1]
             change_pct = ((close - df['close'].iloc[-2]) / df['close'].iloc[-2]) * 100.0 if len(df) >= 2 else 0.0
+            df_eval = df.copy()
         else:
             close = screener.normalize_price_k(raw_price)
             vol = float(raw_vol) if raw_vol and float(raw_vol) > 0 else float(df['volume'].iloc[-1])
+            open_ = screener.normalize_price_k(item.get("openPrice") or item.get("open")) or close
+            high = screener.normalize_price_k(item.get("highest") or item.get("highestPrice") or item.get("high")) or max(close, open_)
+            low = screener.normalize_price_k(item.get("lowest") or item.get("lowestPrice") or item.get("low")) or min(close, open_)
+            high = max(high, close, open_)
+            low = min(low, close, open_)
+
             change_pct = float(
                 item.get("priceChangePercent") or 
                 item.get("changePercent") or 
@@ -75,24 +86,49 @@ def check_single_stock(symbol: str, send_telegram: bool = True, target_chat_id: 
             if change_pct == 0.0 and len(df) >= 2 and df['close'].iloc[-2] > 0:
                 change_pct = ((close - df['close'].iloc[-2]) / df['close'].iloc[-2]) * 100.0
 
-        open_ = screener.normalize_price_k(item.get("openPrice") or item.get("open")) or df['open'].iloc[-1]
-        high = screener.normalize_price_k(item.get("highestPrice") or item.get("high")) or df['high'].iloc[-1]
-        low = screener.normalize_price_k(item.get("lowestPrice") or item.get("low")) or df['low'].iloc[-1]
-        high = max(high, close)
-        low = min(low, close)
+            import time
+            today_row = pd.DataFrame([{
+                'time': int(time.time()),
+                'open': open_,
+                'high': high,
+                'low': low,
+                'close': close,
+                'volume': vol
+            }])
+            df_eval = pd.concat([df, today_row], ignore_index=True)
 
-        vol_ma20 = df['vol_ma20'].iloc[-1]
+        screener.calculate_indicators(df_eval)
+
+        vol_ma20 = float(df_eval['vol_ma20'].iloc[-1])
         vol_ratio = vol / vol_ma20 if vol_ma20 > 0 else 0.0
         
-        candle_range = high - low
-        lower_wick = min(open_, close) - low
-        lower_wick_ratio = lower_wick / candle_range if candle_range > 0 else 0.0
-
-        st = df['supertrend'].iloc[-1]
-        c_max = df['cloud_max'].iloc[-1]
-        is_above_cloud = (c_max == c_max) and (close >= c_max * 0.99)
+        st = df_eval['supertrend'].iloc[-1]
+        c_max = df_eval['cloud_max'].iloc[-1]
+        is_above_cloud = pd.notna(c_max) and (close >= c_max * 0.99)
         cloud_status = "Trên Mây 🟢" if is_above_cloud else "Dưới Mây 🔴"
         is_supertrend_bull = (st == 1)
+        current_trend = df_eval['trend'].iloc[-1]
+
+        # HUD Xu hướng chuẩn Pine Script
+        if current_trend == 4:
+            hud_trend = "TĂNG MẠNH 🟢"
+        elif current_trend == -4:
+            hud_trend = "GIẢM MẠNH 🔴"
+        else:
+            hud_trend = "SIDEWAY ⚪"
+
+        elapsed_mins = screener.get_elapsed_trading_minutes()
+        if elapsed_mins < 270 and vol > 0 and elapsed_mins >= 30:
+            projected_vol = (vol / elapsed_mins) * 270.0
+            projected_vol_ratio = projected_vol / vol_ma20 if vol_ma20 > 0 else 0.0
+        else:
+            projected_vol = vol
+            projected_vol_ratio = vol_ratio
+
+        # HUD Dòng tiền chuẩn Pine Script
+        is_ultra_vol = (vol_ratio >= 1.3) or (elapsed_mins >= 45 and vol_ratio >= 0.7 and projected_vol_ratio >= 1.5)
+        hud_money = "🐋 CÁ MẬP VÀO" if is_ultra_vol else "Bình Thường ⏳"
+        hud_order = "Đang Chờ... ⏸"
 
         recent_swing_low = df['low'].tail(10).min()
         sl = min(low * 0.99, recent_swing_low)
@@ -106,37 +142,26 @@ def check_single_stock(symbol: str, send_telegram: bool = True, target_chat_id: 
         tp2_pct = ((tp2 - close) / close) * 100
         tp3_pct = ((tp3 - close) / close) * 100
 
-        is_whale = (vol_ratio >= 1.5) and (lower_wick_ratio >= 0.40)
-        
         # Đánh giá đúng theo chỉ báo: Có điểm mua hay chưa có điểm mua
-        if is_supertrend_bull and is_above_cloud and is_whale:
-            has_buy_signal = True
-            status_label = "CÓ ĐIỂM MUA THEO CHỈ BÁO"
-            recommendation = "Cá Mập gom hàng đạt chuẩn tín hiệu. Xem kế hoạch giải ngân bên dưới."
-            whale_badge = "🐋👑 [CÁ MẬP GOM HÀNG]"
-            pattern = "Cá mập gom hàng (Quét thanh khoản)"
-            win_rate = 88.0
-        elif is_supertrend_bull and is_above_cloud:
-            has_buy_signal = False
+        has_buy_signal = False
+        if current_trend == 4:
             status_label = "CHƯA CÓ ĐIỂM MUA MỚI"
-            recommendation = "Đang giữ xu hướng Tăng 🟢 & Trên Mây. Chưa xuất hiện phiên gom mới hôm nay, ưu tiên nắm giữ."
-            whale_badge = "📈 [GIỮ TREND]"
-            pattern = "Xu hướng tăng ổn định (Chưa có điểm mua mới)"
+            recommendation = "Cổ phiếu đang giữ xu hướng TĂNG MẠNH 🟢 & Trên Mây nhưng chưa xuất hiện điểm gom / bùng nổ mới hôm nay (Lệnh Mở: Đang Chờ... ⏸). Ưu tiên quan sát hoặc nắm giữ vị thế cũ."
+            whale_badge = "📈 [TĂNG MẠNH]"
+            pattern = "Xu hướng tăng mạnh (Lệnh Mở: Đang Chờ... ⏸)"
             win_rate = 70.0
-        else:
-            has_buy_signal = False
+        elif current_trend == -4:
             status_label = "CHƯA CÓ ĐIỂM MUA"
-            recommendation = "Đang xu hướng Giảm 🔴 hoặc Dưới Mây Ichimoku. Chưa đạt tiêu chí chỉ báo, đứng ngoài quan sát."
-            whale_badge = "🛑 [CHƯA CÓ ĐIỂM MUA]"
-            pattern = "Chưa có dòng tiền vào (Đang điều chỉnh / tích lũy)"
-            win_rate = 60.0
-
-        elapsed_mins = screener.get_elapsed_trading_minutes()
-        if elapsed_mins < 270 and vol > 0:
-            projected_vol = (vol / elapsed_mins) * 270.0
+            recommendation = "Cổ phiếu đang xu hướng GIẢM MẠNH 🔴 & Dưới Mây Ichimoku. Tuyệt đối không bắt đáy, đứng ngoài quan sát."
+            whale_badge = "🛑 [XU HƯỚNG GIẢM]"
+            pattern = "Xu hướng giảm (Đang Chờ... ⏸)"
+            win_rate = 45.0
         else:
-            projected_vol = vol
-        projected_vol_ratio = projected_vol / vol_ma20 if vol_ma20 > 0 else 0.0
+            status_label = "CHƯA CÓ ĐIỂM MUA"
+            recommendation = "Cổ phiếu đang đi ngang (SIDEWAY ⚪). Chưa có dòng tiền bứt phá, tiếp tục quan sát."
+            whale_badge = "⚪️ [SIDEWAY]"
+            pattern = "Đi ngang tích lũy (Đang Chờ... ⏸)"
+            win_rate = 55.0
 
         res = {
             "symbol": symbol,
@@ -150,13 +175,16 @@ def check_single_stock(symbol: str, send_telegram: bool = True, target_chat_id: 
             "projected_vol": projected_vol,
             "projected_vol_ratio": projected_vol_ratio,
             "trade_value_bil": (close * 1000 * vol if close < 1000 else close * vol) / 1e9,
-            "is_whale": is_whale,
+            "is_whale": is_ultra_vol,
             "whale_badge": whale_badge,
             "pattern": pattern,
             "win_rate": win_rate,
             "supertrend": "Tăng 🟢" if is_supertrend_bull else "Giảm 🔴",
             "cloud_status": cloud_status,
-            "has_buy_signal": has_buy_signal,
+            "hud_trend": hud_trend,
+            "hud_money": hud_money,
+            "hud_order": hud_order,
+            "has_buy_signal": False,
             "status_label": status_label,
             "recommendation": recommendation,
             "candle_date": last_candle_date,
@@ -184,14 +212,15 @@ def check_single_stock(symbol: str, send_telegram: bool = True, target_chat_id: 
         res["time_display"] = time_display
         res["session_tag"] = session_tag
 
-    # In thông số chi tiết
+    # In thông số chi tiết chuẩn bảng HUD TradingView
     print(f"📊 Thông tin cơ bản: {res['symbol']} ({res['exchange']})")
     print(f"• Thời gian: {res.get('time_display', '')}")
     print(f"• Giá hiện tại: {res['price_vnd']} ({res['change_pct']:+.2f}%)")
-    print(f"• Khối lượng phiên gần nhất: {int(res['volume']):,} cp (Gấp {res['vol_ratio']:.1f}x TB 20 phiên)")
+    print(f"• Khối lượng: {int(res['volume']):,} cp (Gấp {res['vol_ratio']:.1f}x TB 20 phiên)")
     print(f"• Giá trị giao dịch: {res['trade_value_bil']:.1f} Tỷ VNĐ")
-    print(f"• Xu hướng SuperTrend: {res['supertrend']}")
-    print(f"• Mây Ichimoku: {res.get('cloud_status', 'N/A')}")
+    print(f"• Xu hướng: {res.get('hud_trend', res.get('supertrend'))} ({res.get('cloud_status', 'N/A')})")
+    print(f"• Dòng tiền: {res.get('hud_money', 'Bình Thường ⏳')}")
+    print(f"• Lệnh mở: {res.get('hud_order', 'Đang Chờ... ⏸')}")
     print(f"• Trạng thái chỉ báo: {'🟢 CÓ ĐIỂM MUA' if res.get('has_buy_signal') else '⚪️ CHƯA CÓ ĐIỂM MUA'} [{res.get('win_rate', 70):.0f}%]")
     print(f"• Khuyến nghị: {res.get('recommendation', '')}")
 

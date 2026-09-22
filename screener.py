@@ -149,16 +149,16 @@ def get_ticker_history(symbol: str, count: int = 60) -> Optional[pd.DataFrame]:
 
 def calculate_indicators(df: pd.DataFrame):
     """
-    Tính toán SuperTrend (10, 3.0) và Mây Ichimoku (8, 13, 26, 12) giống hệt Pine Script
+    Tính toán SuperTrend (10, 3.0), Mây Ichimoku (8, 13, 26, 12),
+    Xu hướng Trend (-4 đến +4) và Rational Quadratic Kernel giống hệt 100% Pine Script AI Whale ProMax.
     """
-    # 1. Tính ATR(10)
+    # 1. Tính ATR(10) và SuperTrend (10, 3.0)
     high_low = df['high'] - df['low']
     high_close = (df['high'] - df['close'].shift(1)).abs()
     low_close = (df['low'] - df['close'].shift(1)).abs()
     tr = pd.concat([high_low, high_close, low_close], axis=1).max(axis=1)
     df['atr10'] = tr.rolling(window=10).mean()
 
-    # 2. Tính SuperTrend (10, 3.0)
     hl2 = (df['high'] + df['low']) / 2
     upper_band = hl2 + (df['atr10'] * 3.0)
     lower_band = hl2 - (df['atr10'] * 3.0)
@@ -187,22 +187,85 @@ def calculate_indicators(df: pd.DataFrame):
 
     df['supertrend'] = trend_st
 
-    # 3. Tính Ichimoku (8, 13, 26, 12)
+    # 2. Tính Ichimoku (8, 13, 26, 12)
     conv_line = (df['high'].rolling(8).max() + df['low'].rolling(8).min()) / 2
     base_line = (df['high'].rolling(13).max() + df['low'].rolling(13).min()) / 2
     span_a = (conv_line + base_line) / 2
     span_b = (df['high'].rolling(26).max() + df['low'].rolling(26).min()) / 2
 
-    # Mây được dời 12 nến về trước (displacement - 1)
+    # Mây được dời 12 nến về trước (displacement - 1 = 12)
     df['cloud_max'] = pd.concat([span_a.shift(12), span_b.shift(12)], axis=1).max(axis=1)
     df['cloud_min'] = pd.concat([span_a.shift(12), span_b.shift(12)], axis=1).min(axis=1)
 
-    # MA20 Khối lượng
+    # 3. Tính Ichimoku Trend (-4 đến +4)
+    atr9 = tr.rolling(9).mean()
+    mtrend = [0] * len(df)
+    trend = [0] * len(df)
+
+    for i in range(1, len(df)):
+        c = df['close'].iloc[i]
+        c_max = df['cloud_max'].iloc[i]
+        c_min = df['cloud_min'].iloc[i]
+
+        if pd.notna(c_max) and c > c_max:
+            mtrend[i] = 1
+        elif pd.notna(c_min) and c < c_min:
+            mtrend[i] = -1
+        else:
+            mtrend[i] = mtrend[i-1]
+
+        oscline = (c - c_min) if mtrend[i] == 1 else (c - c_max) if pd.notna(c_max) else 0
+        c_max_12 = df['cloud_max'].iloc[i-12] if i >= 12 else np.nan
+        c_min_12 = df['cloud_min'].iloc[i-12] if i >= 12 else np.nan
+        lagging = oscline + (max(c - c_max_12, 0) if (mtrend[i] == 1 and pd.notna(c_max_12)) else min(c - c_min_12, 0) if (mtrend[i] == -1 and pd.notna(c_min_12)) else 0)
+
+        conv_rise = (conv_line.iloc[i] - conv_line.iloc[i-1]) > 0 if i >= 1 else False
+        base_rise = (base_line.iloc[i] - base_line.iloc[i-1]) > 0 if i >= 1 else False
+        convoverbase = conv_line.iloc[i] >= base_line.iloc[i]
+        lead1_over_lead2 = span_a.iloc[i] >= span_b.iloc[i]
+        tole = atr9.iloc[i] * 2.0 if pd.notna(atr9.iloc[i]) else 1.0
+
+        t = trend[i-1]
+        if mtrend[i] == 1:
+            if mtrend[i-1] == -1:
+                t = 0
+            if t < 4 and pd.notna(c_max) and c > c_max:
+                score = (1 if lagging > oscline else 0) + (1 if (convoverbase and (conv_rise or base_rise)) else 0) + (1 if lead1_over_lead2 else 0) + 1
+                t = score
+            else:
+                if conv_line.iloc[i] < base_line.iloc[i] - tole:
+                    t = 0
+        elif mtrend[i] == -1:
+            if mtrend[i-1] == 1:
+                t = 0
+            if t > -4 and pd.notna(c_min) and c < c_min:
+                score = (-1 if lagging < oscline else 0) - (1 if (not convoverbase and (not conv_rise or not base_rise)) else 0) - (1 if not lead1_over_lead2 else 0) - 1
+                t = score
+            else:
+                if conv_line.iloc[i] > base_line.iloc[i] + tole:
+                    t = 0
+        trend[i] = t
+
+    df['trend'] = trend
+
+    # 4. Rational Quadratic Kernel (h=8, r=8.0, x=25)
+    weights = np.array([(1.0 + (k**2) / (2.0 * 8.0 * (8**2))) ** (-8.0) for k in range(8 + 25 + 1)])
+    yhat1 = np.zeros(len(df))
+    close_vals = df['close'].values
+    for idx in range(len(df)):
+        bars_back = min(idx, len(weights) - 1)
+        w = weights[:bars_back + 1]
+        s = close_vals[idx - bars_back : idx + 1][::-1]
+        yhat1[idx] = np.dot(w, s) / np.sum(w)
+    df['yhat1'] = yhat1
+
+    # 5. MA20 Khối lượng
     df['vol_ma20'] = df['volume'].rolling(20).mean()
 
 def analyze_stock(item: dict, exchange: str) -> Optional[Dict]:
     """
-    Phân tích cổ phiếu: Kết hợp cả SuperTrend + Ichimoku + Bộ lọc Cá mập + Ngoại suy khối lượng
+    Phân tích cổ phiếu: Đồng bộ chuẩn xác 100% với chỉ báo Pine Script AI Whale ProMax.
+    Chỉ trả về Dict khi THỰC SỰ CÓ ĐIỂM MUA MỚI HÔM NAY (không báo ảo).
     """
     symbol = item.get("stockSymbol") or item.get("ssi_symbol") or item.get("symbol")
     if not symbol or len(symbol) != 3 or not symbol.isalpha():
@@ -225,7 +288,7 @@ def analyze_stock(item: dict, exchange: str) -> Optional[Dict]:
         item.get("expectedMatchedVolume", 0)
     )
 
-    # Nếu ngoài giờ giao dịch hoặc phiên chưa bắt đầu, tự động lấy nến phiên gần nhất
+    # Lấy dữ liệu nến chuẩn xác tuyệt đối (KHÔNG lấy low/high của nến hôm qua gán cho hôm nay)
     if not raw_price or float(raw_price) <= 0 or not raw_vol or float(raw_vol) <= 0:
         matched_price = df['close'].iloc[-1]
         total_vol = float(df['volume'].iloc[-1])
@@ -233,14 +296,18 @@ def analyze_stock(item: dict, exchange: str) -> Optional[Dict]:
         today_high = df['high'].iloc[-1]
         today_low = df['low'].iloc[-1]
         change_pct = ((matched_price - df['close'].iloc[-2]) / df['close'].iloc[-2]) * 100.0 if len(df) >= 2 else 0.0
+        df_eval = df.copy()
     else:
         matched_price = normalize_price_k(raw_price)
         total_vol = float(raw_vol)
-        today_open = normalize_price_k(item.get("openPrice") or item.get("open")) or df['open'].iloc[-1]
-        today_high = normalize_price_k(item.get("highestPrice") or item.get("high")) or df['high'].iloc[-1]
-        today_low = normalize_price_k(item.get("lowestPrice") or item.get("low")) or df['low'].iloc[-1]
-        today_high = max(today_high, matched_price)
-        today_low = min(today_low, matched_price)
+        today_open = normalize_price_k(item.get("openPrice") or item.get("open")) or matched_price
+        
+        # SSI iBoard dùng trường 'highest' và 'lowest'
+        today_high = normalize_price_k(item.get("highest") or item.get("highestPrice") or item.get("high")) or max(matched_price, today_open)
+        today_low = normalize_price_k(item.get("lowest") or item.get("lowestPrice") or item.get("low")) or min(matched_price, today_open)
+        today_high = max(today_high, matched_price, today_open)
+        today_low = min(today_low, matched_price, today_open)
+
         change_pct = float(
             item.get("priceChangePercent") or 
             item.get("changePercent") or 
@@ -250,6 +317,17 @@ def analyze_stock(item: dict, exchange: str) -> Optional[Dict]:
         if change_pct == 0.0 and len(df) >= 2 and df['close'].iloc[-2] > 0:
             change_pct = ((matched_price - df['close'].iloc[-2]) / df['close'].iloc[-2]) * 100.0
 
+        # Ghép nến thời gian thực vào dữ liệu để tính toán bar-by-bar
+        today_row = pd.DataFrame([{
+            'time': int(time.time()),
+            'open': today_open,
+            'high': today_high,
+            'low': today_low,
+            'close': matched_price,
+            'volume': total_vol
+        }])
+        df_eval = pd.concat([df, today_row], ignore_index=True)
+
     total_val = float(item.get("totalVal") or (matched_price * 1000.0 * total_vol))
 
     # Lọc thanh khoản tối thiểu (>= 3 tỷ VNĐ)
@@ -257,27 +335,36 @@ def analyze_stock(item: dict, exchange: str) -> Optional[Dict]:
         return None
 
     # Tính toán toàn bộ chỉ báo
-    calculate_indicators(df)
+    calculate_indicators(df_eval)
 
-    vol_ma20 = float(df['vol_ma20'].iloc[-1])
+    vol_ma20 = float(df_eval['vol_ma20'].iloc[-1])
     if pd.isna(vol_ma20) or vol_ma20 <= 0:
         return None
 
-    # Ngoại suy khối lượng cả ngày (Volume Projection)
+    current_vol_ratio = total_vol / vol_ma20
     elapsed_mins = get_elapsed_trading_minutes()
-    if elapsed_mins < 270 and total_vol > 0:
+    
+    # Dự phóng khối lượng: Chỉ áp dụng khi đã giao dịch >= 30 phút để tránh thổi phồng đầu phiên
+    if elapsed_mins < 270 and total_vol > 0 and elapsed_mins >= 30:
         projected_vol = (total_vol / elapsed_mins) * 270.0
+        projected_vol_ratio = projected_vol / vol_ma20
     else:
         projected_vol = total_vol
-
-    current_vol_ratio = total_vol / vol_ma20
-    projected_vol_ratio = projected_vol / vol_ma20
-    effective_vol_ratio = max(current_vol_ratio, projected_vol_ratio)
+        projected_vol_ratio = current_vol_ratio
 
     # 1. KIỂM TRA ĐIỀU KIỆN SUPERTREND & ICHIMOKU
-    is_supertrend_bull = df['supertrend'].iloc[-1] == 1
-    cloud_max = df['cloud_max'].iloc[-1]
+    is_supertrend_bull = df_eval['supertrend'].iloc[-1] == 1
+    cloud_max = df_eval['cloud_max'].iloc[-1]
     is_above_cloud = pd.notna(cloud_max) and (matched_price >= cloud_max * 0.99)
+    current_trend = df_eval['trend'].iloc[-1]
+
+    # HUD Xu hướng theo đúng chỉ báo
+    if current_trend == 4:
+        hud_trend = "TĂNG MẠNH 🟢"
+    elif current_trend == -4:
+        hud_trend = "GIẢM MẠNH 🔴"
+    else:
+        hud_trend = "SIDEWAY ⚪"
 
     # Nếu đang trong xu hướng giảm mạnh của Supertrend và dưới mây thì loại bỏ
     if not is_supertrend_bull and not is_above_cloud:
@@ -289,37 +376,63 @@ def analyze_stock(item: dict, exchange: str) -> Optional[Dict]:
 
     # Thông số nến ngày
     candle_range = today_high - today_low
-    if candle_range <= 0:
-        return None
-
-    lower_wick = min(today_open, matched_price) - today_low
-    lower_wick_ratio = lower_wick / candle_range
-    body_size = abs(matched_price - today_open)
-    body_ratio = body_size / candle_range
-
-    # 2. XÁC NHẬN DẤU CHÂN CÁ MẬP (SMART MONEY)
-    is_spring = lower_wick_ratio >= config.WHALE_LOWER_WICK_RATIO
-    recent_high_15 = df['high'].tail(15).max()
-    is_sos_breakout = (matched_price >= recent_high_15 * 0.98) and (change_pct >= 1.5) and (body_ratio >= 0.50)
-    
-    # Volume siêu khủng (khối lượng hiện tại hoặc dự phóng cả ngày >= 1.5x MA20)
-    is_ultra_vol = (effective_vol_ratio >= config.WHALE_VOLUME_RATIO) or (total_vol >= df['volume'].tail(15).max())
-    is_confirmed_whale = is_ultra_vol and (is_spring or is_sos_breakout)
-
-    if config.STRICT_WHALE_ONLY and not is_confirmed_whale:
-        return None
-
-    # Nếu không phải cá mập và cũng không có tín hiệu kỹ thuật thì bỏ qua
-    if not is_confirmed_whale and (effective_vol_ratio < 1.1 or (lower_wick_ratio < 0.25 and not is_sos_breakout)):
-        return None
-
-    # Tên & Logo hiển thị
-    if is_confirmed_whale:
-        whale_badge = "🐋👑 [CÁ MẬP]"
-        pattern = "Cá Mập gom hàng (Quét thanh khoản)" if is_spring else "Cá Mập đẩy giá (Bứt phá SOS)"
+    if candle_range > 0:
+        lower_wick = min(today_open, matched_price) - today_low
+        lower_wick_ratio = lower_wick / candle_range
+        body_size = abs(matched_price - today_open)
+        body_ratio = body_size / candle_range
     else:
-        whale_badge = "📊 [TIÊU CHUẨN]"
-        pattern = "Bứt phá / Hồi phục kỹ thuật"
+        lower_wick_ratio = 0.0
+        body_ratio = 0.0
+
+    # 2. XÁC NHẬN DÒNG TIỀN CÁ MẬP (SMART MONEY FLOW)
+    # Khối lượng cá mập thực tế phải bùng nổ: vol_ratio >= 1.3 hoặc (sau 45p vol >= 0.7x và dự phóng >= 1.5x)
+    is_ultra_vol = (current_vol_ratio >= 1.3) or (elapsed_mins >= 45 and current_vol_ratio >= 0.7 and projected_vol_ratio >= 1.5)
+    hud_money = "🐋 CÁ MẬP VÀO" if is_ultra_vol else "Bình Thường ⏳"
+
+    # 3. KIỂM TRA ĐIỂM BÓP CÒ MỚI (FRESH TRIGGER TRÊN NẾN HIỆN TẠI)
+    # A. SuperTrend mới đảo chiều Tăng hôm nay (chưa phải phiên cũ)
+    st_flip_bull = (df_eval['supertrend'].iloc[-1] == 1) and (df_eval['supertrend'].iloc[-2] == -1) and (current_vol_ratio >= 0.8)
+
+    # B. Kernel Rational Quadratic Crossover Up hôm nay
+    kernel_cross_up = (df_eval['yhat1'].iloc[-1] > df_eval['yhat1'].iloc[-2]) and (df_eval['yhat1'].iloc[-2] <= df_eval['yhat1'].iloc[-3])
+
+    # C. Cá Mập gom hàng (Whale Liquidity Sweep / Spring: Rút chân mạnh + Vol bùng nổ)
+    is_spring = (lower_wick_ratio >= 0.35) and is_ultra_vol and (matched_price >= today_open * 0.995)
+
+    # D. Cá Mập bứt phá (SOS Breakout: Vượt đỉnh 15 phiên + Vol bùng nổ)
+    recent_high_15 = df_eval['high'].iloc[-16:-1].max() if len(df_eval) > 16 else df_eval['high'].max()
+    is_sos_breakout = (matched_price >= recent_high_15 * 0.998) and (change_pct >= 1.5) and is_ultra_vol and (body_ratio >= 0.40)
+
+    # Đánh giá điểm mua
+    has_fresh_trigger = False
+    is_confirmed_whale = False
+    pattern = ""
+    whale_badge = "📊 [TIÊU CHUẨN]"
+
+    if is_supertrend_bull or is_above_cloud:
+        if is_spring:
+            has_fresh_trigger = True
+            is_confirmed_whale = True
+            whale_badge = "🐋👑 [CÁ MẬP GOM HÀNG]"
+            pattern = "Cá Mập gom hàng (Quét thanh khoản)"
+        elif is_sos_breakout:
+            has_fresh_trigger = True
+            is_confirmed_whale = True
+            whale_badge = "🐋👑 [CÁ MẬP ĐẨY GIÁ]"
+            pattern = "Cá Mập đẩy giá (Bứt phá SOS)"
+        elif st_flip_bull and (is_above_cloud or current_trend >= 2):
+            has_fresh_trigger = True
+            whale_badge = "🚀 [SUPERTREND]"
+            pattern = "SuperTrend đảo chiều Tăng 🟢"
+        elif kernel_cross_up and current_trend == 4 and is_supertrend_bull and (current_vol_ratio >= 1.1 or is_ultra_vol):
+            has_fresh_trigger = True
+            whale_badge = "🔮 [TIÊN TRI ML]"
+            pattern = "Thuật toán Kernel & ML kích hoạt điểm MUA"
+
+    # NẾU KHÔNG CÓ ĐIỂM BÓP CÒ MỚI HÔM NAY: BỎ QUA (Không báo ảo trên Telegram!)
+    if not has_fresh_trigger:
+        return None
 
     # 3. TÍNH TOÁN TP1, TP2, TP3 VÀ STOP LOSS (THEO ĐÚNG PINE SCRIPT)
     recent_swing_low = df['low'].tail(10).min()
@@ -338,11 +451,13 @@ def analyze_stock(item: dict, exchange: str) -> Optional[Dict]:
     tp2_pct = ((tp2 - matched_price) / matched_price) * 100
     tp3_pct = ((tp3 - matched_price) / matched_price) * 100
 
+    effective_vol_ratio = max(current_vol_ratio, projected_vol_ratio)
+
     # Tính độ tin cậy AI (WinRate %) đồng bộ như chỉ báo Pine Script
     if is_confirmed_whale:
-        win_rate = min(94.0, max(78.0, 75.0 + (effective_vol_ratio - 1.5) * 8.0 + (lower_wick_ratio - 0.40) * 25.0))
+        win_rate = min(94.0, max(78.0, 75.0 + (effective_vol_ratio - 1.2) * 8.0 + (lower_wick_ratio - 0.35) * 20.0))
     else:
-        win_rate = min(77.0, max(65.0, 62.0 + (effective_vol_ratio - 1.0) * 8.0))
+        win_rate = min(78.0, max(68.0, 65.0 + (effective_vol_ratio - 1.0) * 8.0))
 
     import main
     in_session = main.is_trading_hour()
@@ -378,12 +493,15 @@ def analyze_stock(item: dict, exchange: str) -> Optional[Dict]:
         "win_rate": win_rate,
         "supertrend": "Tăng 🟢" if is_supertrend_bull else "Giảm 🔴",
         "cloud_status": cloud_status,
+        "hud_trend": hud_trend,
+        "hud_money": hud_money,
+        "hud_order": f"MUA ({format_vnd(sl)})",
         "has_buy_signal": True,
         "candle_date": last_candle_date,
         "updated_time": now_str,
         "time_display": time_display,
         "session_tag": session_tag,
-        "recommendation": "Đạt chuẩn tín hiệu Cá Mập gom hàng / Bứt phá SOS. Kế hoạch giao dịch chi tiết bên dưới.",
+        "recommendation": f"Đạt chuẩn {whale_badge} - {pattern}. Kế hoạch giao dịch chi tiết bên dưới.",
         "sl": sl,
         "sl_vnd": format_vnd(sl),
         "sl_pct": sl_pct,
