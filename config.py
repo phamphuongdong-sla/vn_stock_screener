@@ -20,7 +20,8 @@ TELEGRAM_CHAT_ID = "2125548447"
 STRICT_WHALE_ONLY = False
 
 # Ngưỡng độ tin cậy tối thiểu để bắn cảnh báo về Telegram (%)
-MIN_ALERT_WINRATE = 75.0
+# Đặt 0 = gửi ngay khi có tín hiệu mua (không lọc theo win rate)
+MIN_ALERT_WINRATE = 0.0
 
 # Giá trị giao dịch tối thiểu trong ngày (VNĐ) - Loại bỏ cổ phiếu rác, penny không thanh khoản
 MIN_TRADE_VALUE = 3_000_000_000   # 3 tỷ VNĐ trở lên
