@@ -111,7 +111,7 @@ def send_telegram_alert(signal_data: dict, force: bool = False, target_chat_id: 
 
     hud_trend = signal_data.get('hud_trend', supertrend)
     hud_money = signal_data.get('hud_money', '🐋 CÁ MẬP VÀO' if is_whale else 'Bình Thường ⏳')
-    hud_order = signal_data.get('hud_order', f"MUA ({sl_vnd})" if has_buy_signal else "Đang Chờ... ⏸")
+    hud_order = signal_data.get('hud_order', f"MUA tại {price_vnd} (SL: {sl_vnd})" if has_buy_signal else "Đang Chờ... ⏸")
 
     if has_buy_signal:
         badge_name = "🐋👑 CÁ MẬP GOM HÀNG" if is_whale else "🚀 BỨT PHÁ (SOS BREAKOUT)"

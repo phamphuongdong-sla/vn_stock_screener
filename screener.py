@@ -495,7 +495,7 @@ def analyze_stock(item: dict, exchange: str) -> Optional[Dict]:
         "cloud_status": cloud_status,
         "hud_trend": hud_trend,
         "hud_money": hud_money,
-        "hud_order": f"MUA ({format_vnd(sl)})",
+        "hud_order": f"MUA tại {format_vnd(matched_price)} (SL: {format_vnd(sl)})",
         "has_buy_signal": True,
         "candle_date": last_candle_date,
         "updated_time": now_str,

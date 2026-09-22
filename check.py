@@ -128,7 +128,7 @@ def check_single_stock(symbol: str, send_telegram: bool = True, target_chat_id: 
         # HUD Dòng tiền chuẩn Pine Script
         is_ultra_vol = (vol_ratio >= 1.3) or (elapsed_mins >= 45 and vol_ratio >= 0.7 and projected_vol_ratio >= 1.5)
         hud_money = "🐋 CÁ MẬP VÀO" if is_ultra_vol else "Bình Thường ⏳"
-        hud_order = "Đang Chờ... ⏸"
+        hud_order = f"MUA tại {screener.format_vnd(close)} (SL: {screener.format_vnd(sl)})" if has_buy_signal else "Đang Chờ... ⏸"
 
         recent_swing_low = df['low'].tail(10).min()
         sl = min(low * 0.99, recent_swing_low)
