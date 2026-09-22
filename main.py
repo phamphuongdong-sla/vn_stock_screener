@@ -30,15 +30,95 @@ def is_trading_hour() -> bool:
 
     return (t_0900 <= current_time <= t_1130) or (t_1300 <= current_time <= t_1500)
 
-alerted_stocks_today = set()
-last_alert_date = ""
+def load_alerted_stocks_today() -> set:
+    """
+    Tải danh sách các mã đã bắn cảnh báo hôm nay.
+    Hỗ trợ đồng bộ đa môi trường (GitHub Actions không ổ cứng lưu trạng thái qua tin nhắn ghim Telegram).
+    """
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    alerted = set()
+
+    # 1. Thử đọc từ file json cục bộ
+    try:
+        import os, json
+        if os.path.exists("alerted_stocks.json"):
+            with open("alerted_stocks.json", "r", encoding="utf-8") as f:
+                data = json.load(f)
+                if data.get("date") == today_str:
+                    alerted.update(data.get("stocks", []))
+    except Exception:
+        pass
+
+    # 2. Đồng bộ từ tin nhắn trạng thái trên Telegram (Bảo đảm GitHub Actions không bị gửi lặp)
+    if config.TELEGRAM_ENABLED:
+        try:
+            import requests
+            r = requests.get(f"https://api.telegram.org/bot{config.TELEGRAM_BOT_TOKEN}/getChat?chat_id={config.TELEGRAM_CHAT_ID}", timeout=5)
+            pinned = r.json().get("result", {}).get("pinned_message", {})
+            text = pinned.get("text", "")
+            if "#BOT_STATE" in text and today_str in text:
+                parts = text.split("STOCKS:")
+                if len(parts) > 1:
+                    stocks = [s.strip() for s in parts[1].split(",") if s.strip()]
+                    alerted.update(stocks)
+        except Exception:
+            pass
+
+    return alerted
+
+def save_alerted_stocks_today(alerted: set):
+    """
+    Lưu danh sách mã đã cảnh báo hôm nay vào file cục bộ và cập nhật tin nhắn trạng thái trên Telegram.
+    """
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    stock_list = sorted(list(alerted))
+
+    # 1. Lưu file json cục bộ
+    try:
+        import json
+        with open("alerted_stocks.json", "w", encoding="utf-8") as f:
+            json.dump({"date": today_str, "stocks": stock_list}, f, ensure_ascii=False)
+    except Exception:
+        pass
+
+    # 2. Cập nhật tin nhắn ghim trên Telegram để GitHub Actions các lần chạy tiếp theo đọc được
+    if config.TELEGRAM_ENABLED:
+        try:
+            import requests
+            state_text = (
+                f"🤖 [TRẠNG THÁI BOT] #BOT_STATE {today_str}\n"
+                f"⏰ Cập nhật: {datetime.now().strftime('%H:%M:%S %d/%m/%Y')}\n"
+                f"📊 Đã kích hoạt điểm mua hôm nay ({len(stock_list)} mã):\n"
+                f"STOCKS:{', '.join(stock_list)}"
+            )
+            r = requests.get(f"https://api.telegram.org/bot{config.TELEGRAM_BOT_TOKEN}/getChat?chat_id={config.TELEGRAM_CHAT_ID}", timeout=5)
+            pinned = r.json().get("result", {}).get("pinned_message", {})
+            msg_id = pinned.get("message_id")
+
+            if msg_id:
+                requests.post(f"https://api.telegram.org/bot{config.TELEGRAM_BOT_TOKEN}/editMessageText", json={
+                    "chat_id": config.TELEGRAM_CHAT_ID,
+                    "message_id": msg_id,
+                    "text": state_text
+                }, timeout=5)
+            else:
+                r_send = requests.post(f"https://api.telegram.org/bot{config.TELEGRAM_BOT_TOKEN}/sendMessage", json={
+                    "chat_id": config.TELEGRAM_CHAT_ID,
+                    "text": state_text,
+                    "disable_notification": True
+                }, timeout=5)
+                new_id = r_send.json().get("result", {}).get("message_id")
+                if new_id:
+                    requests.post(f"https://api.telegram.org/bot{config.TELEGRAM_BOT_TOKEN}/pinChatMessage", json={
+                        "chat_id": config.TELEGRAM_CHAT_ID,
+                        "message_id": new_id,
+                        "disable_notification": True
+                    }, timeout=5)
+        except Exception:
+            pass
 
 def display_and_notify_results(signals: list):
-    global alerted_stocks_today, last_alert_date
-    today_str = datetime.now().strftime("%Y-%m-%d")
-    if today_str != last_alert_date:
-        alerted_stocks_today.clear()
-        last_alert_date = today_str
+    alerted_stocks_today = load_alerted_stocks_today()
 
     if not signals:
         print("ℹ️ Hiện tại không tìm thấy mã nào thỏa mãn điều kiện Cá Mập.")
@@ -71,6 +151,7 @@ def display_and_notify_results(signals: list):
     # Gửi thông báo Telegram nếu được kích hoạt
     if config.TELEGRAM_ENABLED:
         print(f"\n[*] Đang lọc và gửi các tín hiệu mới đạt từ {config.MIN_ALERT_WINRATE:.0f}% trở lên tới Telegram...")
+        print(f"[*] Danh sách mã đã gửi hôm nay: {sorted(list(alerted_stocks_today)) if alerted_stocks_today else 'Chưa có'}")
         alerted_count = 0
         for s in signals:
             sym = s.get('symbol')
@@ -84,7 +165,11 @@ def display_and_notify_results(signals: list):
                     status = "🐋 CÁ MẬP" if s['is_whale'] else "Tiêu chuẩn"
                     print(f" -> [ĐẠT {s.get('win_rate', 0):.0f}%] Đã gửi cảnh báo mã {s['symbol']} ({status}) tới Telegram.")
                 time.sleep(0.5)
-        if alerted_count == 0:
+
+        if alerted_count > 0:
+            save_alerted_stocks_today(alerted_stocks_today)
+            print(f"✅ Đã cập nhật trạng thái: Tổng cộng {len(alerted_stocks_today)} mã đã kích hoạt hôm nay.")
+        else:
             print(f" -> Không có tín hiệu MỚI nào cần gửi (đã gửi trước đó hoặc chưa đạt ngưỡng {config.MIN_ALERT_WINRATE:.0f}%).")
 
 def main():

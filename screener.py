@@ -13,6 +13,7 @@ from datetime import datetime
 import requests
 import pandas as pd
 import numpy as np
+import concurrent.futures
 from typing import List, Dict, Optional
 import config
 
@@ -330,8 +331,10 @@ def analyze_stock(item: dict, exchange: str) -> Optional[Dict]:
 
     total_val = float(item.get("totalVal") or (matched_price * 1000.0 * total_vol))
 
-    # Lọc thanh khoản tối thiểu (>= 3 tỷ VNĐ)
-    if total_val < config.MIN_TRADE_VALUE:
+    # Lọc thanh khoản tối thiểu (Động theo giờ phiên: Đầu phiên 1-2 tỷ, sau đó >= 3 tỷ VNĐ)
+    elapsed_mins = get_elapsed_trading_minutes()
+    threshold_val = 1_000_000_000 if elapsed_mins <= 45 else 2_000_000_000 if elapsed_mins <= 90 else config.MIN_TRADE_VALUE
+    if total_val < threshold_val:
         return None
 
     # Tính toán toàn bộ chỉ báo
@@ -529,7 +532,10 @@ def run_screener() -> List[Dict]:
         items = get_exchange_symbols_snapshot(exchange)
         print(f" -> Nhận được {len(items)} mã trên sàn {exchange}.")
 
-        # TẦNG 1: LỌC NHANH TRÊN SNAPSHOT
+        # TẦNG 1: LỌC NHANH TRÊN SNAPSHOT (Ngưỡng động theo phiên)
+        elapsed_mins = get_elapsed_trading_minutes()
+        threshold_val = 1_000_000_000 if elapsed_mins <= 45 else 2_000_000_000 if elapsed_mins <= 90 else config.MIN_TRADE_VALUE
+
         candidates = []
         for item in items:
             sym = item.get("stockSymbol") or item.get("symbol")
@@ -539,23 +545,25 @@ def run_screener() -> List[Dict]:
             v = float(item.get("totalVol") or item.get("nmTotalTradedQty") or item.get("expectedMatchedVolume") or 0)
             val = float(item.get("totalVal") or (p * 1000.0 * v))
             
-            if val >= config.MIN_TRADE_VALUE or (val >= 1_000_000_000 and float(item.get("changePercent", 0) or 0) >= 1.0):
+            if val >= threshold_val or (val >= 800_000_000 and float(item.get("changePercent", 0) or 0) >= 1.0):
                 candidates.append(item)
 
-        print(f" -> Tầng 1 đã chọn {len(candidates)} mã tiềm năng (loại bỏ {len(items) - len(candidates)} mã thanh khoản yếu). Đang phân tích chuyên sâu...")
+        print(f" -> Tầng 1 đã chọn {len(candidates)} mã tiềm năng (loại bỏ {len(items) - len(candidates)} mã thanh khoản yếu). Đang phân tích chuyên sâu đa luồng...")
 
-        # TẦNG 2: PHÂN TÍCH CHUYÊN SÂU
-        for item in candidates:
-            try:
-                result = analyze_stock(item, exchange)
-                if result:
-                    if result["is_whale"]:
-                        print(f"  🐋👑 [CÁ MẬP] {result['symbol']} | Giá: {result['price_vnd']} ({result['change_pct']:+.2f}%) | Vol: {result['vol_ratio']:.1f}x MA20 (Dự phóng: {result['projected_vol_ratio']:.1f}x) | {result['pattern']}")
-                    else:
-                        print(f"  📊 [Chuẩn] {result['symbol']} | Giá: {result['price_vnd']} ({result['change_pct']:+.2f}%) | Vol: {result['vol_ratio']:.1f}x MA20")
-                    signals.append(result)
-            except Exception:
-                continue
+        # TẦNG 2: PHÂN TÍCH CHUYÊN SÂU ĐA LUỒNG SIÊU TỐC
+        with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
+            future_to_item = {executor.submit(analyze_stock, item, exchange): item for item in candidates}
+            for future in concurrent.futures.as_completed(future_to_item):
+                try:
+                    result = future.result()
+                    if result:
+                        if result["is_whale"]:
+                            print(f"  🐋👑 [CÁ MẬP] {result['symbol']} | Giá: {result['price_vnd']} ({result['change_pct']:+.2f}%) | Vol: {result['vol_ratio']:.1f}x MA20 (Dự phóng: {result['projected_vol_ratio']:.1f}x) | {result['pattern']}")
+                        else:
+                            print(f"  📊 [Chuẩn] {result['symbol']} | Giá: {result['price_vnd']} ({result['change_pct']:+.2f}%) | Vol: {result['vol_ratio']:.1f}x MA20")
+                        signals.append(result)
+                except Exception:
+                    continue
 
     signals = sorted(signals, key=lambda x: (x["is_whale"], x["vol_ratio"]), reverse=True)
     print(f"{'='*75}")
