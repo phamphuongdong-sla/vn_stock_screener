@@ -74,26 +74,52 @@ def get_elapsed_trading_minutes(now_dt: Optional[datetime] = None) -> int:
     else:
         return 270
 
+_snapshot_cache = {}
+_snapshot_cache_time = {}
+
 def get_exchange_symbols_snapshot(exchange: str) -> List[Dict]:
     """
-    Lấy toàn bộ bảng giá thời gian thực sàn HOSE hoặc HNX từ SSI iBoard (kèm cơ chế retry)
+    Lấy toàn bộ bảng giá thời gian thực sàn HOSE hoặc HNX từ SSI iBoard (kèm cache 20s và retry)
     """
-    exchange_lower = exchange.lower()
-    url = f"https://iboard-query.ssi.com.vn/stock/exchange/{exchange_lower}"
+    now = time.time()
+    ex = exchange.lower()
+    if ex in _snapshot_cache and (now - _snapshot_cache_time.get(ex, 0) < 20):
+        return _snapshot_cache[ex]
+
+    url = f"https://iboard-query.ssi.com.vn/stock/exchange/{ex}"
     for attempt in range(2):
         try:
-            resp = requests.get(url, headers=HEADERS, timeout=18)
+            resp = requests.get(url, headers=HEADERS, timeout=15)
             if resp.status_code == 200:
                 data = resp.json()
                 if isinstance(data, dict) and "data" in data:
-                    return data["data"]
+                    res_list = data["data"]
                 elif isinstance(data, list):
-                    return data
+                    res_list = data
+                else:
+                    res_list = []
+                if res_list:
+                    _snapshot_cache[ex] = res_list
+                    _snapshot_cache_time[ex] = now
+                    return res_list
         except Exception as e:
             if attempt == 1:
                 print(f"[Cảnh báo] Lỗi tải dữ liệu sàn {exchange}: {e}")
-            time.sleep(1)
-    return []
+            time.sleep(0.5)
+    return _snapshot_cache.get(ex, [])
+
+def get_live_stock_quote(symbol: str) -> dict:
+    """
+    Lấy thông tin giá và khối lượng thời gian thực cho 1 mã cụ thể từ bảng giá trực tuyến
+    """
+    symbol = symbol.strip().upper()
+    for ex in ["hose", "hnx"]:
+        data = get_exchange_symbols_snapshot(ex)
+        for d in data:
+            if d.get("stockSymbol") == symbol:
+                d["exchange_name"] = ex.upper()
+                return d
+    return {"stockSymbol": symbol}
 
 def get_ticker_history(symbol: str, count: int = 60) -> Optional[pd.DataFrame]:
     """
@@ -193,8 +219,9 @@ def analyze_stock(item: dict, exchange: str) -> Optional[Dict]:
         item.get("close", 0)
     )
     raw_vol = (
-        item.get("totalVol") or 
         item.get("nmTotalTradedQty") or 
+        item.get("stockVol") or 
+        item.get("totalVol") or 
         item.get("expectedMatchedVolume", 0)
     )
 
@@ -209,12 +236,17 @@ def analyze_stock(item: dict, exchange: str) -> Optional[Dict]:
     else:
         matched_price = normalize_price_k(raw_price)
         total_vol = float(raw_vol)
-        today_open = normalize_price_k(item.get("open")) or df['open'].iloc[-1]
-        today_high = normalize_price_k(item.get("high")) or df['high'].iloc[-1]
-        today_low = normalize_price_k(item.get("low")) or df['low'].iloc[-1]
+        today_open = normalize_price_k(item.get("openPrice") or item.get("open")) or df['open'].iloc[-1]
+        today_high = normalize_price_k(item.get("highestPrice") or item.get("high")) or df['high'].iloc[-1]
+        today_low = normalize_price_k(item.get("lowestPrice") or item.get("low")) or df['low'].iloc[-1]
         today_high = max(today_high, matched_price)
         today_low = min(today_low, matched_price)
-        change_pct = float(item.get("changePercent") or item.get("matchedPricePercent") or item.get("expectedPriceChangePercent") or 0.0)
+        change_pct = float(
+            item.get("priceChangePercent") or 
+            item.get("changePercent") or 
+            item.get("matchedPricePercent") or 
+            item.get("expectedPriceChangePercent") or 0.0
+        )
         if change_pct == 0.0 and len(df) >= 2 and df['close'].iloc[-2] > 0:
             change_pct = ((matched_price - df['close'].iloc[-2]) / df['close'].iloc[-2]) * 100.0
 
@@ -312,12 +344,19 @@ def analyze_stock(item: dict, exchange: str) -> Optional[Dict]:
     else:
         win_rate = min(77.0, max(65.0, 62.0 + (effective_vol_ratio - 1.0) * 8.0))
 
+    import main
+    in_session = main.is_trading_hour()
+    now_str = datetime.now().strftime("%H:%M %d/%m/%Y")
     candle_ts = df['time'].iloc[-1] if 'time' in df.columns else None
-    if candle_ts:
-        candle_date = datetime.fromtimestamp(int(candle_ts)).strftime("%d/%m/%Y")
+    last_candle_date = datetime.fromtimestamp(int(candle_ts)).strftime("%d/%m/%Y") if candle_ts else datetime.now().strftime("%d/%m/%Y")
+
+    if in_session:
+        time_display = f"{now_str} (Thời gian thực)"
+        session_tag = "Thời gian thực"
     else:
-        candle_date = datetime.now().strftime("%d/%m/%Y")
-    updated_time = datetime.now().strftime("%H:%M %d/%m/%Y")
+        time_display = f"{now_str} (Chốt phiên {last_candle_date})"
+        session_tag = f"Chốt phiên {last_candle_date}"
+
     cloud_status = "Trên Mây 🟢" if is_above_cloud else "Dưới Mây 🔴"
 
     return {
@@ -340,8 +379,10 @@ def analyze_stock(item: dict, exchange: str) -> Optional[Dict]:
         "supertrend": "Tăng 🟢" if is_supertrend_bull else "Giảm 🔴",
         "cloud_status": cloud_status,
         "has_buy_signal": True,
-        "candle_date": candle_date,
-        "updated_time": updated_time,
+        "candle_date": last_candle_date,
+        "updated_time": now_str,
+        "time_display": time_display,
+        "session_tag": session_tag,
         "recommendation": "Đạt chuẩn tín hiệu Cá Mập gom hàng / Bứt phá SOS. Kế hoạch giao dịch chi tiết bên dưới.",
         "sl": sl,
         "sl_vnd": format_vnd(sl),

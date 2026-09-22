@@ -94,7 +94,14 @@ def send_telegram_alert(signal_data: dict, force: bool = False, target_chat_id: 
     icon_change = "🟢" if change_pct >= 0 else "🔴"
     clean_pattern = pattern.replace("🐋 CÁ MẬP ", "").replace("Tín hiệu ", "")
 
-    time_str = f"`{updated_time}` (Nến `{candle_date}`)" if candle_date else f"`{updated_time}`"
+    time_str = signal_data.get('time_display')
+    if not time_str:
+        import main
+        if main.is_trading_hour():
+            time_str = f"{updated_time} (Thời gian thực)"
+        else:
+            time_str = f"{updated_time} (Chốt phiên {candle_date})" if candle_date else updated_time
+    time_str = f"`{time_str}`"
     
     vol_str = f"`{vol_ratio:.1f}x` MA20"
     if projected_vol_ratio > vol_ratio and projected_vol_ratio >= 1.2:

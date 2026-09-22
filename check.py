@@ -24,32 +24,69 @@ def check_single_stock(symbol: str, send_telegram: bool = True, target_chat_id: 
         print(f"❌ Không tìm thấy dữ liệu cho mã '{symbol}'. Vui lòng kiểm tra lại mã cổ phiếu!")
         return None
 
-    item = {"stockSymbol": symbol}
-    res = screener.analyze_stock(item, "HOSE/HNX")
+    # Lấy dữ liệu thời gian thực từ bảng giá
+    item = screener.get_live_stock_quote(symbol)
+    exchange = item.get("exchange_name", "HOSE/HNX")
+    res = screener.analyze_stock(item, exchange)
     
     from datetime import datetime
+    in_session = main.is_trading_hour()
+    now_str = datetime.now().strftime("%H:%M %d/%m/%Y")
     candle_ts = df['time'].iloc[-1] if 'time' in df.columns else None
-    if candle_ts:
-        candle_date = datetime.fromtimestamp(int(candle_ts)).strftime("%d/%m/%Y")
+    last_candle_date = datetime.fromtimestamp(int(candle_ts)).strftime("%d/%m/%Y") if candle_ts else datetime.now().strftime("%d/%m/%Y")
+
+    if in_session:
+        time_display = f"{now_str} (Thời gian thực)"
+        session_tag = "Thời gian thực"
     else:
-        candle_date = datetime.now().strftime("%d/%m/%Y")
-    updated_time = datetime.now().strftime("%H:%M %d/%m/%Y")
+        time_display = f"{now_str} (Chốt phiên {last_candle_date})"
+        session_tag = f"Chốt phiên {last_candle_date}"
 
     # Nếu analyze_stock trả về None do chưa đạt tiêu chuẩn khắt khe, ta tính toán hiện trạng thực tế
     if res is None:
         screener.calculate_indicators(df)
-        close = df['close'].iloc[-1]
-        open_ = df['open'].iloc[-1]
-        high = df['high'].iloc[-1]
-        low = df['low'].iloc[-1]
-        vol = df['volume'].iloc[-1]
+        
+        raw_price = (
+            item.get("matchedPrice") or 
+            item.get("lastPrice") or 
+            item.get("expectedMatchedPrice") or 
+            item.get("close", 0)
+        )
+        raw_vol = (
+            item.get("nmTotalTradedQty") or 
+            item.get("stockVol") or 
+            item.get("totalVol") or 
+            item.get("expectedMatchedVolume", 0)
+        )
+
+        if not raw_price or float(raw_price) <= 0:
+            close = df['close'].iloc[-1]
+            vol = float(df['volume'].iloc[-1])
+            change_pct = ((close - df['close'].iloc[-2]) / df['close'].iloc[-2]) * 100.0 if len(df) >= 2 else 0.0
+        else:
+            close = screener.normalize_price_k(raw_price)
+            vol = float(raw_vol) if raw_vol and float(raw_vol) > 0 else float(df['volume'].iloc[-1])
+            change_pct = float(
+                item.get("priceChangePercent") or 
+                item.get("changePercent") or 
+                item.get("matchedPricePercent") or 
+                item.get("expectedPriceChangePercent") or 0.0
+            )
+            if change_pct == 0.0 and len(df) >= 2 and df['close'].iloc[-2] > 0:
+                change_pct = ((close - df['close'].iloc[-2]) / df['close'].iloc[-2]) * 100.0
+
+        open_ = screener.normalize_price_k(item.get("openPrice") or item.get("open")) or df['open'].iloc[-1]
+        high = screener.normalize_price_k(item.get("highestPrice") or item.get("high")) or df['high'].iloc[-1]
+        low = screener.normalize_price_k(item.get("lowestPrice") or item.get("low")) or df['low'].iloc[-1]
+        high = max(high, close)
+        low = min(low, close)
+
         vol_ma20 = df['vol_ma20'].iloc[-1]
-        vol_ratio = vol / vol_ma20 if vol_ma20 > 0 else 0
-        change_pct = ((close - df['close'].iloc[-2]) / df['close'].iloc[-2]) * 100 if len(df) >= 2 else 0
+        vol_ratio = vol / vol_ma20 if vol_ma20 > 0 else 0.0
         
         candle_range = high - low
         lower_wick = min(open_, close) - low
-        lower_wick_ratio = lower_wick / candle_range if candle_range > 0 else 0
+        lower_wick_ratio = lower_wick / candle_range if candle_range > 0 else 0.0
 
         st = df['supertrend'].iloc[-1]
         c_max = df['cloud_max'].iloc[-1]
@@ -92,6 +129,8 @@ def check_single_stock(symbol: str, send_telegram: bool = True, target_chat_id: 
             recommendation = "Đang xu hướng Giảm 🔴 hoặc Dưới Mây Ichimoku. Chưa đạt tiêu chí chỉ báo, đứng ngoài quan sát."
             whale_badge = "🛑 [CHƯA CÓ ĐIỂM MUA]"
             pattern = "Chưa có dòng tiền vào (Đang điều chỉnh / tích lũy)"
+            win_rate = 60.0
+
         elapsed_mins = screener.get_elapsed_trading_minutes()
         if elapsed_mins < 270 and vol > 0:
             projected_vol = (vol / elapsed_mins) * 270.0
@@ -101,7 +140,7 @@ def check_single_stock(symbol: str, send_telegram: bool = True, target_chat_id: 
 
         res = {
             "symbol": symbol,
-            "exchange": "HOSE/HNX",
+            "exchange": exchange,
             "price": close,
             "price_vnd": screener.format_vnd(close),
             "change_pct": change_pct,
@@ -120,8 +159,10 @@ def check_single_stock(symbol: str, send_telegram: bool = True, target_chat_id: 
             "has_buy_signal": has_buy_signal,
             "status_label": status_label,
             "recommendation": recommendation,
-            "candle_date": candle_date,
-            "updated_time": updated_time,
+            "candle_date": last_candle_date,
+            "updated_time": now_str,
+            "time_display": time_display,
+            "session_tag": session_tag,
             "sl": sl,
             "sl_vnd": screener.format_vnd(sl),
             "sl_pct": sl_pct,
@@ -138,12 +179,14 @@ def check_single_stock(symbol: str, send_telegram: bool = True, target_chat_id: 
     else:
         # Nếu analyze_stock đã lọc ra (đạt chuẩn chỉ báo)
         res["has_buy_signal"] = True
-        res["candle_date"] = candle_date
-        res["updated_time"] = updated_time
+        res["candle_date"] = last_candle_date
+        res["updated_time"] = now_str
+        res["time_display"] = time_display
+        res["session_tag"] = session_tag
 
     # In thông số chi tiết
     print(f"📊 Thông tin cơ bản: {res['symbol']} ({res['exchange']})")
-    print(f"• Thời gian: {res.get('updated_time', '')} (Nến {res.get('candle_date', '')})")
+    print(f"• Thời gian: {res.get('time_display', '')}")
     print(f"• Giá hiện tại: {res['price_vnd']} ({res['change_pct']:+.2f}%)")
     print(f"• Khối lượng phiên gần nhất: {int(res['volume']):,} cp (Gấp {res['vol_ratio']:.1f}x TB 20 phiên)")
     print(f"• Giá trị giao dịch: {res['trade_value_bil']:.1f} Tỷ VNĐ")
