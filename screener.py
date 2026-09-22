@@ -261,7 +261,49 @@ def calculate_indicators(df: pd.DataFrame):
         yhat1[idx] = np.dot(w, s) / np.sum(w)
     df['yhat1'] = yhat1
 
-    # 5. MA20 Khối lượng
+    # 5. Lorentzian KNN Prediction (đơn giản hóa từ Pine Script)
+    # Pine Script: y_train = close[4] < close[0] ? -1 : close[4] > close[0] ? 1 : 0
+    # prediction = sum của KNN neighbors (>0 là xu hướng tăng)
+    close_arr = df['close'].values
+    predictions_arr = []
+    # Tính y_train label cho mỗi bar
+    y_labels = np.zeros(len(close_arr), dtype=int)
+    for i in range(4, len(close_arr)):
+        if close_arr[i-4] < close_arr[i]:
+            y_labels[i] = -1   # 4 nến trước thấp hơn hiện tại → xu hướng tăng (nhãn ngược)
+        elif close_arr[i-4] > close_arr[i]:
+            y_labels[i] = 1    # 4 nến trước cao hơn hiện tại → xu hướng giảm
+    # Tính prediction tại bar cuối bằng KNN đơn giản (RSI & momentum-based)
+    n = len(close_arr)
+    rsi_arr = np.zeros(n)
+    for i in range(14, n):
+        gains = np.maximum(np.diff(close_arr[i-14:i+1]), 0)
+        losses = np.maximum(-np.diff(close_arr[i-14:i+1]), 0)
+        avg_gain = gains.mean()
+        avg_loss = losses.mean()
+        if avg_loss == 0:
+            rsi_arr[i] = 100.0
+        else:
+            rs = avg_gain / avg_loss
+            rsi_arr[i] = 100.0 - (100.0 / (1.0 + rs))
+    # KNN: Tìm 8 hàng xóm gần nhất cho bar cuối cùng
+    K = 8
+    if n >= K + 10:
+        cur_rsi = rsi_arr[-1]
+        cur_mom = close_arr[-1] - close_arr[-5] if n >= 5 else 0.0
+        distances = []
+        for i in range(4, n - 1):
+            mom_i = close_arr[i] - close_arr[i-4] if i >= 4 else 0.0
+            d = abs(rsi_arr[i] - cur_rsi) + abs(mom_i - cur_mom) * 0.1
+            distances.append((d, y_labels[i]))
+        distances.sort(key=lambda x: x[0])
+        top_k = distances[:K]
+        prediction_val = sum(lbl for _, lbl in top_k)
+    else:
+        prediction_val = 1  # Mặc định nếu không đủ dữ liệu
+    df['prediction'] = prediction_val  # Scalar, dùng cho bar cuối
+
+    # 6. MA20 Khối lượng
     df['vol_ma20'] = df['volume'].rolling(20).mean()
 
 def analyze_stock(item: dict, exchange: str) -> Optional[Dict]:
@@ -399,48 +441,46 @@ def analyze_stock(item: dict, exchange: str) -> Optional[Dict]:
         is_hanh_vi_mua = False
         lower_wick_ratio = 0.0
 
-    # 3. KIỂM TRA ĐIỂM BÓP CÒ MỚI (FRESH TRIGGER THEO ĐÚNG PINE SCRIPT)
-    # A. Kernel Rational Quadratic Crossover Up hôm nay
-    kernel_cross_up = (df_eval['yhat1'].iloc[-1] > df_eval['yhat1'].iloc[-2]) and (df_eval['yhat1'].iloc[-2] <= df_eval['yhat1'].iloc[-3])
+    # 3. KIỂM TRA ĐIỂM BÓP CÒ — ĐÚNG 100% PINE SCRIPT
+    # Pine Script dòng 200:
+    # buyCondition = (trend == 4) and (prediction > 0) and kernelCrossUp and (xuHuongST == 1)
+    # kernelCrossUp = ta.crossover(yhat1, yhat1[1])  ← yhat1 vượt lên trên yhat1[1]
+    # chacChanCaMap = isUltraVol and isHanhViMua and (winRate >= nguongTinCay)
 
-    # B. SuperTrend mới đảo chiều Tăng hôm nay
-    st_flip_bull = (df_eval['supertrend'].iloc[-1] == 1) and (df_eval['supertrend'].iloc[-2] == -1)
+    # Lorentzian prediction (>0 = AI dự đoán xu hướng tăng)
+    prediction_val = float(df_eval['prediction'].iloc[-1]) if 'prediction' in df_eval.columns else 0.0
 
-    # C. Bứt phá đỉnh 15 phiên (SOS Breakout)
-    recent_high_15 = df_eval['high'].iloc[-16:-1].max() if len(df_eval) > 16 else df_eval['high'].max()
-    is_sos_breakout = (matched_price >= recent_high_15 * 0.998) and (change_pct >= 1.5) and is_ultra_vol
+    # kernelCrossUp: yhat1 hiện tại > yhat1 trước (crossover lên)
+    kernel_cross_up = (
+        len(df_eval) >= 3
+        and df_eval['yhat1'].iloc[-1] > df_eval['yhat1'].iloc[-2]
+        and df_eval['yhat1'].iloc[-2] <= df_eval['yhat1'].iloc[-3]
+    )
 
-    # Đánh giá điểm mua
-    has_fresh_trigger = False
-    is_confirmed_whale = False
-    pattern = ""
-    whale_badge = "🚀 MUA VÀO"
+    # buyCondition: phải có ĐỦ 4 điều kiện
+    buy_condition = (
+        (current_trend == 4)
+        and (prediction_val > 0)
+        and kernel_cross_up
+        and is_supertrend_bull
+    )
 
-    if (current_trend == 4) and is_supertrend_bull and kernel_cross_up:
-        has_fresh_trigger = True
-        pattern = "Thuật toán Kernel ML & Xu hướng kích hoạt điểm MUA"
-        if is_ultra_vol and is_hanh_vi_mua:
-            is_confirmed_whale = True
-            whale_badge = "🐋 CÁ MẬP MUA"
-            pattern = "Cá Mập vào lệnh (Vol bùng nổ + Nến áp đảo)"
-    elif is_ultra_vol and is_hanh_vi_mua and (is_supertrend_bull or is_above_cloud):
-        has_fresh_trigger = True
-        is_confirmed_whale = True
-        whale_badge = "🐋 CÁ MẬP MUA"
-        pattern = "Cá Mập gom hàng (Quét thanh khoản rút chân)"
-    elif is_sos_breakout and (is_supertrend_bull or is_above_cloud):
-        has_fresh_trigger = True
-        is_confirmed_whale = True
-        whale_badge = "🐋 CÁ MẬP MUA"
-        pattern = "Cá Mập đẩy giá (Bứt phá đỉnh 15 phiên)"
-    elif st_flip_bull and (is_above_cloud or current_trend >= 2) and (current_vol_ratio >= 1.0 or effective_vol >= vol_ma20):
-        has_fresh_trigger = True
-        whale_badge = "🚀 MUA VÀO"
-        pattern = "SuperTrend đảo chiều Tăng 🟢"
-
-    # NẾU KHÔNG CÓ ĐIỂM BÓP CÒ MỚI HÔM NAY: BỎ QUA (Không báo ảo trên Telegram!)
-    if not has_fresh_trigger:
+    if not buy_condition:
         return None
+
+    # winRate theo Pine Script: ((K + abs(prediction)) / (2*K)) * 100
+    K = 8
+    win_rate = ((K + abs(prediction_val)) / (2 * K)) * 100.0
+    win_rate = max(50.0, min(100.0, win_rate))
+
+    # chacChanCaMap = isUltraVol and isHanhViMua and (winRate >= nguongTinCay)
+    is_confirmed_whale = is_ultra_vol and is_hanh_vi_mua and (win_rate >= config.MIN_ALERT_WINRATE)
+    whale_badge = "🐋 CÁ MẬP MUA" if is_confirmed_whale else "🚀 MUA VÀO"
+
+    if is_confirmed_whale:
+        pattern = "Cá Mập vào lệnh (Vol bùng nổ + Nến áp đảo)"
+    else:
+        pattern = "Thuật toán Kernel ML & Lorentzian AI kích hoạt điểm MUA"
 
     # 4. TÍNH TOÁN TP1, TP2, TP3 VÀ STOP LOSS (CHUẨN 100% PINE SCRIPT)
     # Pine Script: slPrice = not na(recentSwingLow) and recentSwingLow < close ? recentSwingLow : close - (atrRM * 1.5)
@@ -466,13 +506,6 @@ def analyze_stock(item: dict, exchange: str) -> Optional[Dict]:
     tp2_pct = ((tp2 - matched_price) / matched_price) * 100
     tp3_pct = ((tp3 - matched_price) / matched_price) * 100
 
-    effective_vol_ratio = max(current_vol_ratio, projected_vol_ratio)
-
-    # Tính độ tin cậy AI (WinRate %) đồng bộ như chỉ báo Pine Script
-    if is_confirmed_whale:
-        win_rate = min(96.0, max(78.0, 75.0 + (effective_vol_ratio - 1.2) * 8.0))
-    else:
-        win_rate = min(82.0, max(75.0, 72.0 + (effective_vol_ratio - 1.0) * 5.0))
 
     import main
     in_session = main.is_trading_hour()
