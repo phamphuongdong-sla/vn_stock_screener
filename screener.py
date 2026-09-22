@@ -16,6 +16,7 @@ import numpy as np
 import concurrent.futures
 from typing import List, Dict, Optional
 import config
+import main
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -310,7 +311,7 @@ def analyze_stock(item: dict, exchange: str) -> Optional[Dict]:
     Chỉ trả về Dict khi THỰC SỰ CÓ ĐIỂM MUA MỚI HÔM NAY (không báo ảo).
     """
     symbol = item.get("stockSymbol") or item.get("ssi_symbol") or item.get("symbol")
-    if not symbol or len(symbol) != 3 or not symbol.isalpha():
+    if not symbol or len(symbol) < 2 or len(symbol) > 5 or not symbol.isalpha():
         return None
 
     df = get_ticker_history(symbol, count=60)
@@ -478,7 +479,7 @@ def analyze_stock(item: dict, exchange: str) -> Optional[Dict]:
     if is_confirmed_whale:
         pattern = "Cá Mập vào lệnh (Vol bùng nổ + Nến áp đảo)"
     else:
-        pattern = "Thuật toán Kernel ML & Lorentzian AI kích hoạt điểm MUA"
+        pattern = "Thuật toán Kernel ML và Lorentzian AI kích hoạt điểm MUA"
 
     # 4. TÍNH TOÁN TP1, TP2, TP3 VÀ STOP LOSS (CHUẨN 100% PINE SCRIPT)
     # Pine Script: slPrice = not na(recentSwingLow) and recentSwingLow < close ? recentSwingLow : close - (atrRM * 1.5)
@@ -505,11 +506,16 @@ def analyze_stock(item: dict, exchange: str) -> Optional[Dict]:
     tp3_pct = ((tp3 - matched_price) / matched_price) * 100
 
 
-    import main
     in_session = main.is_trading_hour()
     now_str = datetime.now().strftime("%H:%M %d/%m/%Y")
+    today_str = datetime.now().strftime("%d/%m/%Y")
     candle_ts = df['time'].iloc[-1] if 'time' in df.columns else None
-    last_candle_date = datetime.fromtimestamp(int(candle_ts)).strftime("%d/%m/%Y") if candle_ts else datetime.now().strftime("%d/%m/%Y")
+    last_candle_date = datetime.fromtimestamp(int(candle_ts)).strftime("%d/%m/%Y") if candle_ts else today_str
+    # Nếu nến cuối là hôm nay (sau phiên), dùng ngày hôm nay
+    if last_candle_date != today_str:
+        candle_today = datetime.fromtimestamp(int(candle_ts)).date() if candle_ts else None
+        if candle_today and candle_today == datetime.now().date():
+            last_candle_date = today_str
 
     if in_session:
         time_display = f"{now_str} (Thời gian thực)"
@@ -582,7 +588,7 @@ def run_screener() -> List[Dict]:
         candidates = []
         for item in items:
             sym = item.get("stockSymbol") or item.get("symbol")
-            if not sym or len(sym) != 3 or not sym.isalpha():
+            if not sym or len(sym) < 2 or len(sym) > 5 or not sym.isalpha():
                 continue
             p = normalize_price_k(item.get("matchedPrice") or item.get("lastPrice") or item.get("expectedMatchedPrice") or item.get("refPrice") or 0)
             v = float(item.get("totalVol") or item.get("nmTotalTradedQty") or item.get("expectedMatchedVolume") or 0)

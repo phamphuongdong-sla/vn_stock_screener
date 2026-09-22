@@ -44,8 +44,14 @@ def check_single_stock(symbol: str, send_telegram: bool = True, target_chat_id: 
     from datetime import datetime
     in_session = main.is_trading_hour()
     now_str = datetime.now().strftime("%H:%M %d/%m/%Y")
+    today_str = datetime.now().strftime("%d/%m/%Y")
     candle_ts = df['time'].iloc[-1] if 'time' in df.columns else None
-    last_candle_date = datetime.fromtimestamp(int(candle_ts)).strftime("%d/%m/%Y") if candle_ts else datetime.now().strftime("%d/%m/%Y")
+    last_candle_date = datetime.fromtimestamp(int(candle_ts)).strftime("%d/%m/%Y") if candle_ts else today_str
+    # Nếu nến cuối là hôm nay (sau phiên), dùng ngày hôm nay
+    if last_candle_date != today_str:
+        candle_today = datetime.fromtimestamp(int(candle_ts)).date() if candle_ts else None
+        if candle_today and candle_today == datetime.now().date():
+            last_candle_date = today_str
 
     if in_session:
         time_display = f"{now_str} (Thời gian thực)"
@@ -168,21 +174,21 @@ def check_single_stock(symbol: str, send_telegram: bool = True, target_chat_id: 
         hud_order = f"MUA tại {screener.format_vnd(close)} (SL: {screener.format_vnd(sl)})" if has_buy_signal else "Đang Chờ... ⏸"
         if current_trend == 4:
             status_label = "CHƯA CÓ ĐIỂM MUA MỚI"
-            recommendation = "Cổ phiếu đang giữ xu hướng TĂNG MẠNH 🟢 & Trên Mây nhưng chưa xuất hiện điểm gom / bùng nổ mới hôm nay (Lệnh Mở: Đang Chờ... ⏸). Ưu tiên quan sát hoặc nắm giữ vị thế cũ."
+            recommendation = "Cổ phiếu đang giữ xu hướng TĂNG MẠNH 🟢 và Trên Mây nhưng chưa xuất hiện điểm gom / bùng nổ mới hôm nay. Ưu tiên quan sát hoặc nắm giữ vị thế cũ."
             whale_badge = "📈 [TĂNG MẠNH]"
-            pattern = "Xu hướng tăng mạnh (Lệnh Mở: Đang Chờ... ⏸)"
+            pattern = "Xu hướng tăng mạnh (Lệnh Mở: Đang Chờ...)"
             win_rate = 70.0
         elif current_trend == -4:
             status_label = "CHƯA CÓ ĐIỂM MUA"
-            recommendation = "Cổ phiếu đang xu hướng GIẢM MẠNH 🔴 & Dưới Mây Ichimoku. Tuyệt đối không bắt đáy, đứng ngoài quan sát."
+            recommendation = "Cổ phiếu đang xu hướng GIẢM MẠNH 🔴 và Dưới Mây Ichimoku. Tuyệt đối không bắt đáy, đứng ngoài quan sát."
             whale_badge = "🛑 [XU HƯỚNG GIẢM]"
-            pattern = "Xu hướng giảm (Đang Chờ... ⏸)"
+            pattern = "Xu hướng giảm (Đang Chờ...)"
             win_rate = 45.0
         else:
             status_label = "CHƯA CÓ ĐIỂM MUA"
             recommendation = "Cổ phiếu đang đi ngang (SIDEWAY ⚪). Chưa có dòng tiền bứt phá, tiếp tục quan sát."
             whale_badge = "⚪️ [SIDEWAY]"
-            pattern = "Đi ngang tích lũy (Đang Chờ... ⏸)"
+            pattern = "Đi ngang tích lũy (Đang Chờ...)"
             win_rate = 55.0
 
         res = {

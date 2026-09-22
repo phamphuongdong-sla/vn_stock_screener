@@ -150,7 +150,10 @@ def display_and_notify_results(signals: list):
 
     # Gửi thông báo Telegram nếu được kích hoạt
     if config.TELEGRAM_ENABLED:
-        print(f"\n[*] Đang lọc và gửi các tín hiệu mới đạt từ {config.MIN_ALERT_WINRATE:.0f}% trở lên tới Telegram...")
+        if config.MIN_ALERT_WINRATE > 0:
+            print(f"\n[*] Đang lọc và gửi các tín hiệu mới đạt từ {config.MIN_ALERT_WINRATE:.0f}% trở lên tới Telegram...")
+        else:
+            print(f"\n[*] Đang gửi tất cả tín hiệu có điểm mua tới Telegram...")
         print(f"[*] Danh sách mã đã gửi hôm nay: {sorted(list(alerted_stocks_today)) if alerted_stocks_today else 'Chưa có'}")
         alerted_count = 0
         for s in signals:
@@ -242,14 +245,10 @@ def main():
                                 continue
 
                             target_symbol = None
-                            if text.startswith("/CHECK") or text.startswith("/SOI"):
-                                parts = text.split()
-                                if len(parts) > 1:
-                                    target_symbol = parts[1]
-                            elif len(text) == 3 and text.isalpha():
+                            if 2 <= len(text) <= 5 and text.isalpha():
                                 target_symbol = text
 
-                            if target_symbol and len(target_symbol) == 3 and target_symbol.isalpha():
+                            if target_symbol and 2 <= len(target_symbol) <= 5 and target_symbol.isalpha():
                                 print(f"\n📲 [LỆNH TELEGRAM] Nhận yêu cầu soi mã: {target_symbol} từ Chat ID {chat_id}")
                                 import check
                                 check.check_single_stock(target_symbol, send_telegram=True, target_chat_id=str(chat_id))
