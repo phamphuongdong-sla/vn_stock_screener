@@ -31,20 +31,23 @@ def format_vnd(val: float) -> str:
 
 def get_exchange_symbols_snapshot(exchange: str) -> List[Dict]:
     """
-    Lấy toàn bộ bảng giá thời gian thực sàn HOSE hoặc HNX từ SSI iBoard
+    Lấy toàn bộ bảng giá thời gian thực sàn HOSE hoặc HNX từ SSI iBoard (kèm cơ chế retry)
     """
     exchange_lower = exchange.lower()
     url = f"https://iboard-query.ssi.com.vn/stock/exchange/{exchange_lower}"
-    try:
-        resp = requests.get(url, headers=HEADERS, timeout=12)
-        if resp.status_code == 200:
-            data = resp.json()
-            if isinstance(data, dict) and "data" in data:
-                return data["data"]
-            elif isinstance(data, list):
-                return data
-    except Exception as e:
-        print(f"[Cảnh báo] Lỗi tải dữ liệu sàn {exchange}: {e}")
+    for attempt in range(2):
+        try:
+            resp = requests.get(url, headers=HEADERS, timeout=18)
+            if resp.status_code == 200:
+                data = resp.json()
+                if isinstance(data, dict) and "data" in data:
+                    return data["data"]
+                elif isinstance(data, list):
+                    return data
+        except Exception as e:
+            if attempt == 1:
+                print(f"[Cảnh báo] Lỗi tải dữ liệu sàn {exchange}: {e}")
+            time.sleep(1)
     return []
 
 def get_ticker_history(symbol: str, count: int = 60) -> Optional[pd.DataFrame]:
