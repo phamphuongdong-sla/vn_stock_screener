@@ -238,13 +238,7 @@ if buyCondition
 
     // Nội dung Thẻ Card ProMax
     tieuDe = chacChanCaMap ? "🐋 CÁ MẬP MUA" : "🚀 MUA VÀO"
-    cardText = tieuDe + " [" + str.tostring(winRate, "#") + "%]\n" +
-               "─────────────────\n" +
-               "💰 Vào: " + f_vnd(entryPrice) + "\n" +
-               "🎯 TP1: " + f_vnd(tp1Price)   + " (+1R)\n" +
-               "🎯 TP2: " + f_vnd(tp2Price)   + " (+2R)\n" +
-               "🎯 TP3: " + f_vnd(tp3Price)   + " (+3R)\n" +
-               "🛑 SL : " + f_vnd(slPrice)     + " (-1R)"
+    cardText = tieuDe + " [" + str.tostring(winRate, "#") + "%]\n─────────────────\n💰 Vào: " + f_vnd(entryPrice) + "\n🎯 TP1: " + f_vnd(tp1Price) + " (+1R)\n🎯 TP2: " + f_vnd(tp2Price) + " (+2R)\n🎯 TP3: " + f_vnd(tp3Price) + " (+3R)\n🛑 SL : " + f_vnd(slPrice) + " (-1R)"
 
     mauCard = chacChanCaMap ? color.rgb(15, 45, 80) : color.rgb(6, 78, 59)
     label.new(bar_index, low - atrRM, cardText, style=label.style_label_up, color=mauCard, textcolor=color.white, size=size.normal)
@@ -283,13 +277,7 @@ if sellCondition
     chacChanCaMap = isUltraVol and isHanhViBan and (winRate >= nguongTinCay)
 
     tieuDe = chacChanCaMap ? "🐋 CÁ MẬP BÁN" : "🔻 BÁN RA"
-    cardText = tieuDe + " [" + str.tostring(winRate, "#") + "%]\n" +
-               "─────────────────\n" +
-               "💰 Vào: " + f_vnd(entryPrice) + "\n" +
-               "🎯 TP1: " + f_vnd(tp1Price)   + " (+1R)\n" +
-               "🎯 TP2: " + f_vnd(tp2Price)   + " (+2R)\n" +
-               "🎯 TP3: " + f_vnd(tp3Price)   + " (+3R)\n" +
-               "🛑 SL : " + f_vnd(slPrice)     + " (-1R)"
+    cardText = tieuDe + " [" + str.tostring(winRate, "#") + "%]\n─────────────────\n💰 Vào: " + f_vnd(entryPrice) + "\n🎯 TP1: " + f_vnd(tp1Price) + " (+1R)\n🎯 TP2: " + f_vnd(tp2Price) + " (+2R)\n🎯 TP3: " + f_vnd(tp3Price) + " (+3R)\n🛑 SL : " + f_vnd(slPrice) + " (-1R)"
 
     mauCard = chacChanCaMap ? color.rgb(80, 15, 25) : color.rgb(127, 29, 29)
     label.new(bar_index, high + atrRM, cardText, style=label.style_label_down, color=mauCard, textcolor=color.white, size=size.normal)
