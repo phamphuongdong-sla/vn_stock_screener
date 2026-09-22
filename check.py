@@ -9,8 +9,10 @@ Cách dùng:
 
 import sys
 import time
+import requests
 import pandas as pd
 import numpy as np
+import config
 import screener
 import main
 import telegram_bot

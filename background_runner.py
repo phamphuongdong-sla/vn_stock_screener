@@ -82,11 +82,9 @@ def telegram_listener_thread():
                     ).start()
                     continue
 
-                # Lệnh soi mã: /soi VCB, /check VCB hoặc gõ thẳng: VCB
+                # Chỉ hỗ trợ Cách 1: gõ thẳng mã cổ phiếu (VD: HPG, SSI, VCB)
                 target_symbol = None
-                if cmd in ["/CHECK", "/SOI"] and len(parts) > 1:
-                    target_symbol = parts[1]
-                elif len(text) <= 5 and text.isalpha():
+                if len(text) <= 5 and text.isalpha():
                     target_symbol = text
 
                 if target_symbol and 2 <= len(target_symbol) <= 5 and target_symbol.isalpha():
