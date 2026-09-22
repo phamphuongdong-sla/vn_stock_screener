@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
+"""
+Script quét toàn bộ thị trường chứng khoán Việt Nam (HOSE + HNX)
+Tự động kích hoạt bởi GitHub Actions theo lịch trình (Cron)
+"""
 import screener
 import main
 
-tickers = ['SSI', 'HPG', 'VND', 'BSR', 'DIG', 'PVD', 'VHM', 'MWG', 'FPT', 'KBC', 'GEX', 'STB']
-signals = []
+def main_scan():
+    print("\n" + "="*80)
+    print("🚀 GITHUB ACTIONS: KHỞI CHẠY QUÉT TOÀN BỘ THỊ TRƯỜNG CHỨNG KHOÁN (HOSE, HNX)")
+    print("🎯 Lọc điểm mua chuẩn theo chỉ báo Pine Script AI Cá Mập ProMax")
+    print("="*80)
+    signals = screener.run_screener()
+    main.display_and_notify_results(signals)
 
-for s in tickers:
-    item = {'stockSymbol': s}
-    res = screener.analyze_stock(item, 'HOSE')
-    if res:
-        signals.append(res)
-
-signals = sorted(signals, key=lambda x: (x["is_whale"], x["vol_ratio"]), reverse=True)
-print("\n" + "="*80)
-print("🎯 KẾT QUẢ PHÂN TÍCH THỰC TẾ TRÊN CÁC CỔ PHIẾU NỔI BẬT TẠI VIỆT NAM:")
-print("="*80)
-main.display_and_notify_results(signals)
+if __name__ == "__main__":
+    main_scan()
