@@ -261,47 +261,45 @@ def calculate_indicators(df: pd.DataFrame):
         yhat1[idx] = np.dot(w, s) / np.sum(w)
     df['yhat1'] = yhat1
 
-    # 5. Lorentzian KNN Prediction (đơn giản hóa từ Pine Script)
-    # Pine Script: y_train = close[4] < close[0] ? -1 : close[4] > close[0] ? 1 : 0
-    # prediction = sum của KNN neighbors (>0 là xu hướng tăng)
+    # 5. Lorentzian KNN Prediction — theo đúng Pine Script
+    # y_train = close[4] < close[0] ? -1 : close[4] > close[0] ? 1 : 0
+    # prediction = tổng nhãn K hàng xóm gần nhất
+    # prediction > 0 → AI xác nhận xu hướng (dùng trong buyCondition)
     close_arr = df['close'].values
-    predictions_arr = []
-    # Tính y_train label cho mỗi bar
-    y_labels = np.zeros(len(close_arr), dtype=int)
-    for i in range(4, len(close_arr)):
-        if close_arr[i-4] < close_arr[i]:
-            y_labels[i] = -1   # 4 nến trước thấp hơn hiện tại → xu hướng tăng (nhãn ngược)
-        elif close_arr[i-4] > close_arr[i]:
-            y_labels[i] = 1    # 4 nến trước cao hơn hiện tại → xu hướng giảm
-    # Tính prediction tại bar cuối bằng KNN đơn giản (RSI & momentum-based)
     n = len(close_arr)
-    rsi_arr = np.zeros(n)
+
+    # Tính y_label cho mỗi bar (nhãn gán tại bar hiện tại dựa vào close[4] vs close[0])
+    y_labels = np.zeros(n, dtype=int)
+    for i in range(4, n):
+        c4_ago = close_arr[i - 4]   # close 4 bar trước
+        c_now  = close_arr[i]        # close hiện tại
+        if c4_ago < c_now:
+            y_labels[i] = -1         # Giá tăng 4 bar → nhãn -1 (Pine Script gốc)
+        elif c4_ago > c_now:
+            y_labels[i] = 1          # Giá giảm 4 bar → nhãn +1
+
+    # Feature: RSI(14) cho mỗi bar
+    rsi_arr = np.full(n, 50.0)
     for i in range(14, n):
-        gains = np.maximum(np.diff(close_arr[i-14:i+1]), 0)
-        losses = np.maximum(-np.diff(close_arr[i-14:i+1]), 0)
-        avg_gain = gains.mean()
-        avg_loss = losses.mean()
-        if avg_loss == 0:
-            rsi_arr[i] = 100.0
-        else:
-            rs = avg_gain / avg_loss
-            rsi_arr[i] = 100.0 - (100.0 / (1.0 + rs))
-    # KNN: Tìm 8 hàng xóm gần nhất cho bar cuối cùng
+        delta = np.diff(close_arr[max(0, i-14):i+1])
+        gains  = delta[delta > 0].sum() / 14.0
+        losses = (-delta[delta < 0]).sum() / 14.0
+        rsi_arr[i] = 100.0 - (100.0 / (1.0 + gains / losses)) if losses > 0 else 100.0
+
+    # KNN (K=8): tìm 8 hàng xóm gần nhất cho bar cuối cùng
     K = 8
-    if n >= K + 10:
+    prediction_val = 0
+    if n >= K + 15:
         cur_rsi = rsi_arr[-1]
-        cur_mom = close_arr[-1] - close_arr[-5] if n >= 5 else 0.0
-        distances = []
-        for i in range(4, n - 1):
-            mom_i = close_arr[i] - close_arr[i-4] if i >= 4 else 0.0
-            d = abs(rsi_arr[i] - cur_rsi) + abs(mom_i - cur_mom) * 0.1
-            distances.append((d, y_labels[i]))
-        distances.sort(key=lambda x: x[0])
-        top_k = distances[:K]
-        prediction_val = sum(lbl for _, lbl in top_k)
-    else:
-        prediction_val = 1  # Mặc định nếu không đủ dữ liệu
-    df['prediction'] = prediction_val  # Scalar, dùng cho bar cuối
+        cur_mom = (close_arr[-1] - close_arr[-5]) / close_arr[-5] * 100.0 if close_arr[-5] > 0 else 0.0
+        candidates = []
+        for i in range(14, n - 2):   # bỏ 2 bar cuối (chưa có nhãn tương lai)
+            mom_i = (close_arr[i] - close_arr[i-4]) / close_arr[i-4] * 100.0 if close_arr[i-4] > 0 else 0.0
+            d = abs(rsi_arr[i] - cur_rsi) + abs(mom_i - cur_mom)
+            candidates.append((d, int(y_labels[i])))
+        candidates.sort(key=lambda x: x[0])
+        prediction_val = sum(lbl for _, lbl in candidates[:K])
+    df['prediction'] = float(prediction_val)
 
     # 6. MA20 Khối lượng
     df['vol_ma20'] = df['volume'].rolling(20).mean()
