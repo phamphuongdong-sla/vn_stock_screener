@@ -131,15 +131,30 @@ def main():
                         for up in r.json().get("result", []):
                             last_update_id = up.get("update_id", last_update_id)
                             msg = up.get("message", {})
-                            text = msg.get("text", "").strip().upper()
-                            if text.startswith("/CHECK"):
+                            chat_id = msg.get("chat", {}).get("id")
+                            raw_text = msg.get("text", "").strip()
+                            if not raw_text or not chat_id:
+                                continue
+                            
+                            text = raw_text.upper()
+                            if text.startswith("/START") or text.startswith("/HELP") or text.startswith("/HUONGDAN"):
+                                print(f"\n📖 [LỆNH TELEGRAM] Gửi hướng dẫn tới Chat ID: {chat_id}")
+                                import telegram_bot
+                                telegram_bot.send_welcome_help(str(chat_id))
+                                continue
+
+                            target_symbol = None
+                            if text.startswith("/CHECK") or text.startswith("/SOI"):
                                 parts = text.split()
                                 if len(parts) > 1:
-                                    text = parts[1]
-                            if len(text) == 3 and text.isalpha():
-                                print(f"\n📲 [LỆNH TELEGRAM] Người dùng yêu cầu soi mã: {text}")
+                                    target_symbol = parts[1]
+                            elif len(text) == 3 and text.isalpha():
+                                target_symbol = text
+
+                            if target_symbol and len(target_symbol) == 3 and target_symbol.isalpha():
+                                print(f"\n📲 [LỆNH TELEGRAM] Nhận yêu cầu soi mã: {target_symbol} từ Chat ID {chat_id}")
                                 import check
-                                check.check_single_stock(text, send_telegram=True)
+                                check.check_single_stock(target_symbol, send_telegram=True, target_chat_id=str(chat_id))
                 except Exception:
                     pass
 

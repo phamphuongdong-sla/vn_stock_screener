@@ -14,6 +14,8 @@ import screener
 import main
 import check
 
+import telegram_bot
+
 def log(msg: str):
     now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     line = f"[{now_str}] {msg}"
@@ -39,7 +41,7 @@ def run_daemon():
     log("[*] Bot đã sẵn sàng chạy ngầm 24/7. Đang lắng nghe lệnh...")
 
     while True:
-        # 1. Lắng nghe tin nhắn từ Telegram (Bạn nhắn mã nào là soi ngay)
+        # 1. Lắng nghe tin nhắn từ Telegram (Hỗ trợ nhiều người dùng tra cứu & hướng dẫn)
         if config.TELEGRAM_ENABLED:
             try:
                 u_url = f"https://api.telegram.org/bot{config.TELEGRAM_BOT_TOKEN}/getUpdates?offset={last_update_id + 1}&timeout=1"
@@ -48,14 +50,30 @@ def run_daemon():
                     for up in r.json().get("result", []):
                         last_update_id = up.get("update_id", last_update_id)
                         msg = up.get("message", {})
-                        text = msg.get("text", "").strip().upper()
-                        if text.startswith("/CHECK"):
+                        chat_id = msg.get("chat", {}).get("id")
+                        raw_text = msg.get("text", "").strip()
+                        if not raw_text or not chat_id:
+                            continue
+                        
+                        text = raw_text.upper()
+                        # Kiểm tra lệnh trợ giúp: /start, /help, /huongdan
+                        if text.startswith("/START") or text.startswith("/HELP") or text.startswith("/HUONGDAN"):
+                            log(f"📖 Gửi hướng dẫn sử dụng tới Chat ID {chat_id}")
+                            telegram_bot.send_welcome_help(str(chat_id))
+                            continue
+
+                        # Kiểm tra lệnh soi mã: /soi, /check hoặc gõ thẳng 3 chữ cái
+                        target_symbol = None
+                        if text.startswith("/CHECK") or text.startswith("/SOI"):
                             parts = text.split()
                             if len(parts) > 1:
-                                text = parts[1]
-                        if len(text) == 3 and text.isalpha():
-                            log(f"📲 Nhận lệnh từ Telegram yêu cầu soi mã: {text}")
-                            check.check_single_stock(text, send_telegram=True)
+                                target_symbol = parts[1]
+                        elif len(text) == 3 and text.isalpha():
+                            target_symbol = text
+
+                        if target_symbol and len(target_symbol) == 3 and target_symbol.isalpha():
+                            log(f"📲 Nhận lệnh từ Chat ID {chat_id} yêu cầu soi mã: {target_symbol}")
+                            check.check_single_stock(target_symbol, send_telegram=True, target_chat_id=str(chat_id))
             except Exception:
                 pass
 

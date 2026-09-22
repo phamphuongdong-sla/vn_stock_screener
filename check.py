@@ -13,7 +13,7 @@ import main
 import telegram_bot
 from tabulate import tabulate
 
-def check_single_stock(symbol: str, send_telegram: bool = True):
+def check_single_stock(symbol: str, send_telegram: bool = True, target_chat_id: str = None):
     symbol = symbol.strip().upper()
     print(f"\n{'='*70}")
     print(f"🔍 ĐANG PHÂN TÍCH CHI TIẾT MÃ CỔ PHIẾU: {symbol}")
@@ -111,7 +111,7 @@ def check_single_stock(symbol: str, send_telegram: bool = True):
 
     if send_telegram:
         print("[*] Đang gửi kết quả phân tích mã này sang Telegram của bạn...")
-        sent = telegram_bot.send_telegram_alert(res, force=True)
+        sent = telegram_bot.send_telegram_alert(res, force=True, target_chat_id=target_chat_id)
         if sent:
             print(f"✅ Đã gửi phân tích mã {symbol} về Telegram thành công!")
         else:
