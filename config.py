@@ -68,3 +68,21 @@ GDNL_MIN_SCORE   = 4      # Điểm xu hướng tối thiểu để báo (1-6)
 GDNL_PIVOT_LEN   = 15     # Chu kỳ Pivot High/Low
 GDNL_TP1_RR      = 1.0    # R:R mức TP1
 GDNL_TP2_RR      = 2.0    # R:R mức TP2
+
+# ==========================================
+# 5. DTPRO — Dòng Tiền & Xu Hướng PRO (Pine Script Port)
+# ==========================================
+# Đồng bộ 100% với "DÒNG TIỀN & XU HƯỚNG PRO - MASTER EDITION"
+
+DTPRO_ST_LEN      = 10     # Chu kỳ Keltner SuperTrend
+DTPRO_ATR_LEN     = 14     # Chu kỳ ATR
+DTPRO_ST_MULT     = 2.8    # Hệ số nhân SuperTrend
+DTPRO_EMA_FAST    = 20     # EMA nhanh (MTF scan)
+DTPRO_EMA_SLOW    = 50     # EMA chậm (MTF scan)
+DTPRO_NW_H        = 8.0    # Băng thông Nadaraya-Watson kernel
+DTPRO_NW_MULT     = 3.0    # Hệ số nhân biên độ NW
+DTPRO_NW_WIN      = 500    # Kích thước kernel NW (số nến)
+DTPRO_RR1         = 1.0    # R:R mức TP1
+DTPRO_RR2         = 2.0    # R:R mức TP2
+DTPRO_HISTORY_DAYS = 1500  # Số ngày lịch sử cần fetch (để NW kernel đủ dữ liệu)
+

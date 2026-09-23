@@ -1,22 +1,26 @@
 # -*- coding: utf-8 -*-
 """
 Module quét và phân tích dữ liệu toàn bộ thị trường chứng khoán Việt Nam (HOSE, HNX)
-ĐỒNG BỘ 100% THEO CHỈ BÁO PINE SCRIPT "AI CÁ MẬP PROMAX":
-1. Xu hướng SuperTrend (10, 3.0)
-2. Mây Ichimoku (8, 13, 26, 12) - Giá nằm trên mây
-3. Tiêu chuẩn Cá Mập khắt khe: Volume bùng nổ >= 1.5x MA20 + Nến rút chân quét thanh khoản (Spring) / Vượt đỉnh (SOS)
-4. Định dạng tiền tệ chuẩn VNĐ (VD: 25.400 đ)
+ĐỒNG BỘ 100% THEO CHỈ BÁO PINE SCRIPT "Volume AI & Keltner - Premium UI":
+1. Keltner SuperTrend theo VWMA(10) và ATR(10, factor=2.8)
+2. Lõi học máy Volume AI (KNN k=3, n_data=10, WMA 20 & WMA 100)
+3. Tín hiệu 2 chiều real-time: MUA LÊN (LONG) và BÁN XUỐNG (SHORT)
+4. Quản trị rủi ro chuẩn xác: Cắt Lỗ (SL), Mục Tiêu (TP1: 1.0R, TP2: 1.5R, TP3: 2.5R) theo ATR(14)
+5. Định dạng tiền tệ chuẩn VNĐ (VD: 25.400 đ)
 """
 
 import time
 from datetime import datetime
+import threading
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 import pandas as pd
 import numpy as np
 import concurrent.futures
 from typing import List, Dict, Optional
 import config
-import main
+from indicators import calculate_all_indicators, calc_risk_levels
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -76,6 +80,50 @@ def get_elapsed_trading_minutes(now_dt: Optional[datetime] = None) -> int:
     else:
         return 270
 
+def is_trading_hour(now_dt: Optional[datetime] = None) -> bool:
+    """
+    Kiểm tra xem hiện tại có phải trong phiên giao dịch chứng khoán Việt Nam hay không
+    (Thứ 2 đến Thứ 6, từ 9h00 - 11h30 và 13h00 - 15h00)
+    """
+    now = now_dt if now_dt is not None else datetime.now()
+    if now.weekday() > 4:
+        return False
+    
+    current_time = now.time()
+    t_0900 = datetime.strptime("09:00", "%H:%M").time()
+    t_1130 = datetime.strptime("11:30", "%H:%M").time()
+    t_1300 = datetime.strptime("13:00", "%H:%M").time()
+    t_1500 = datetime.strptime("15:00", "%H:%M").time()
+
+    return (t_0900 <= current_time <= t_1130) or (t_1300 <= current_time <= t_1500)
+
+_thread_local = threading.local()
+
+def get_session() -> requests.Session:
+    """
+    Tạo hoặc tái sử dụng requests.Session riêng cho mỗi luồng (Thread-Local)
+    với HTTP Keep-Alive và cơ chế retry tự động.
+    """
+    if not hasattr(_thread_local, "session"):
+        s = requests.Session()
+        retries = Retry(
+            total=2,
+            backoff_factor=0.05,
+            status_forcelist=[500, 502, 503, 504],
+            raise_on_status=False
+        )
+        adapter = HTTPAdapter(
+            pool_connections=1,
+            pool_maxsize=1,
+            max_retries=retries
+        )
+        s.mount("https://", adapter)
+        s.mount("http://", adapter)
+        s.headers.update(HEADERS)
+        _thread_local.session = s
+    return _thread_local.session
+
+_snapshot_lock = threading.Lock()
 _snapshot_cache = {}
 _snapshot_cache_time = {}
 
@@ -85,13 +133,15 @@ def get_exchange_symbols_snapshot(exchange: str) -> List[Dict]:
     """
     now = time.time()
     ex = exchange.lower()
-    if ex in _snapshot_cache and (now - _snapshot_cache_time.get(ex, 0) < 20):
-        return _snapshot_cache[ex]
+    with _snapshot_lock:
+        if ex in _snapshot_cache and (now - _snapshot_cache_time.get(ex, 0) < 20):
+            return _snapshot_cache[ex]
 
     url = f"https://iboard-query.ssi.com.vn/stock/exchange/{ex}"
+    session = get_session()
     for attempt in range(2):
         try:
-            resp = requests.get(url, headers=HEADERS, timeout=15)
+            resp = session.get(url, timeout=15)
             if resp.status_code == 200:
                 data = resp.json()
                 if isinstance(data, dict) and "data" in data:
@@ -101,14 +151,17 @@ def get_exchange_symbols_snapshot(exchange: str) -> List[Dict]:
                 else:
                     res_list = []
                 if res_list:
-                    _snapshot_cache[ex] = res_list
-                    _snapshot_cache_time[ex] = now
+                    with _snapshot_lock:
+                        _snapshot_cache[ex] = res_list
+                        _snapshot_cache_time[ex] = time.time()
                     return res_list
         except Exception as e:
             if attempt == 1:
                 print(f"[Cảnh báo] Lỗi tải dữ liệu sàn {exchange}: {e}")
             time.sleep(0.5)
-    return _snapshot_cache.get(ex, [])
+
+    with _snapshot_lock:
+        return _snapshot_cache.get(ex, [])
 
 def get_live_stock_quote(symbol: str) -> dict:
     """
@@ -123,187 +176,50 @@ def get_live_stock_quote(symbol: str) -> dict:
                 return d
     return {"stockSymbol": symbol}
 
-def get_ticker_history(symbol: str, count: int = 60) -> Optional[pd.DataFrame]:
+def get_ticker_history(symbol: str, count: int = 150, days: int = 1500) -> Optional[pd.DataFrame]:
     """
-    Lấy lịch sử nến ngày từ DNSE Entrade (Tốc độ cực cao: 0.1s)
+    Lấy lịch sử nến ngày từ DNSE Entrade.
+    days: số ngày lịch sử cần lấy (mặc định 1500 ngày ≈ 1000 phiên giao dịch)
+    count: giới hạn số nến trả về (None = trả về tất cả)
     """
     now_ts = int(time.time())
-    from_ts = now_ts - 160 * 86400  # Lấy khoảng 80-90 phiên nến gần nhất
+    from_ts = now_ts - days * 86400
     url_dnse = f"https://services.entrade.com.vn/chart-api/v2/ohlcs/stock?from={from_ts}&to={now_ts}&symbol={symbol}&resolution=1D"
     try:
-        resp = requests.get(url_dnse, headers=HEADERS, timeout=5)
+        session = get_session()
+        resp = session.get(url_dnse, timeout=(2.0, 5.0))
         if resp.status_code == 200:
             data = resp.json()
             if data and "t" in data and len(data["t"]) >= 30:
                 df = pd.DataFrame({
-                    "time": data["t"],
-                    "open": data["o"],
-                    "high": data["h"],
-                    "low": data["l"],
-                    "close": data["c"],
+                    "time":   data["t"],
+                    "open":   data["o"],
+                    "high":   data["h"],
+                    "low":    data["l"],
+                    "close":  data["c"],
                     "volume": data["v"]
                 })
-                return df.tail(count).reset_index(drop=True)
+                if count is not None:
+                    return df.tail(count).reset_index(drop=True)
+                return df.reset_index(drop=True)
     except Exception:
         pass
 
     return None
 
-def calculate_indicators(df: pd.DataFrame):
+def calculate_indicators(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Tính toán SuperTrend (10, 3.0), Mây Ichimoku (8, 13, 26, 12),
-    Xu hướng Trend (-4 đến +4) và Rational Quadratic Kernel giống hệt 100% Pine Script AI Whale ProMax.
+    Tính toán các chỉ báo kỹ thuật Volume AI & Keltner (chuẩn 100% Pine Script AI_Whale_ProMax.pine):
+    1. Keltner SuperTrend: VWMA(10), ATR(10, factor=2.8)
+    2. KNN Volume AI: WMA(20), WMA(100), k=3, n_data=10
+    3. ATR(14) cho quản trị vốn TP/SL
+    4. Bộ bóp cò State Machine (LONG / SHORT)
     """
-    # 1. Tính ATR(10) và SuperTrend (10, 3.0)
-    high_low = df['high'] - df['low']
-    high_close = (df['high'] - df['close'].shift(1)).abs()
-    low_close = (df['low'] - df['close'].shift(1)).abs()
-    tr = pd.concat([high_low, high_close, low_close], axis=1).max(axis=1)
-    df['atr10'] = tr.rolling(window=10).mean()
-    df['atr14'] = tr.rolling(window=14).mean()
-
-    hl2 = (df['high'] + df['low']) / 2
-    upper_band = hl2 + (df['atr10'] * 3.0)
-    lower_band = hl2 - (df['atr10'] * 3.0)
-
-    trend_st = [1] * len(df)
-    bien_tren = list(upper_band)
-    bien_duoi = list(lower_band)
-
-    for i in range(1, len(df)):
-        if df['close'].iloc[i-1] < bien_tren[i-1]:
-            bien_tren[i] = min(upper_band.iloc[i], bien_tren[i-1])
-        else:
-            bien_tren[i] = upper_band.iloc[i]
-
-        if df['close'].iloc[i-1] > bien_duoi[i-1]:
-            bien_duoi[i] = max(lower_band.iloc[i], bien_duoi[i-1])
-        else:
-            bien_duoi[i] = lower_band.iloc[i]
-
-        if df['close'].iloc[i] > bien_tren[i]:
-            trend_st[i] = 1
-        elif df['close'].iloc[i] < bien_duoi[i]:
-            trend_st[i] = -1
-        else:
-            trend_st[i] = trend_st[i-1]
-
-    df['supertrend'] = trend_st
-
-    # 2. Tính Ichimoku (8, 13, 26, 12)
-    conv_line = (df['high'].rolling(8).max() + df['low'].rolling(8).min()) / 2
-    base_line = (df['high'].rolling(13).max() + df['low'].rolling(13).min()) / 2
-    span_a = (conv_line + base_line) / 2
-    span_b = (df['high'].rolling(26).max() + df['low'].rolling(26).min()) / 2
-
-    # Mây được dời 12 nến về trước (displacement - 1 = 12)
-    df['cloud_max'] = pd.concat([span_a.shift(12), span_b.shift(12)], axis=1).max(axis=1)
-    df['cloud_min'] = pd.concat([span_a.shift(12), span_b.shift(12)], axis=1).min(axis=1)
-
-    # 3. Tính Ichimoku Trend (-4 đến +4)
-    atr9 = tr.rolling(9).mean()
-    mtrend = [0] * len(df)
-    trend = [0] * len(df)
-
-    for i in range(1, len(df)):
-        c = df['close'].iloc[i]
-        c_max = df['cloud_max'].iloc[i]
-        c_min = df['cloud_min'].iloc[i]
-
-        if pd.notna(c_max) and c > c_max:
-            mtrend[i] = 1
-        elif pd.notna(c_min) and c < c_min:
-            mtrend[i] = -1
-        else:
-            mtrend[i] = mtrend[i-1]
-
-        oscline = (c - c_min) if mtrend[i] == 1 else (c - c_max) if pd.notna(c_max) else 0
-        c_max_12 = df['cloud_max'].iloc[i-12] if i >= 12 else np.nan
-        c_min_12 = df['cloud_min'].iloc[i-12] if i >= 12 else np.nan
-        lagging = oscline + (max(c - c_max_12, 0) if (mtrend[i] == 1 and pd.notna(c_max_12)) else min(c - c_min_12, 0) if (mtrend[i] == -1 and pd.notna(c_min_12)) else 0)
-
-        conv_rise = (conv_line.iloc[i] - conv_line.iloc[i-1]) > 0 if i >= 1 else False
-        base_rise = (base_line.iloc[i] - base_line.iloc[i-1]) > 0 if i >= 1 else False
-        convoverbase = conv_line.iloc[i] >= base_line.iloc[i]
-        lead1_over_lead2 = span_a.iloc[i] >= span_b.iloc[i]
-        tole = atr9.iloc[i] * 2.0 if pd.notna(atr9.iloc[i]) else 1.0
-
-        t = trend[i-1]
-        if mtrend[i] == 1:
-            if mtrend[i-1] == -1:
-                t = 0
-            if t < 4 and pd.notna(c_max) and c > c_max:
-                score = (1 if lagging > oscline else 0) + (1 if (convoverbase and (conv_rise or base_rise)) else 0) + (1 if lead1_over_lead2 else 0) + 1
-                t = score
-            else:
-                if conv_line.iloc[i] < base_line.iloc[i] - tole:
-                    t = 0
-        elif mtrend[i] == -1:
-            if mtrend[i-1] == 1:
-                t = 0
-            if t > -4 and pd.notna(c_min) and c < c_min:
-                score = (-1 if lagging < oscline else 0) - (1 if (not convoverbase and (not conv_rise or not base_rise)) else 0) - (1 if not lead1_over_lead2 else 0) - 1
-                t = score
-            else:
-                if conv_line.iloc[i] > base_line.iloc[i] + tole:
-                    t = 0
-        trend[i] = t
-
-    df['trend'] = trend
-
-    # 4. Rational Quadratic Kernel (h=8, r=8.0, x=25)
-    weights = np.array([(1.0 + (k**2) / (2.0 * 8.0 * (8**2))) ** (-8.0) for k in range(8 + 25 + 1)])
-    yhat1 = np.zeros(len(df))
-    close_vals = df['close'].values
-    for idx in range(len(df)):
-        bars_back = min(idx, len(weights) - 1)
-        w = weights[:bars_back + 1]
-        s = close_vals[idx - bars_back : idx + 1][::-1]
-        yhat1[idx] = np.dot(w, s) / np.sum(w)
-    df['yhat1'] = yhat1
-
-    # 5. Lorentzian KNN Prediction — theo đúng Pine Script
-    # y_train = close[4] < close[0] ? -1 : close[4] > close[0] ? 1 : 0
-    # prediction = tổng nhãn K hàng xóm gần nhất
-    # prediction > 0 → AI xác nhận xu hướng (dùng trong buyCondition)
-    close_arr = df['close'].values
-    n = len(close_arr)
-
-    # Tính y_label cho mỗi bar (nhãn gán tại bar hiện tại dựa vào close[4] vs close[0])
-    y_labels = np.zeros(n, dtype=int)
-    for i in range(4, n):
-        c4_ago = close_arr[i - 4]   # close 4 bar trước
-        c_now  = close_arr[i]        # close hiện tại
-        if c4_ago < c_now:
-            y_labels[i] = -1         # Giá tăng 4 bar → nhãn -1 (Pine Script gốc)
-        elif c4_ago > c_now:
-            y_labels[i] = 1          # Giá giảm 4 bar → nhãn +1
-
-    # Feature: RSI(14) cho mỗi bar
-    rsi_arr = np.full(n, 50.0)
-    for i in range(14, n):
-        delta = np.diff(close_arr[max(0, i-14):i+1])
-        gains  = delta[delta > 0].sum() / 14.0
-        losses = (-delta[delta < 0]).sum() / 14.0
-        rsi_arr[i] = 100.0 - (100.0 / (1.0 + gains / losses)) if losses > 0 else 100.0
-
-    # KNN (K=8): tìm 8 hàng xóm gần nhất cho bar cuối cùng
-    K = 8
-    prediction_val = 0
-    if n >= K + 15:
-        cur_rsi = rsi_arr[-1]
-        cur_mom = (close_arr[-1] - close_arr[-5]) / close_arr[-5] * 100.0 if close_arr[-5] > 0 else 0.0
-        candidates = []
-        for i in range(14, n - 2):   # bỏ 2 bar cuối (chưa có nhãn tương lai)
-            mom_i = (close_arr[i] - close_arr[i-4]) / close_arr[i-4] * 100.0 if close_arr[i-4] > 0 else 0.0
-            d = abs(rsi_arr[i] - cur_rsi) + abs(mom_i - cur_mom)
-            candidates.append((d, int(y_labels[i])))
-        candidates.sort(key=lambda x: x[0])
-        prediction_val = sum(lbl for _, lbl in candidates[:K])
-    df['prediction'] = float(prediction_val)
-
-    # 6. MA20 Khối lượng
+    enriched = calculate_all_indicators(df)
+    for col in enriched.columns:
+        df[col] = enriched[col]
     df['vol_ma20'] = df['volume'].rolling(20).mean()
+    return df
 
 def analyze_stock(item: dict, exchange: str) -> Optional[Dict]:
     """
@@ -506,7 +422,7 @@ def analyze_stock(item: dict, exchange: str) -> Optional[Dict]:
     tp3_pct = ((tp3 - matched_price) / matched_price) * 100
 
 
-    in_session = main.is_trading_hour()
+    in_session = is_trading_hour()
     now_str = datetime.now().strftime("%H:%M %d/%m/%Y")
     today_str = datetime.now().strftime("%d/%m/%Y")
     candle_ts = df['time'].iloc[-1] if 'time' in df.columns else None
@@ -576,16 +492,30 @@ def run_screener() -> List[Dict]:
     print(f"[*] Kiến trúc: Lọc 2 tầng siêu tốc (2-Stage Pipeline) + Ngoại suy khối lượng")
     print(f"{'='*75}")
 
+    # TẢI SNAPSHOT CÁC SÀN ĐỒNG THỜI (CONCURRENT SNAPSHOT INGESTION)
+    print(f"[*] Đang tải dữ liệu các sàn ({', '.join(config.EXCHANGES)}) song song...")
+    exchange_items = {}
+    with concurrent.futures.ThreadPoolExecutor(max_workers=len(config.EXCHANGES)) as ex_executor:
+        future_to_ex = {ex_executor.submit(get_exchange_symbols_snapshot, ex): ex for ex in config.EXCHANGES}
+        for future in concurrent.futures.as_completed(future_to_ex):
+            ex = future_to_ex[future]
+            try:
+                items = future.result()
+                exchange_items[ex] = items
+                print(f" -> Nhận được {len(items)} mã trên sàn {ex}.")
+            except Exception as e:
+                print(f"[Cảnh báo] Lỗi tải dữ liệu sàn {ex}: {e}")
+                exchange_items[ex] = []
+
+    # TẦNG 1: LỌC NHANH TRÊN SNAPSHOT CHO TẤT CẢ CÁC SÀN
+    elapsed_mins = get_elapsed_trading_minutes()
+    threshold_val = 1_000_000_000 if elapsed_mins <= 45 else 2_000_000_000 if elapsed_mins <= 90 else config.MIN_TRADE_VALUE
+
+    all_candidates = []
+    total_symbols = 0
     for exchange in config.EXCHANGES:
-        print(f"[*] Đang tải dữ liệu toàn sàn {exchange}...")
-        items = get_exchange_symbols_snapshot(exchange)
-        print(f" -> Nhận được {len(items)} mã trên sàn {exchange}.")
-
-        # TẦNG 1: LỌC NHANH TRÊN SNAPSHOT (Ngưỡng động theo phiên)
-        elapsed_mins = get_elapsed_trading_minutes()
-        threshold_val = 1_000_000_000 if elapsed_mins <= 45 else 2_000_000_000 if elapsed_mins <= 90 else config.MIN_TRADE_VALUE
-
-        candidates = []
+        items = exchange_items.get(exchange, [])
+        total_symbols += len(items)
         for item in items:
             sym = item.get("stockSymbol") or item.get("symbol")
             if not sym or len(sym) < 2 or len(sym) > 5 or not sym.isalpha():
@@ -595,24 +525,28 @@ def run_screener() -> List[Dict]:
             val = float(item.get("totalVal") or (p * 1000.0 * v))
             
             if val >= threshold_val or (val >= 800_000_000 and float(item.get("changePercent", 0) or 0) >= 1.0):
-                candidates.append(item)
+                all_candidates.append((item, exchange))
 
-        print(f" -> Tầng 1 đã chọn {len(candidates)} mã tiềm năng (loại bỏ {len(items) - len(candidates)} mã thanh khoản yếu). Đang phân tích chuyên sâu đa luồng...")
+    print(f" -> Tầng 1 đã chọn {len(all_candidates)} mã tiềm năng từ {total_symbols} mã (loại bỏ {total_symbols - len(all_candidates)} mã thanh khoản yếu). Đang phân tích chuyên sâu đa luồng...")
 
-        # TẦNG 2: PHÂN TÍCH CHUYÊN SÂU ĐA LUỒNG SIÊU TỐC
-        with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
-            future_to_item = {executor.submit(analyze_stock, item, exchange): item for item in candidates}
-            for future in concurrent.futures.as_completed(future_to_item):
-                try:
-                    result = future.result()
-                    if result:
-                        if result["is_whale"]:
-                            print(f"  🐋👑 [CÁ MẬP] {result['symbol']} | Giá: {result['price_vnd']} ({result['change_pct']:+.2f}%) | Vol: {result['vol_ratio']:.1f}x MA20 (Dự phóng: {result['projected_vol_ratio']:.1f}x) | {result['pattern']}")
-                        else:
-                            print(f"  📊 [Chuẩn] {result['symbol']} | Giá: {result['price_vnd']} ({result['change_pct']:+.2f}%) | Vol: {result['vol_ratio']:.1f}x MA20")
-                        signals.append(result)
-                except Exception:
-                    continue
+    # TẦNG 2: PHÂN TÍCH CHUYÊN SÂU ĐA LUỒNG SIÊU TỐC TRÊN HÀNG ĐỢI HỢP NHẤT
+    max_workers = getattr(config, "MAX_WORKERS", 16)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+        future_to_candidate = {
+            executor.submit(analyze_stock, item, exchange): (item, exchange)
+            for item, exchange in all_candidates
+        }
+        for future in concurrent.futures.as_completed(future_to_candidate):
+            try:
+                result = future.result()
+                if result:
+                    if result["is_whale"]:
+                        print(f"  🐋👑 [CÁ MẬP] {result['symbol']} | Giá: {result['price_vnd']} ({result['change_pct']:+.2f}%) | Vol: {result['vol_ratio']:.1f}x MA20 (Dự phóng: {result['projected_vol_ratio']:.1f}x) | {result['pattern']}")
+                    else:
+                        print(f"  📊 [Chuẩn] {result['symbol']} | Giá: {result['price_vnd']} ({result['change_pct']:+.2f}%) | Vol: {result['vol_ratio']:.1f}x MA20")
+                    signals.append(result)
+            except Exception:
+                continue
 
     signals = sorted(signals, key=lambda x: (x["is_whale"], x["vol_ratio"]), reverse=True)
     print(f"{'='*75}")
