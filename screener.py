@@ -56,9 +56,12 @@ def format_vnd(val) -> str:
 def get_elapsed_trading_minutes(now_dt: Optional[datetime] = None) -> int:
     """
     Tính số phút giao dịch đã trôi qua trong ngày (Tổng 270 phút: Sáng 150p, Chiều 120p)
+    Luôn tính theo múi giờ Việt Nam (UTC+7).
     """
+    from datetime import timezone, timedelta
+    vn_tz = timezone(timedelta(hours=7))
     if now_dt is None:
-        now_dt = datetime.now()
+        now_dt = datetime.now(vn_tz)
     if now_dt.weekday() > 4:
         return 270
     t = now_dt.time()
@@ -83,9 +86,11 @@ def get_elapsed_trading_minutes(now_dt: Optional[datetime] = None) -> int:
 def is_trading_hour(now_dt: Optional[datetime] = None) -> bool:
     """
     Kiểm tra xem hiện tại có phải trong phiên giao dịch chứng khoán Việt Nam hay không
-    (Thứ 2 đến Thứ 6, từ 9h00 - 11h30 và 13h00 - 15h00)
+    (Thứ 2 đến Thứ 6, từ 9h00 - 11h30 và 13h00 - 15h00 theo giờ Việt Nam UTC+7)
     """
-    now = now_dt if now_dt is not None else datetime.now()
+    from datetime import timezone, timedelta
+    vn_tz = timezone(timedelta(hours=7))
+    now = now_dt if now_dt is not None else datetime.now(vn_tz)
     if now.weekday() > 4:
         return False
     

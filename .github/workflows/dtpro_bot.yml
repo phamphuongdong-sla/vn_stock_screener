@@ -32,6 +32,7 @@ jobs:
 
       - name: Run DTPro Bot
         env:
+          TZ: 'Asia/Ho_Chi_Minh'
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python dtpro_runner.py
