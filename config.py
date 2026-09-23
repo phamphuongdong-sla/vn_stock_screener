@@ -47,3 +47,24 @@ SCAN_INTERVAL_SECONDS = 60   # 1 phút quét 1 lần theo thời gian thực tro
 
 # Các sàn muốn quét: "HOSE", "HNX"
 EXCHANGES = ["HOSE", "HNX"]
+
+# Số luồng phân tích chuyên sâu đồng thời
+MAX_WORKERS = 16
+
+# ==========================================
+# 4. GDNL — Vùng Xu Hướng PRO (Pine Script Port)
+# ==========================================
+# Đồng bộ 100% với Pine Script GDNL - Vùng Xu Hướng PRO (Clean UI)
+
+GDNL_ST_LENGTH   = 10     # Chu kỳ SuperTrend (EMA hlc3)
+GDNL_ATR_LENGTH  = 14     # Chu kỳ ATR
+GDNL_ATR_MULT    = 2.8    # Hệ số ATR SuperTrend
+GDNL_EMA_FAST    = 20     # EMA nhanh
+GDNL_EMA_SLOW    = 50     # EMA chậm
+GDNL_ADX_LEN     = 14     # Chu kỳ ADX/DMI
+GDNL_ADX_MIN     = 18.0   # ADX tối thiểu để xác nhận xu hướng
+GDNL_VOL_LEN     = 20     # Chu kỳ Volume MA
+GDNL_MIN_SCORE   = 4      # Điểm xu hướng tối thiểu để báo (1-6)
+GDNL_PIVOT_LEN   = 15     # Chu kỳ Pivot High/Low
+GDNL_TP1_RR      = 1.0    # R:R mức TP1
+GDNL_TP2_RR      = 2.0    # R:R mức TP2
