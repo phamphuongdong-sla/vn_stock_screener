@@ -197,132 +197,184 @@ def calc_mtf_states(
 
 
 # ─────────────────────────────────────────────
-# 4. SIGNAL GENERATION
+# ─────────────────────────────────────────────
+# 4. SIGNAL & POSITION TRACKING (PINE SCRIPT STATE MACHINE)
 # ─────────────────────────────────────────────
 
-def generate_signals(
+def track_positions_and_signals(
     df: pd.DataFrame,
     direction: pd.Series,
     nw_upper: pd.Series,
     nw_lower: pd.Series,
-) -> Dict:
-    """
-    Pine:
-      buyTrigger  = dir==1 and dir[-1]==-1   (confirmed bar)
-      sellTrigger = dir==-1 and dir[-1]==1
-
-      isVungDayNW  = low  <= nwLower or crossunder(close, nwLower)
-      isVungDinhNW = high >= nwUpper or crossover(close, nwUpper)
-
-      buyDiamond  = buyTrigger  and isVungDayNW
-      buyStandard = buyTrigger  and not isVungDayNW
-      sellDiamond  = sellTrigger and isVungDinhNW
-      sellStandard = sellTrigger and not isVungDinhNW
-    """
-    close  = df['close']
-    high   = df['high']
-    low    = df['low']
-
-    dir_cur  = int(direction.iloc[-1])
-    dir_prev = int(direction.iloc[-2]) if len(direction) > 1 else dir_cur
-
-    buy_trigger  = (dir_cur == 1  and dir_prev == -1)
-    sell_trigger = (dir_cur == -1 and dir_prev == 1)
-
-    # NW zone detection at current bar
-    nw_u = float(nw_upper.iloc[-1]) if not pd.isna(nw_upper.iloc[-1]) else np.inf
-    nw_l = float(nw_lower.iloc[-1]) if not pd.isna(nw_lower.iloc[-1]) else -np.inf
-
-    c_cur  = float(close.iloc[-1])
-    c_prev = float(close.iloc[-2]) if len(close) > 1 else c_cur
-    h_cur  = float(high.iloc[-1])
-    l_cur  = float(low.iloc[-1])
-
-    nw_u_prev = float(nw_upper.iloc[-2]) if len(nw_upper) > 1 and not pd.isna(nw_upper.iloc[-2]) else nw_u
-    nw_l_prev = float(nw_lower.iloc[-2]) if len(nw_lower) > 1 and not pd.isna(nw_lower.iloc[-2]) else nw_l
-
-    cross_down = (c_prev >= nw_l_prev) and (c_cur < nw_l)   # crossunder
-    cross_up   = (c_prev <= nw_u_prev) and (c_cur > nw_u)   # crossover
-
-    is_day_nw  = (l_cur <= nw_l) or cross_down   # vùng đáy NW
-    is_dinh_nw = (h_cur >= nw_u) or cross_up      # vùng đỉnh NW
-
-    buy_diamond   = buy_trigger  and is_day_nw
-    buy_standard  = buy_trigger  and not is_day_nw
-    sell_diamond  = sell_trigger and is_dinh_nw
-    sell_standard = sell_trigger and not is_dinh_nw
-
-    # Current NW zone (không cần trigger)
-    in_day_nw  = l_cur <= nw_l or c_cur <= nw_l
-    in_dinh_nw = h_cur >= nw_u or c_cur >= nw_u
-
-    nw_zone_label = "VÙNG ĐÁY 💎" if in_day_nw else ("VÙNG ĐỈNH 🔥" if in_dinh_nw else "TRUNG BÌNH ⚪️")
-
-    if buy_diamond:
-        signal_str = "💎 MUA ĐÁY NW (Hội tụ tối ưu!)"
-        has_signal = True
-    elif buy_standard:
-        signal_str = "🟢 MUA CHÍNH"
-        has_signal = True
-    elif sell_diamond:
-        signal_str = "🔥 BÁN ĐỈNH NW (Hội tụ tối ưu!)"
-        has_signal = True
-    elif sell_standard:
-        signal_str = "🔴 BÁN CHÍNH"
-        has_signal = True
-    else:
-        signal_str = "⏸ CHỜ TÍN HIỆU"
-        has_signal = False
-
-    return {
-        'buy_trigger':   buy_trigger,
-        'sell_trigger':  sell_trigger,
-        'buy_diamond':   buy_diamond,
-        'buy_standard':  buy_standard,
-        'sell_diamond':  sell_diamond,
-        'sell_standard': sell_standard,
-        'has_signal':    has_signal,
-        'is_buy':        buy_trigger,
-        'is_sell':       sell_trigger,
-        'signal_str':    signal_str,
-        'nw_zone_label': nw_zone_label,
-        'in_day_nw':     in_day_nw,
-        'in_dinh_nw':    in_dinh_nw,
-        'nw_upper':      nw_u,
-        'nw_lower':      nw_l,
-        'direction':     dir_cur,
-    }
-
-
-# ─────────────────────────────────────────────
-# 5. RISK MANAGEMENT
-# ─────────────────────────────────────────────
-
-def calc_risk(
-    close: float,
-    direction: int,
-    atr: float,
+    atr_series: pd.Series,
+    cua_so_lookback: int = 7,
     rr1: float = 1.0,
     rr2: float = 2.0,
-    atr_sl_mult: float = 1.5,
 ) -> Dict:
-    """SL = close ± atr*1.5, TP1 = close ± risk*rr1, TP2 = close ± risk*rr2"""
-    risk = atr * atr_sl_mult
-    if direction == 1:
-        sl, tp1, tp2 = close - risk, close + risk * rr1, close + risk * rr2
+    """
+    Mô phỏng 100% logic Pine Script DÒNG TIỀN & XU HƯỚNG PRO:
+      isVungDayNW  = low <= nwLower or nwCrossDown
+      isVungDinhNW = high >= nwUpper or nwCrossUp
+      barsSinceNWLow  = ta.barssince(isVungDayNW)
+      hadNWLow  = barsSinceNWLow <= cuaSoLookback
+      buyDiamond  = buyTrigger and hadNWLow
+      buyStandard = buyTrigger and not hadNWLow
+      activePos, posName, entryP, slP, tp1P, tp2P, pnlPct
+    """
+    close = df['close'].values
+    high  = df['high'].values
+    low   = df['low'].values
+    dirs  = direction.values
+    nw_u  = nw_upper.values
+    nw_l  = nw_lower.values
+    atr_v = atr_series.values
+    n = len(close)
+
+    # 1. Tính isVungDayNW và isVungDinhNW trên từng nến
+    is_day_nw = np.zeros(n, dtype=bool)
+    is_dinh_nw = np.zeros(n, dtype=bool)
+
+    for i in range(1, n):
+        cross_down = (close[i-1] >= nw_l[i-1]) and (close[i] < nw_l[i])
+        cross_up   = (close[i-1] <= nw_u[i-1]) and (close[i] > nw_u[i])
+        is_day_nw[i]  = (low[i] <= nw_l[i]) or cross_down
+        is_dinh_nw[i] = (high[i] >= nw_u[i]) or cross_up
+
+    # 2. State Machine: Duyệt qua lịch sử để xác định activePos, entryP, slP, tp1P, tp2P
+    active_pos = 0
+    pos_name = "ĐANG QUAN SÁT"
+    entry_p = 0.0
+    sl_p = 0.0
+    tp1_p = 0.0
+    tp2_p = 0.0
+    last_trigger_bar = -1
+    last_trigger_type = ""
+
+    last_nw_low_bar = -9999
+    last_nw_high_bar = -9999
+
+    for i in range(1, n):
+        if is_day_nw[i]:
+            last_nw_low_bar = i
+        if is_dinh_nw[i]:
+            last_nw_high_bar = i
+
+        buy_trigger  = (dirs[i] == 1 and dirs[i-1] == -1)
+        sell_trigger = (dirs[i] == -1 and dirs[i-1] == 1)
+
+        had_nw_low  = (i - last_nw_low_bar) <= cua_so_lookback
+        had_nw_high = (i - last_nw_high_bar) <= cua_so_lookback
+
+        if buy_trigger:
+            active_pos = 1
+            is_diamond = had_nw_low
+            pos_name = "💎 MUA MẠNH" if is_diamond else "MUA"
+            entry_p = close[i]
+            sl_p = close[i] - atr_v[i] * 1.5
+            r = abs(entry_p - sl_p)
+            tp1_p = close[i] + r * rr1
+            tp2_p = close[i] + r * rr2
+            last_trigger_bar = i
+            last_trigger_type = "BUY_DIAMOND" if is_diamond else "BUY_STANDARD"
+
+        elif sell_trigger:
+            active_pos = -1
+            is_diamond = had_nw_high
+            pos_name = "🔥 BÁN MẠNH" if is_diamond else "BÁN"
+            entry_p = close[i]
+            sl_p = close[i] + atr_v[i] * 1.5
+            r = abs(entry_p - sl_p)
+            tp1_p = close[i] - r * rr1
+            tp2_p = close[i] - r * rr2
+            last_trigger_bar = i
+            last_trigger_type = "SELL_DIAMOND" if is_diamond else "SELL_STANDARD"
+
+    # Trạng thái nến hiện tại (phiên hôm nay)
+    curr_buy_trigger  = (dirs[-1] == 1 and dirs[-2] == -1) if n >= 2 else False
+    curr_sell_trigger = (dirs[-1] == -1 and dirs[-2] == 1) if n >= 2 else False
+    curr_had_nw_low   = (n - 1 - last_nw_low_bar) <= cua_so_lookback
+    curr_had_nw_high  = (n - 1 - last_nw_high_bar) <= cua_so_lookback
+
+    buy_diamond   = curr_buy_trigger and curr_had_nw_low
+    buy_standard  = curr_buy_trigger and not curr_had_nw_low
+    sell_diamond  = curr_sell_trigger and curr_had_nw_high
+    sell_standard = curr_sell_trigger and not curr_had_nw_high
+
+    # Vùng NW nến hiện tại
+    c_cur = close[-1]
+    l_cur = low[-1]
+    h_cur = high[-1]
+    nw_l_cur = nw_l[-1]
+    nw_u_cur = nw_u[-1]
+
+    in_day_nw  = (l_cur <= nw_l_cur) or (c_cur <= nw_l_cur)
+    in_dinh_nw = (h_cur >= nw_u_cur) or (c_cur >= nw_u_cur)
+    nw_zone_label = "VÙNG ĐÁY" if in_day_nw else ("VÙNG ĐỈNH" if in_dinh_nw else "TRUNG TÍNH")
+
+    # Tính PnL % theo vị thế đang giữ
+    if entry_p > 0 and active_pos != 0:
+        pnl_pct = ((close[-1] - entry_p) / entry_p) * 100.0 * active_pos
+        str_pos = f"{pos_name} ({'+' if pnl_pct >= 0 else ''}{pnl_pct:.2f}%)"
     else:
-        sl, tp1, tp2 = close + risk, close - risk * rr1, close - risk * rr2
+        pnl_pct = 0.0
+        str_pos = pos_name
+
+    # Mô tả tín hiệu
+    if buy_diamond:
+        signal_str = "💎 MUA MẠNH (Hợp lưu Đáy NW + Đảo chiều SuperTrend)"
+        has_signal = True
+    elif buy_standard:
+        signal_str = "🟢 MUA (SuperTrend Đảo Chiều Tăng)"
+        has_signal = True
+    elif sell_diamond:
+        signal_str = "🔥 BÁN MẠNH (Hợp lưu Đỉnh NW + Đảo chiều SuperTrend)"
+        has_signal = True
+    elif sell_standard:
+        signal_str = "🔴 BÁN (SuperTrend Đảo Chiều Giảm)"
+        has_signal = True
+    else:
+        signal_str = "⏸ ĐANG QUAN SÁT"
+        has_signal = False
+
+    bars_since_trigger = (n - 1 - last_trigger_bar) if last_trigger_bar >= 0 else 999
+    bars_since_nw_low   = (n - 1 - last_nw_low_bar) if last_nw_low_bar >= 0 else 999
+    bars_since_nw_high  = (n - 1 - last_nw_high_bar) if last_nw_high_bar >= 0 else 999
 
     return {
-        'sl':      sl,   'sl_pct':  (sl  - close) / close * 100,
-        'tp1':     tp1,  'tp1_pct': (tp1 - close) / close * 100,
-        'tp2':     tp2,  'tp2_pct': (tp2 - close) / close * 100,
-        'risk':    risk,
+        'buy_trigger':        curr_buy_trigger,
+        'sell_trigger':       curr_sell_trigger,
+        'buy_diamond':        buy_diamond,
+        'buy_standard':       buy_standard,
+        'sell_diamond':       sell_diamond,
+        'sell_standard':      sell_standard,
+        'has_signal':         has_signal,
+        'is_buy':             curr_buy_trigger,
+        'is_sell':            curr_sell_trigger,
+        'signal_str':         signal_str,
+        'nw_zone_label':      nw_zone_label,
+        'in_day_nw':          in_day_nw,
+        'in_dinh_nw':         in_dinh_nw,
+        'nw_upper':           float(nw_u_cur),
+        'nw_lower':           float(nw_l_cur),
+        'direction':          int(dirs[-1]),
+        'active_pos':         active_pos,
+        'pos_name':           pos_name,
+        'str_pos':            str_pos,
+        'entry_p':            entry_p,
+        'sl_p':               sl_p,
+        'tp1_p':              tp1_p,
+        'tp2_p':              tp2_p,
+        'pnl_pct':            pnl_pct,
+        'bars_since_trigger': bars_since_trigger,
+        'bars_since_nw_low':  bars_since_nw_low,
+        'bars_since_nw_high': bars_since_nw_high,
+        'had_nw_low':         curr_had_nw_low,
+        'had_nw_high':        curr_had_nw_high,
     }
 
 
 # ─────────────────────────────────────────────
-# 6. HÀM TỔNG HỢP: ANALYZE_DTPRO
+# 5. HÀM TỔNG HỢP: ANALYZE_DTPRO
 # ─────────────────────────────────────────────
 
 def analyze_dtpro(
@@ -334,20 +386,21 @@ def analyze_dtpro(
     live_low:   float = 0.0,
     live_vol:   float = 0.0,
     change_pct: float = 0.0,
-    # Params
-    st_len:   int   = 10,
-    atr_len:  int   = 14,
-    st_mult:  float = 2.8,
-    ema_fast: int   = 20,
-    ema_slow: int   = 50,
-    nw_h:     float = 8.0,
-    nw_mult:  float = 3.0,
-    nw_win:   int   = 500,
-    rr1:      float = 1.0,
-    rr2:      float = 2.0,
+    # Params Pine Script
+    st_len:          int   = 10,
+    atr_len:         int   = 14,
+    st_mult:         float = 2.8,
+    ema_fast:        int   = 20,
+    ema_slow:        int   = 50,
+    nw_h:            float = 8.0,
+    nw_mult:         float = 3.0,
+    nw_win:          int   = 500,
+    cua_so_lookback: int   = 7,
+    rr1:             float = 1.0,
+    rr2:             float = 2.0,
 ) -> Optional[Dict]:
     """
-    Phân tích đầy đủ 1 mã theo chỉ báo DÒNG TIỀN PRO.
+    Phân tích đầy đủ 1 mã theo chỉ báo DÒNG TIỀN & XU HƯỚNG PRO.
     Trả về None nếu không đủ dữ liệu.
     """
     from screener import format_vnd
@@ -356,12 +409,12 @@ def analyze_dtpro(
     if df is None or len(df) < MIN_BARS:
         return None
 
-    # ── Ghép nến live (nếu có)
+    # Ghép nến live (thời gian thực trong giờ giao dịch)
     if live_price > 0 and live_vol > 0:
         import time as _time
         c = live_price
-        h = live_high  if live_high > 0  else max(c, float(df['high'].iloc[-1]))
-        l = live_low   if live_low  > 0  else min(c, float(df['low'].iloc[-1]))
+        h = live_high if live_high > 0 else max(c, float(df['high'].iloc[-1]))
+        l = live_low  if live_low  > 0 else min(c, float(df['low'].iloc[-1]))
         today = pd.DataFrame([{
             'time': int(_time.time()), 'open': float(df['open'].iloc[-1]),
             'high': h, 'low': l, 'close': c, 'volume': live_vol
@@ -371,84 +424,115 @@ def analyze_dtpro(
     close = df['close']
     n = len(df)
 
-    # ── Nadaraya-Watson (dùng toàn bộ lịch sử có sẵn)
+    # 1. Nadaraya-Watson (Gaussian kernel non-repaint)
     actual_win = min(nw_win, n)
     nw_out_s   = calc_nadaraya_watson(close, nw_h, actual_win)
     actual_mae = min(499, n // 2)
     _, nw_upper_s, nw_lower_s = calc_nw_bands(close, nw_out_s, nw_mult, actual_mae)
 
-    # ── SuperTrend
+    # 2. SuperTrend (Keltner ST)
     direction, st_line = calc_supertrend(df, st_len, st_mult, atr_len)
 
-    # ── ATR
+    # 3. ATR
     atr_s   = calc_atr(df, atr_len)
     cur_atr = float(atr_s.iloc[-1])
 
-    # ── MTF
+    # 4. Xác nhận đa khung D & W
     state_d, state_w = calc_mtf_states(df, ema_fast, ema_slow)
 
-    # ── Signals
-    sig = generate_signals(df, direction, nw_upper_s, nw_lower_s)
+    # 5. Khóa trạng thái tín hiệu và vị thế
+    state = track_positions_and_signals(
+        df, direction, nw_upper_s, nw_lower_s, atr_s,
+        cua_so_lookback=cua_so_lookback, rr1=rr1, rr2=rr2
+    )
 
-    # ── Giá hiện tại
+    # Giá hiện tại
     cur_price = live_price if live_price > 0 else float(close.iloc[-1])
 
-    # ── Risk
-    risk = calc_risk(cur_price, sig['direction'], cur_atr, rr1, rr2)
+    # Kế hoạch giá theo lệnh (nếu có vị thế active thì dùng entry/sl/tp của vị thế đó, ngược lại tính theo giá hiện tại)
+    dir_val = state['direction']
+    if state['entry_p'] > 0:
+        entry_price = state['entry_p']
+        sl_val      = state['sl_p']
+        tp1_val     = state['tp1_p']
+        tp2_val     = state['tp2_p']
+    else:
+        entry_price = cur_price
+        risk = cur_atr * 1.5
+        if dir_val == 1:
+            sl_val, tp1_val, tp2_val = cur_price - risk, cur_price + risk * rr1, cur_price + risk * rr2
+        else:
+            sl_val, tp1_val, tp2_val = cur_price + risk, cur_price - risk * rr1, cur_price - risk * rr2
 
-    # ── Labels
-    dir_val   = sig['direction']
+    sl_pct  = (sl_val  - entry_price) / entry_price * 100 if entry_price > 0 else 0.0
+    tp1_pct = (tp1_val - entry_price) / entry_price * 100 if entry_price > 0 else 0.0
+    tp2_pct = (tp2_val - entry_price) / entry_price * 100 if entry_price > 0 else 0.0
+
+    # Labels
     trend_lbl = "TĂNG (BULLISH) 🟢" if dir_val == 1 else "GIẢM (BEARISH) 🔴"
-
     def mtf_str(v):
         return "TĂNG 🟢" if v == 1 else ("GIẢM 🔴" if v == -1 else "NGANG ⚪")
 
-    # ── EMA info
-    ef = float(calc_ema(close, ema_fast).iloc[-1])
-    es = float(calc_ema(close, ema_slow).iloc[-1])
-
-    # ── Volume ratio
+    # Volume ratio
     vol_ma = float(df['volume'].rolling(20).mean().iloc[-1])
     vr     = float(df['volume'].iloc[-1]) / vol_ma if vol_ma > 0 else 0.0
 
     return {
-        'symbol':       symbol.upper(),
-        'exchange':     exchange.upper(),
-        'price':        cur_price,
-        'price_vnd':    format_vnd(cur_price),
-        'change_pct':   change_pct,
-        'atr':          cur_atr,
+        'symbol':             symbol.upper(),
+        'exchange':           exchange.upper(),
+        'price':              cur_price,
+        'price_vnd':          format_vnd(cur_price),
+        'change_pct':         change_pct,
+        'atr':                cur_atr,
         # NW
-        'nw_out':       float(nw_out_s.iloc[-1]),
-        'nw_upper':     sig['nw_upper'],
-        'nw_lower':     sig['nw_lower'],
-        'nw_zone_label': sig['nw_zone_label'],
-        'in_day_nw':    sig['in_day_nw'],
-        'in_dinh_nw':   sig['in_dinh_nw'],
-        # Trend
-        'direction':    dir_val,
-        'trend_label':  trend_lbl,
-        'ema_fast':     ef,
-        'ema_slow':     es,
-        # MTF
-        'state_d':      state_d,
-        'state_w':      state_w,
-        'state_d_str':  mtf_str(state_d),
-        'state_w_str':  mtf_str(state_w),
-        # Signals
-        'has_signal':    sig['has_signal'],
-        'is_buy':        sig['is_buy'],
-        'is_sell':       sig['is_sell'],
-        'buy_diamond':   sig['buy_diamond'],
-        'sell_diamond':  sig['sell_diamond'],
-        'signal_str':    sig['signal_str'],
+        'nw_out':             float(nw_out_s.iloc[-1]),
+        'nw_upper':           state['nw_upper'],
+        'nw_lower':           state['nw_lower'],
+        'nw_zone_label':      state['nw_zone_label'],
+        'in_day_nw':          state['in_day_nw'],
+        'in_dinh_nw':         state['in_dinh_nw'],
+        'had_nw_low':         state['had_nw_low'],
+        'had_nw_high':        state['had_nw_high'],
+        'bars_since_nw_low':  state['bars_since_nw_low'],
+        'bars_since_nw_high': state['bars_since_nw_high'],
+        # Trend & MTF
+        'direction':          dir_val,
+        'trend_label':        trend_lbl,
+        'state_d':            state_d,
+        'state_w':            state_w,
+        'state_d_str':        mtf_str(state_d),
+        'state_w_str':        mtf_str(state_w),
+        # Tín hiệu phiên hôm nay
+        'has_signal':         state['has_signal'],
+        'is_buy':             state['is_buy'],
+        'is_sell':            state['is_sell'],
+        'buy_diamond':        state['buy_diamond'],
+        'buy_standard':       state['buy_standard'],
+        'sell_diamond':       state['sell_diamond'],
+        'sell_standard':      state['sell_standard'],
+        'signal_str':         state['signal_str'],
+        # Vị thế & Lệnh
+        'active_pos':         state['active_pos'],
+        'pos_name':           state['pos_name'],
+        'str_pos':            state['str_pos'],
+        'pnl_pct':            state['pnl_pct'],
+        'bars_since_trigger': state['bars_since_trigger'],
         # Volume
-        'vol_ratio':     round(vr, 2),
-        # Risk
-        'sl':      risk['sl'],   'sl_pct':  risk['sl_pct'],
-        'tp1':     risk['tp1'],  'tp1_pct': risk['tp1_pct'],
-        'tp2':     risk['tp2'],  'tp2_pct': risk['tp2_pct'],
+        'vol_ratio':          round(vr, 2),
+        # Quản trị rủi ro
+        'entry_price':        entry_price,
+        'entry_price_vnd':    format_vnd(entry_price),
+        'sl':                 sl_val,
+        'sl_vnd':             format_vnd(sl_val),
+        'sl_pct':             sl_pct,
+        'tp1':                tp1_val,
+        'tp1_vnd':            format_vnd(tp1_val),
+        'tp1_pct':            tp1_pct,
+        'tp2':                tp2_val,
+        'tp2_vnd':            format_vnd(tp2_val),
+        'tp2_pct':            tp2_pct,
         # Meta
-        'updated_time': datetime.now().strftime("%H:%M %d/%m/%Y"),
-        'nw_bars_used': actual_win,
+        'updated_time':       datetime.now().strftime("%H:%M %d/%m/%Y"),
+        'nw_bars_used':       actual_win,
     }
+

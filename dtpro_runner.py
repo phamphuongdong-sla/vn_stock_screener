@@ -1,108 +1,286 @@
 # -*- coding: utf-8 -*-
 """
-dtpro_runner.py — Entry point cho Bot DÒNG TIỀN & XU HƯỚNG PRO.
-
-Modes:
-  python dtpro_runner.py               → GitHub Actions (scan + reply)
-  python dtpro_runner.py --check HPG   → Test 1 mã
-  python dtpro_runner.py --scan        → Test quét toàn sàn
-  python dtpro_runner.py --listen      → Daemon 24/7 local
+dtpro_runner.py — Entry point cho Bot DÒNG TIỀN & XU HƯỚNG PRO (Master Edition).
+Đồng bộ 100% với Pine Script:
+  - Nadaraya-Watson Gaussian Regression (500 bars, h=8.0, mult=3.0)
+  - Keltner SuperTrend (EMA hlc3 10, ATR 14, factor 2.8)
+  - Cửa sổ chờ hợp lưu NW: 7 nến
+  - Tín hiệu: 💎 MUA MẠNH (Hợp lưu Đáy NW + ST Đảo chiều) & 🟢 MUA (ST Đảo chiều)
+  - Xác nhận đa khung: Ngày (D) & Tuần (W)
+  - Bảng điều khiển Mini-HUD (Glassmorphism)
+  - Tự động cảnh báo điểm mua trong giờ giao dịch qua GitHub Actions (kèm chống bắn lặp)
 """
 
 import sys
 import time
 import os
+import json
+import requests
 from datetime import datetime
+from typing import Set
 
 import config
-from screener import is_trading_hour
-import gdnl_bot          # Tái sử dụng send_message, get_pending_updates, ack_update
+from screener import is_trading_hour, format_vnd
+import gdnl_bot
 import dtpro_screener
-from screener import format_vnd
 
 
 # ─────────────────────────────────────────────────────────────
-# FORMAT TIN NHẮN DÒNG TIỀN PRO
+# 1. ĐỒNG BỘ DANH SÁCH MÃ ĐÃ CẢNH BÁO HÔM NAY (CHỐNG BẮN LẶP)
+# ─────────────────────────────────────────────────────────────
+
+def _get_token() -> str:
+    return os.environ.get("TELEGRAM_BOT_TOKEN", config.TELEGRAM_BOT_TOKEN)
+
+
+def _get_chat_id() -> str:
+    return os.environ.get("TELEGRAM_CHAT_ID", config.TELEGRAM_CHAT_ID)
+
+
+def load_alerted_stocks_today() -> Set[str]:
+    """
+    Tải danh sách các mã đã bắn cảnh báo hôm nay.
+    Hỗ trợ đồng bộ đa môi trường (GitHub Actions runner không ổ cứng liên tục -> đồng bộ qua tin nhắn ghim Telegram).
+    """
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    alerted = set()
+
+    # 1. Đọc file json cục bộ
+    try:
+        if os.path.exists("alerted_stocks.json"):
+            with open("alerted_stocks.json", "r", encoding="utf-8") as f:
+                data = json.load(f)
+                if data.get("date") == today_str:
+                    alerted.update(data.get("stocks", []))
+    except Exception:
+        pass
+
+    # 2. Đồng bộ từ tin nhắn trạng thái trên Telegram (Bảo đảm GitHub Actions không bị gửi lặp)
+    token = _get_token()
+    chat_id = _get_chat_id()
+    if token and chat_id and token != "YOUR_BOT_TOKEN_HERE":
+        try:
+            r = requests.get(f"https://api.telegram.org/bot{token}/getChat?chat_id={chat_id}", timeout=5)
+            if r.status_code == 200:
+                pinned = r.json().get("result", {}).get("pinned_message", {})
+                text = pinned.get("text", "")
+                if "#DTPRO_STATE" in text and today_str in text:
+                    parts = text.split("STOCKS:")
+                    if len(parts) > 1:
+                        stocks = [s.strip().upper() for s in parts[1].split(",") if s.strip()]
+                        alerted.update(stocks)
+        except Exception:
+            pass
+
+    return alerted
+
+
+def save_alerted_stocks_today(alerted: Set[str]):
+    """
+    Lưu danh sách mã đã cảnh báo hôm nay vào file cục bộ và cập nhật tin nhắn trạng thái trên Telegram.
+    """
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    stock_list = sorted(list(alerted))
+
+    # 1. Lưu file json cục bộ
+    try:
+        with open("alerted_stocks.json", "w", encoding="utf-8") as f:
+            json.dump({"date": today_str, "stocks": stock_list}, f, ensure_ascii=False)
+    except Exception:
+        pass
+
+    # 2. Cập nhật tin nhắn ghim trên Telegram để lượt chạy GitHub Actions sau nhận diện được
+    token = _get_token()
+    chat_id = _get_chat_id()
+    if token and chat_id and token != "YOUR_BOT_TOKEN_HERE":
+        try:
+            state_text = (
+                f"🤖 [TRẠNG THÁI DÒNG TIỀN PRO] #DTPRO_STATE {today_str}\n"
+                f"⏰ Cập nhật: {datetime.now().strftime('%H:%M:%S %d/%m/%Y')}\n"
+                f"📊 Đã kích hoạt điểm mua hôm nay ({len(stock_list)} mã):\n"
+                f"STOCKS:{', '.join(stock_list)}"
+            )
+            r = requests.get(f"https://api.telegram.org/bot{token}/getChat?chat_id={chat_id}", timeout=5)
+            pinned = r.json().get("result", {}).get("pinned_message", {})
+            msg_id = pinned.get("message_id")
+            pinned_text = pinned.get("text", "")
+
+            if msg_id and "#DTPRO_STATE" in pinned_text:
+                requests.post(f"https://api.telegram.org/bot{token}/editMessageText", json={
+                    "chat_id": chat_id,
+                    "message_id": msg_id,
+                    "text": state_text
+                }, timeout=5)
+            else:
+                r_send = requests.post(f"https://api.telegram.org/bot{token}/sendMessage", json={
+                    "chat_id": chat_id,
+                    "text": state_text,
+                    "disable_notification": True
+                }, timeout=5)
+                new_id = r_send.json().get("result", {}).get("message_id")
+                if new_id:
+                    requests.post(f"https://api.telegram.org/bot{token}/pinChatMessage", json={
+                        "chat_id": chat_id,
+                        "message_id": new_id,
+                        "disable_notification": True
+                    }, timeout=5)
+        except Exception:
+            pass
+
+
+# ─────────────────────────────────────────────────────────────
+# 2. FORMAT TIN NHẮN THEO CHUẨN PINE SCRIPT
 # ─────────────────────────────────────────────────────────────
 
 def _pct(v: float) -> str:
     return f"+{v:.1f}%" if v >= 0 else f"{v:.1f}%"
 
 
-def fmt_detail(res: dict) -> str:
-    """Tin nhắn chi tiết 1 mã."""
-    sym   = res['symbol'];    ex    = res['exchange']
-    price = res['price_vnd']; chg   = res['change_pct']
-    trend = res['trend_label']
-    nw_z  = res['nw_zone_label']
-    sd    = res['state_d_str']; sw = res['state_w_str']
-    sig   = res['signal_str'];  vr = res['vol_ratio']
-    t     = res['updated_time']
+def fmt_buy_alert(res: dict) -> str:
+    """
+    Format thẻ cảnh báo điểm mua gửi tự động tới Telegram khi kích hoạt trong giờ giao dịch.
+    Phân biệt rõ: 💎 MUA MẠNH (hội tụ đáy NW) vs 🟢 MUA (đảo chiều chuẩn).
+    """
+    sym        = res['symbol']
+    ex         = res['exchange']
+    price      = res['price_vnd']
+    chg        = res['change_pct']
+    chg_str    = _pct(chg)
+    is_diamond = res.get('buy_diamond', False)
+    nw_zone    = res.get('nw_zone_label', 'TRUNG TÍNH')
+    sd         = res.get('state_d_str', 'N/A')
+    sw         = res.get('state_w_str', 'N/A')
+    vr         = res.get('vol_ratio', 0.0)
+    t          = res.get('updated_time', '')
+    sl         = res.get('sl_vnd', '0 đ')
+    sl_pct     = _pct(res.get('sl_pct', 0.0))
+    tp1        = res.get('tp1_vnd', '0 đ')
+    tp1_pct    = _pct(res.get('tp1_pct', 0.0))
+    tp2        = res.get('tp2_vnd', '0 đ')
+    tp2_pct    = _pct(res.get('tp2_pct', 0.0))
 
-    is_buy  = res['is_buy']
-    is_sell = res['is_sell']
+    if is_diamond:
+        badge_header = f"💎 [TÍN HIỆU MUA MẠNH] *{sym}* — `{ex}`"
+        sub_title    = "✨ *HỢP LƯU TỐI ƯU (XÁC SUẤT CAO NHẤT)*"
+        nw_item      = "✅ Đáy Nadaraya-Watson (hội tụ trong 7 nến vừa qua)"
+    else:
+        badge_header = f"🟢 [TÍN HIỆU MUA] *{sym}* — `{ex}`"
+        sub_title    = "📈 *CHỈ BÁO XÁC NHẬN ĐIỂM MUA*"
+        nw_item      = f"✅ Biên độ Nadaraya-Watson: `{nw_zone}`"
+
+    msg = (
+        f"{badge_header}\n"
+        f"━━━━━━━━━━━━━━━━━━━\n"
+        f"⏰ _{t} (Thời gian thực)_\n"
+        f"💰 Thị giá: `{price}` (🟢 `{chg_str}`)\n\n"
+        f"{sub_title}\n"
+        f"✅ SuperTrend Keltner Đảo Chiều TĂNG 🟢\n"
+        f"{nw_item}\n"
+        f"✅ Đa Khung Thời Gian: Ngày ({sd}) • Tuần ({sw})\n"
+        f"📊 Khối lượng: `{vr:.1f}x` TB 20 phiên\n\n"
+        f"🎯 *KẾ HOẠCH GIAO DỊCH (R:R CHUẨN):*\n"
+        f"• 🎯 *Giá vào (Entry):* `{price}`\n"
+        f"• 🛑 *Cắt lỗ (SL):*    `{sl}` ({sl_pct})\n"
+        f"• 🏆 *TP1 (+{config.DTPRO_RR1:.1f}R):*    `{tp1}` ({tp1_pct}) — _Dời SL hòa vốn_\n"
+        f"• 🚀 *TP2 (+{config.DTPRO_RR2:.1f}R):*    `{tp2}` ({tp2_pct}) — _Mục tiêu chính_\n"
+        f"━━━━━━━━━━━━━━━━━━━\n"
+        f"💡 _Quản trị rủi ro: Tối đa 2% NAV cho mỗi vị thế!_"
+    )
+    return msg
+
+
+def fmt_detail(res: dict) -> str:
+    """
+    Format tin nhắn tra cứu chi tiết 1 mã, đồng bộ bảng điều khiển Mini-HUD chuẩn Pine Script.
+    """
+    sym     = res['symbol']
+    ex      = res['exchange']
+    price   = res['price_vnd']
+    chg     = res['change_pct']
     chg_i   = "🟢" if chg >= 0 else "🔴"
-    sig_i   = "💎" if (res['buy_diamond'] or res['sell_diamond']) else \
-              ("🟢" if is_buy else ("🔴" if is_sell else "⚪️"))
+    chg_str = _pct(chg)
+    trend   = res['trend_label']
+    nw_z    = res['nw_zone_label']
+    sd      = res['state_d_str']
+    sw      = res['state_w_str']
+    str_pos = res.get('str_pos', 'ĐANG QUAN SÁT')
+    vr      = res['vol_ratio']
+    t       = res['updated_time']
+
+    entry_p = res.get('entry_price_vnd', price)
+    sl      = res.get('sl_vnd', '0 đ')
+    sl_pct  = _pct(res.get('sl_pct', 0.0))
+    tp1     = res.get('tp1_vnd', '0 đ')
+    tp1_pct = _pct(res.get('tp1_pct', 0.0))
+    tp2     = res.get('tp2_vnd', '0 đ')
+    tp2_pct = _pct(res.get('tp2_pct', 0.0))
+
+    pos_name = res.get('pos_name', '')
+    if "MẠNH" in pos_name:
+        badge = "💎"
+    elif "MUA" in pos_name:
+        badge = "🟢"
+    elif "BÁN" in pos_name:
+        badge = "🔴"
+    else:
+        badge = "⚪️"
 
     msg = (
         f"📊 *{sym}* — `{ex}`\n"
         f"━━━━━━━━━━━━━━━━━━━\n"
         f"⏰ _{t}_\n"
-        f"💰 Giá: `{price}` {chg_i} `{_pct(chg)}`\n\n"
-        f"📈 *Xu hướng:* {trend}\n"
-        f"🌊 *Biên NW:* {nw_z}\n"
-        f"📊 *Khối lượng:* `{vr:.1f}x` MA20\n\n"
-        f"🕐 *MTF Xác Nhận:*\n"
-        f"  • Ngày (D): {sd}\n"
-        f"  • Tuần (W): {sw}\n\n"
-        f"━━━━━━━━━━━━━━━━━━━\n"
-        f"{sig_i} *TÍN HIỆU: {sig}*\n"
+        f"💰 Giá hiện tại: `{price}` {chg_i} `{chg_str}`\n\n"
+        f"🖥 *BẢNG ĐIỀU KHIỂN (MINI-HUD):*\n"
+        f"• *XU HƯỚNG:* {trend}\n"
+        f"• *BIÊN ĐỘ NW:* `{nw_z}`\n"
+        f"• *NGÀY (D):* {sd}  •  *TUẦN (W):* {sw}\n"
+        f"• *VỊ THẾ:* {badge} *{str_pos}*\n"
+        f"• *KHỐI LƯỢNG:* `{vr:.1f}x` MA20\n\n"
+        f"🎯 *KẾ HOẠCH GIAO DỊCH ({pos_name if pos_name != 'ĐANG QUAN SÁT' else 'THAM KHẢO'}):*\n"
+        f"• 🎯 *Giá vào:* `{entry_p}`\n"
+        f"• 🛑 *Cắt lỗ:*  `{sl}` ({sl_pct})\n"
+        f"• 🏆 *TP1:*     `{tp1}` ({tp1_pct}) — _(1.0R)_\n"
+        f"• 🚀 *TP2:*     `{tp2}` ({tp2_pct}) — _(2.0R)_\n"
         f"━━━━━━━━━━━━━━━━━━━\n"
     )
 
-    if is_buy or is_sell:
-        action = "MUA 📈" if is_buy else "BÁN 📉"
-        msg += (
-            f"🎯 *KẾ HOẠCH {action}:*\n"
-            f"  • ENTRY: `{price}`\n"
-            f"  • SL:    `{format_vnd(res['sl'])}` ({_pct(res['sl_pct'])})\n"
-            f"  • TP1:   `{format_vnd(res['tp1'])}` ({_pct(res['tp1_pct'])}) — _Dời SL hòa vốn_\n"
-            f"  • TP2:   `{format_vnd(res['tp2'])}` ({_pct(res['tp2_pct'])}) — _Mục tiêu chính_\n\n"
-            f"💡 _Quản trị rủi ro: Tối đa 2% NAV mỗi lệnh!_\n"
-        )
-        if res.get('buy_diamond') or res.get('sell_diamond'):
-            msg += "✨ _Hội tụ tối ưu: SuperTrend đảo chiều tại biên NW — xác suất cao nhất!_\n"
+    if res.get('buy_diamond'):
+        msg += "💎 *ĐIỂM MUA MẠNH HÔM NAY:* _Hợp lưu Đáy NW trong 7 nến + SuperTrend Đảo Chiều TĂNG!_\n"
+    elif res.get('buy_standard'):
+        msg += "🟢 *ĐIỂM MUA CHUẨN HÔM NAY:* _SuperTrend Đảo Chiều TĂNG!_\n"
+    elif res.get('sell_diamond'):
+        msg += "🔥 *ĐIỂM BÁN MẠNH HÔM NAY:* _Hợp lưu Đỉnh NW trong 7 nến + SuperTrend Đảo Chiều GIẢM!_\n"
+    elif res.get('sell_standard'):
+        msg += "🔴 *ĐIỂM BÁN CHUẨN HÔM NAY:* _SuperTrend Đảo Chiều GIẢM!_\n"
     else:
-        msg += "👉 _Bot tự cảnh báo khi tín hiệu kích hoạt. Gõ mã bất kỳ để tra cứu!_\n"
+        msg += "👉 _Chưa có điểm đảo chiều mới hôm nay. Gõ mã khác để tra cứu!_\n"
 
     return msg
 
 
-def fmt_summary(signals: list, time_str: str = "") -> str:
-    """Tóm tắt quét toàn sàn."""
+def fmt_scan_summary(signals: list, time_str: str = "") -> str:
+    """Tóm tắt quét toàn sàn cho lệnh /scan."""
     if not signals:
         return (
             f"🔍 *DÒNG TIỀN PRO — QUÉT TỰ ĐỘNG* {time_str}\n"
             f"━━━━━━━━━━━━━━━━━━━\n"
-            f"⚪️ Không có tín hiệu trong phiên này.\n"
-            f"_Gõ tên mã để tra cứu riêng._"
+            f"⚪️ Không có điểm Mua/Bán mới trong phiên này.\n"
+            f"_Gõ tên mã bất kỳ để tra cứu chi tiết._"
         )
     msg = (
-        f"🔥 *DÒNG TIỀN PRO — QUÉT TỰ ĐỘNG* {time_str}\n"
-        f"Phát hiện *{len(signals)}* mã có tín hiệu:\n"
+        f"🔥 *DÒNG TIỀN PRO — DANH SÁCH ĐIỂM MUA* {time_str}\n"
+        f"Phát hiện *{len(signals)}* mã kích hoạt:\n"
         f"━━━━━━━━━━━━━━━━━━━\n"
     )
     for i, r in enumerate(signals[:10], 1):
-        icon = ("💎" if r.get('buy_diamond') or r.get('sell_diamond') else
-                ("🟢" if r['is_buy'] else "🔴"))
-        sym   = r['symbol'];  sig = r['signal_str']
+        icon  = "💎 MUA MẠNH" if r.get('buy_diamond') else "🟢 MUA"
+        sym   = r['symbol']
         price = r['price_vnd']
         chg_s = _pct(r['change_pct'])
-        msg += f"{i}. {icon} *{sym}* | {sig} | `{price}` ({chg_s})\n"
+        msg += f"{i}. *{sym}* | {icon} | `{price}` ({chg_s})\n"
     if len(signals) > 10:
         msg += f"\n_...và {len(signals)-10} mã khác. Gõ tên mã để xem chi tiết._\n"
-    msg += "\n💡 _Gõ tên mã (VD: `HPG`) để xem phân tích đầy đủ._"
+    msg += "\n💡 _Gõ tên mã (VD: `HPG`, `SSI`) để xem đầy đủ kế hoạch Entry/SL/TP._"
     return msg
 
 
@@ -110,37 +288,38 @@ def fmt_welcome() -> str:
     return (
         "🌊 *DÒNG TIỀN & XU HƯỚNG PRO — MASTER EDITION* 🌊\n"
         "────────────────────────\n"
-        "Bot phân tích TTCK Việt Nam dựa trên:\n"
-        "• 🧮 Nadaraya-Watson Gaussian Regression (non-repaint)\n"
-        "• 📈 Keltner SuperTrend (EMA hlc3 + ATR)\n"
+        "Hệ thống phát hiện dòng tiền và lọc điểm mua tối ưu TTCK Việt Nam:\n"
+        "• 🧮 Nadaraya-Watson Gaussian Regression (500 nến, non-repaint)\n"
+        "• 📈 Keltner SuperTrend (EMA hlc3 10, ATR 14, factor 2.8)\n"
+        "• 💎 Tín hiệu *MUA MẠNH*: Hội tụ Đáy NW trong 7 nến + SuperTrend Đảo Chiều TĂNG\n"
+        "• 🟢 Tín hiệu *MUA*: SuperTrend Đảo Chiều TĂNG chuẩn\n"
         "• 🕐 Xác nhận đa khung: Ngày (D) & Tuần (W)\n"
-        "• 💎 Tín hiệu Diamond khi hội tụ NW + SuperTrend\n\n"
-        "📖 *CÁCH DÙNG:*\n"
-        "• Gõ mã cổ phiếu: `HPG`, `SSI`, `VCB`...\n"
-        "• `/soi HPG` hoặc `/check VCB`\n"
-        "• `/scan` — Quét ngay toàn sàn\n"
-        "• `/status` — Trạng thái bot\n\n"
-        "🎯 *Tín hiệu mạnh nhất (💎 Diamond):*\n"
-        "_SuperTrend đảo chiều ĐÚNG tại biên NW — hội tụ xác suất cao nhất!_\n\n"
-        "👉 _Thử gõ `HPG` hoặc `VCB` ngay!_"
+        "• 🎯 Kế hoạch giao dịch: Entry, Cắt lỗ (SL), TP1, TP2\n\n"
+        "📖 *CÁCH TRA CỨU:*\n"
+        "• Gõ trực tiếp mã: `HPG`, `SSI`, `VND`, `VCB`...\n"
+        "• Dùng lệnh: `/soi HPG` hoặc `/check SSI`\n"
+        "• `/scan` — Quét ngay danh sách điểm mua toàn sàn\n"
+        "• `/status` — Xem trạng thái bot & giờ giao dịch\n\n"
+        "👉 _Hãy thử gõ ngay một mã như `HPG` hoặc `SSI` để xem kết quả!_"
     )
 
 
 def fmt_status() -> str:
-    from screener import is_trading_hour
     s = "🟢 ĐANG TRONG GIỜ GIAO DỊCH" if is_trading_hour() else "🔴 NGOÀI GIỜ GIAO DỊCH"
     return (
-        f"🤖 *DÒNG TIỀN PRO — STATUS*\n━━━━━━━━━━━━━━━━━━━\n"
-        f"• Trạng thái: {s}\n"
-        f"• Kernel NW: {config.DTPRO_NW_WIN} nến | h={config.DTPRO_NW_H}\n"
+        f"🤖 *DÒNG TIỀN PRO — STATUS*\n"
+        f"━━━━━━━━━━━━━━━━━━━\n"
+        f"• Phiên thị trường: {s}\n"
+        f"• Lịch quét tự động: Mỗi 5 phút trong phiên qua GitHub Actions\n"
+        f"• Kernel NW: {config.DTPRO_NW_WIN} nến | h={config.DTPRO_NW_H} | Cửa sổ: {config.DTPRO_LOOKBACK} nến\n"
         f"• SuperTrend: EMA({config.DTPRO_ST_LEN}) × ATR({config.DTPRO_ATR_LEN}) × {config.DTPRO_ST_MULT}\n"
-        f"• TP1: {config.DTPRO_RR1}R | TP2: {config.DTPRO_RR2}R\n"
-        f"_Gõ tên mã bất kỳ để phân tích!_"
+        f"• Quản trị rủi ro: TP1 (+{config.DTPRO_RR1}R) | TP2 (+{config.DTPRO_RR2}R)\n\n"
+        f"_Gõ tên mã bất kỳ để phân tích ngay lập tức!_"
     )
 
 
 # ─────────────────────────────────────────────────────────────
-# PROCESS TELEGRAM UPDATES
+# 3. XỬ LÝ TIN NHẮN TỪ TELEGRAM
 # ─────────────────────────────────────────────────────────────
 
 def process_updates(updates: list) -> int:
@@ -157,20 +336,22 @@ def process_updates(updates: list) -> int:
         text_up = raw_txt.upper()
         parts   = text_up.split()
         cmd     = parts[0].split("@")[0] if parts else ""
-        print(f"[DTPro Bot] {chat_id}: {raw_txt[:50]}")
+        print(f"[DTPro Bot] Chat {chat_id}: {raw_txt[:50]}")
 
-        if cmd in ["/START", "/HELP"]:
+        if cmd in ["/START", "/HELP", "/HUONGDAN"]:
             gdnl_bot.send_message(chat_id, fmt_welcome())
             continue
+
         if cmd == "/STATUS":
             gdnl_bot.send_message(chat_id, fmt_status())
             continue
+
         if cmd == "/SCAN":
-            gdnl_bot.send_message(chat_id, "🔍 Đang quét toàn sàn... Vui lòng chờ 60-90 giây.")
+            gdnl_bot.send_message(chat_id, "🔍 Đang quét toàn sàn tìm điểm MUA... Vui lòng chờ 30-60 giây.")
             try:
-                sigs = dtpro_screener.run_dtpro_screener(signal_only=True)
-                gdnl_bot.send_message(chat_id, fmt_summary(
-                    sigs, f"[{datetime.now().strftime('%H:%M %d/%m')}]"))
+                sigs = dtpro_screener.run_dtpro_screener(buy_only=True)
+                gdnl_bot.send_message(chat_id, fmt_scan_summary(
+                    sigs, f"[{datetime.now().strftime('%H:%M %d/%m')} - Giờ giao dịch]"))
             except Exception as e:
                 gdnl_bot.send_message(chat_id, f"❌ Lỗi quét: {e}")
             continue
@@ -182,12 +363,17 @@ def process_updates(updates: list) -> int:
             target = text_up
 
         if target:
-            gdnl_bot.send_message(chat_id, f"🔍 Đang phân tích *{target}*... (NW 500 nến)")
+            gdnl_bot.send_message(chat_id, f"🔍 Đang phân tích mã *{target}*...")
             try:
                 res = dtpro_screener.analyze_single(target)
-                gdnl_bot.send_message(chat_id,
-                    fmt_detail(res) if res else
-                    f"❌ Không tìm thấy dữ liệu cho mã *{target}*.")
+                if res:
+                    gdnl_bot.send_message(chat_id, fmt_detail(res))
+                else:
+                    gdnl_bot.send_message(
+                        chat_id,
+                        f"❌ Không tìm thấy dữ liệu cho mã *{target}*.\n"
+                        f"Vui lòng kiểm tra lại mã cổ phiếu!"
+                    )
             except Exception as e:
                 gdnl_bot.send_message(chat_id, f"❌ Lỗi phân tích {target}: {e}")
 
@@ -195,46 +381,81 @@ def process_updates(updates: list) -> int:
 
 
 # ─────────────────────────────────────────────────────────────
-# RUN MODES
+# 4. CHẾ ĐỘ CHẠY CHÍNH (GITHUB ACTIONS & DAEMON)
 # ─────────────────────────────────────────────────────────────
 
 def run_github_actions():
-    print(f"[{datetime.now().strftime('%H:%M:%S')}] 🚀 Dòng Tiền PRO Bot (GitHub Actions)")
+    """
+    Chế độ chạy trên GitHub Actions (mỗi 5 phút trong giờ giao dịch):
+    1. Trả lời ngay lập tức các tin nhắn tra cứu mà người dùng đã gửi tới Bot
+    2. Nếu trong giờ giao dịch: Quét toàn bộ sàn HOSE + HNX
+    3. Tự động bắn cảnh báo các mã mới kích hoạt điểm MUA (💎 MUA MẠNH hoặc 🟢 MUA)
+    4. Cập nhật danh sách mã đã bắn hôm nay để chống gửi lặp lại
+    """
+    now_ts = datetime.now().strftime('%H:%M:%S %d/%m/%Y')
+    print(f"[{now_ts}] 🚀 Dòng Tiền PRO Bot — Khởi động trên GitHub Actions")
 
-    print("[1/3] Đọc tin nhắn Telegram...")
+    # 1. Trả lời tin nhắn người dùng
+    print("[1/3] Đọc tin nhắn Telegram đang chờ...")
     updates = gdnl_bot.get_pending_updates(offset=0)
     if updates:
-        print(f"  → {len(updates)} tin nhắn cần xử lý.")
+        print(f"  → Có {len(updates)} tin nhắn cần xử lý.")
         last_id = process_updates(updates)
         if last_id > 0:
             gdnl_bot.ack_update(last_id)
+            print(f"  → Đã ack đến update_id={last_id}")
     else:
         print("  → Không có tin nhắn mới.")
 
+    # 2. Quét thị trường trong giờ giao dịch & Bắn cảnh báo điểm MUA
     print("[2/3] Kiểm tra giờ giao dịch...")
     if is_trading_hour():
-        print("  → Trong giờ giao dịch. Quét toàn sàn...")
-        try:
-            signals = dtpro_screener.run_dtpro_screener(signal_only=True)
-            now_str = datetime.now().strftime("%H:%M %d/%m")
-            summary = fmt_summary(signals, f"[{now_str}]")
-            if signals:
-                gdnl_bot.send_alert_to_default(summary)
-                print(f"  → Gửi {len(signals)} tín hiệu về Telegram.")
-            else:
-                print("  → Không có tín hiệu.")
-        except Exception as e:
-            print(f"  → [Lỗi quét] {e}")
-    else:
-        print("  → Ngoài giờ giao dịch. Bỏ qua quét.")
+        print("  → Đang trong giờ giao dịch! Bắt đầu quét điểm MUA trên toàn bộ thị trường...")
+        alerted_stocks_today = load_alerted_stocks_today()
+        print(f"  → Danh sách mã đã cảnh báo hôm nay: {sorted(list(alerted_stocks_today))}")
 
-    print("[3/3] Hoàn tất.")
+        try:
+            # Quét toàn sàn lấy các mã CÓ ĐIỂM MUA (💎 MUA MẠNH hoặc 🟢 MUA)
+            buy_signals = dtpro_screener.run_dtpro_screener(buy_only=True)
+            print(f"  → Tìm thấy {len(buy_signals)} mã có điểm MUA hôm nay.")
+
+            new_alerts = 0
+            for sig in buy_signals:
+                sym = sig['symbol']
+                # Chỉ cảnh báo nếu mã chưa được gửi hôm nay
+                if sym not in alerted_stocks_today:
+                    alert_card = fmt_buy_alert(sig)
+                    sent = gdnl_bot.send_alert_to_default(alert_card)
+                    if sent:
+                        alerted_stocks_today.add(sym)
+                        new_alerts += 1
+                        kind = "💎 MUA MẠNH" if sig.get('buy_diamond') else "🟢 MUA"
+                        print(f"  ✅ [ĐÃ CẢNH BÁO] Mã {sym} ({kind}) tới Telegram thành công!")
+                        time.sleep(0.5)
+
+            if new_alerts > 0:
+                save_alerted_stocks_today(alerted_stocks_today)
+                print(f"  → Đã cập nhật trạng thái: Tổng cộng {len(alerted_stocks_today)} mã đã cảnh báo hôm nay.")
+            else:
+                print("  → Không có điểm MUA mới phát sinh trong lượt quét này.")
+
+        except Exception as e:
+            print(f"  → [Lỗi quét & cảnh báo] {e}")
+    else:
+        print("  → Ngoài giờ giao dịch. Bỏ qua quét thị trường.")
+
+    print("[3/3] Hoàn tất lượt chạy GitHub Actions.")
 
 
 def run_daemon():
-    print("🚀 Dòng Tiền PRO Bot (Daemon 24/7)...")
-    last_uid   = 0
-    last_scan  = 0
+    """
+    Chế độ chạy nền 24/7 (khi chạy trên máy cá nhân hoặc VPS):
+    Liên tục lắng nghe tin nhắn Telegram và quét định kỳ 1 phút/lần trong giờ giao dịch.
+    """
+    print("🚀 Dòng Tiền PRO Bot — Khởi động chế độ Daemon 24/7...")
+    last_uid  = 0
+    last_scan = 0
+
     while True:
         try:
             updates = gdnl_bot.get_pending_updates(offset=last_uid + 1)
@@ -247,50 +468,75 @@ def run_daemon():
         if now - last_scan >= config.SCAN_INTERVAL_SECONDS:
             if is_trading_hour():
                 try:
-                    sigs = dtpro_screener.run_dtpro_screener(signal_only=True)
-                    if sigs:
-                        gdnl_bot.send_alert_to_default(
-                            fmt_summary(sigs, f"[{datetime.now().strftime('%H:%M %d/%m')}]"))
+                    alerted_stocks_today = load_alerted_stocks_today()
+                    buy_signals = dtpro_screener.run_dtpro_screener(buy_only=True)
+                    new_alerts = 0
+                    for sig in buy_signals:
+                        sym = sig['symbol']
+                        if sym not in alerted_stocks_today:
+                            alert_card = fmt_buy_alert(sig)
+                            if gdnl_bot.send_alert_to_default(alert_card):
+                                alerted_stocks_today.add(sym)
+                                new_alerts += 1
+                                time.sleep(0.5)
+                    if new_alerts > 0:
+                        save_alerted_stocks_today(alerted_stocks_today)
                 except Exception as e:
-                    print(f"[Lỗi quét] {e}")
+                    print(f"[Lỗi quét daemon] {e}")
             last_scan = now
+
         time.sleep(2)
 
 
 def run_check(symbol: str):
-    print(f"\n🔍 Phân tích: {symbol.upper()} (DTPro, NW {config.DTPRO_NW_WIN} nến)")
+    """
+    Test tra cứu 1 mã đơn lẻ, in bảng điều khiển HUD và gửi tin nhắn Telegram.
+    """
+    print(f"\n🔍 Phân tích chi tiết: {symbol.upper()} (Chỉ báo DÒNG TIỀN PRO)")
     res = dtpro_screener.analyze_single(symbol)
     if not res:
-        print(f"❌ Không tìm thấy dữ liệu cho '{symbol}'")
+        print(f"❌ Không tìm thấy dữ liệu cho mã '{symbol}'")
         return
+
     print(f"\n{'='*60}")
     print(f"  {res['symbol']} ({res['exchange']}) — {res['updated_time']}")
     print(f"  Giá: {res['price_vnd']} ({res['change_pct']:+.2f}%)")
     print(f"  Xu hướng: {res['trend_label']}")
-    print(f"  NW Zone: {res['nw_zone_label']}")
-    print(f"  MTF — D: {res['state_d_str']} | W: {res['state_w_str']}")
-    print(f"  Volume: {res['vol_ratio']:.1f}x MA20")
-    print(f"  TÍN HIỆU: {res['signal_str']}")
-    print(f"  NW bars used: {res.get('nw_bars_used', '?')}")
-    if res['is_buy'] or res['is_sell']:
-        print(f"  SL:  {format_vnd(res['sl'])} ({res['sl_pct']:+.1f}%)")
-        print(f"  TP1: {format_vnd(res['tp1'])} ({res['tp1_pct']:+.1f}%)")
-        print(f"  TP2: {format_vnd(res['tp2'])} ({res['tp2_pct']:+.1f}%)")
+    print(f"  Biên độ NW: {res['nw_zone_label']}")
+    print(f"  Xác nhận MTF: Ngày ({res['state_d_str']}) • Tuần ({res['state_w_str']})")
+    print(f"  Vị thế: {res['str_pos']}")
+    print(f"  Khối lượng: {res['vol_ratio']:.1f}x MA20")
+    print(f"  Tín hiệu: {res['signal_str']}")
+    print(f"  Kế hoạch: Entry {res['entry_price_vnd']} | SL {res['sl_vnd']} ({res['sl_pct']:+.1f}%) | TP1 {res['tp1_vnd']} | TP2 {res['tp2_vnd']}")
     print(f"{'='*60}\n")
-    sent = gdnl_bot.send_alert_to_default(fmt_detail(res))
-    print(f"{'✅ Đã gửi Telegram.' if sent else '⚠️ Không gửi được Telegram.'}")
+
+    # Nếu có điểm mua hôm nay, test luôn định dạng cảnh báo mua
+    if res.get('buy_diamond') or res.get('buy_standard'):
+        msg = fmt_buy_alert(res)
+    else:
+        msg = fmt_detail(res)
+
+    sent = gdnl_bot.send_alert_to_default(msg)
+    print(f"{'✅ Đã gửi tin nhắn phân tích về Telegram thành công!' if sent else '⚠️ Không gửi được Telegram.'}")
 
 
 def run_scan():
-    print("\n🔍 Quét toàn sàn (DTPro)...")
-    sigs    = dtpro_screener.run_dtpro_screener(signal_only=True)
+    """
+    Test quét toàn sàn và in danh sách các mã có điểm MUA.
+    """
+    print("\n🔍 Quét toàn bộ thị trường tìm điểm MUA (DÒNG TIỀN PRO)...")
+    sigs = dtpro_screener.run_dtpro_screener(buy_only=True)
     now_str = datetime.now().strftime("%H:%M %d/%m")
-    summary = fmt_summary(sigs, f"[{now_str}]")
+    summary = fmt_scan_summary(sigs, f"[{now_str}]")
     print(summary)
     if sigs:
         gdnl_bot.send_alert_to_default(summary)
-        print(f"\n✅ Gửi {len(sigs)} tín hiệu về Telegram.")
+        print(f"\n✅ Đã gửi danh sách {len(sigs)} mã có điểm MUA về Telegram.")
 
+
+# ─────────────────────────────────────────────────────────────
+# 5. ENTRY POINT
+# ─────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     args = sys.argv[1:]

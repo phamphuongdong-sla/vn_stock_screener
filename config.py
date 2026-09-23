@@ -82,6 +82,7 @@ DTPRO_EMA_SLOW    = 50     # EMA chậm (MTF scan)
 DTPRO_NW_H        = 8.0    # Băng thông Nadaraya-Watson kernel
 DTPRO_NW_MULT     = 3.0    # Hệ số nhân biên độ NW
 DTPRO_NW_WIN      = 500    # Kích thước kernel NW (số nến)
+DTPRO_LOOKBACK    = 7      # Cửa sổ chờ hợp lưu NW (Nến), mặc định 7 nến
 DTPRO_RR1         = 1.0    # R:R mức TP1
 DTPRO_RR2         = 2.0    # R:R mức TP2
 DTPRO_HISTORY_DAYS = 1500  # Số ngày lịch sử cần fetch (để NW kernel đủ dữ liệu)

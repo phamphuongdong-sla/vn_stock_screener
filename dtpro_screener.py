@@ -70,6 +70,7 @@ def analyze_one(item: dict, exchange: str) -> Optional[Dict]:
         ema_fast=config.DTPRO_EMA_FAST, ema_slow=config.DTPRO_EMA_SLOW,
         nw_h=config.DTPRO_NW_H, nw_mult=config.DTPRO_NW_MULT,
         nw_win=config.DTPRO_NW_WIN,
+        cua_so_lookback=config.DTPRO_LOOKBACK,
         rr1=config.DTPRO_RR1, rr2=config.DTPRO_RR2,
     )
 
@@ -94,12 +95,17 @@ def analyze_single(symbol: str) -> Optional[Dict]:
         ema_fast=config.DTPRO_EMA_FAST, ema_slow=config.DTPRO_EMA_SLOW,
         nw_h=config.DTPRO_NW_H, nw_mult=config.DTPRO_NW_MULT,
         nw_win=config.DTPRO_NW_WIN,
+        cua_so_lookback=config.DTPRO_LOOKBACK,
         rr1=config.DTPRO_RR1, rr2=config.DTPRO_RR2,
     )
 
 
-def run_dtpro_screener(signal_only: bool = True) -> List[Dict]:
-    """Quét toàn sàn, trả về mã có tín hiệu (signal_only=True) hoặc tất cả."""
+def run_dtpro_screener(buy_only: bool = True, signal_only: bool = True) -> List[Dict]:
+    """
+    Quét toàn sàn HOSE + HNX theo bộ chỉ báo DÒNG TIỀN & XU HƯỚNG PRO:
+    - buy_only=True: Chỉ lấy các mã có điểm MUA hoặc MUA MẠNH hôm nay
+    - signal_only=True: Lấy các mã có tín hiệu (Mua hoặc Bán)
+    """
     all_items = []
     for ex in config.EXCHANGES:
         snap = get_exchange_symbols_snapshot(ex)
@@ -108,7 +114,6 @@ def run_dtpro_screener(signal_only: bool = True) -> List[Dict]:
     print(f"[DTPro] {len(all_items)} mã — Đang phân tích đa luồng...")
 
     results = []
-    # Giảm workers vì NW computation nặng hơn
     workers = min(config.MAX_WORKERS, 8)
     with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
         futures = {executor.submit(analyze_one, item, ex): (item, ex)
@@ -118,16 +123,22 @@ def run_dtpro_screener(signal_only: bool = True) -> List[Dict]:
                 res = future.result()
                 if res is None:
                     continue
-                if signal_only and not res['has_signal']:
-                    continue
+                if buy_only:
+                    if not (res['buy_diamond'] or res['buy_standard']):
+                        continue
+                elif signal_only:
+                    if not res['has_signal']:
+                        continue
                 results.append(res)
             except Exception:
                 pass
 
-    # Sắp xếp: Diamond trước, rồi theo signal_str
+    # Sắp xếp: Mua Mạnh (Diamond) lên đầu, tiếp đến Mua Chuẩn
     results.sort(key=lambda x: (
-        -int(x.get('buy_diamond') or x.get('sell_diamond') or False),
+        -int(x.get('buy_diamond', False)),
+        -int(x.get('buy_standard', False)),
         -int(x.get('has_signal', False)),
     ))
-    print(f"[DTPro] Xong — {len(results)} mã{'có tín hiệu' if signal_only else ''}.")
+    tag = "ĐIỂM MUA (MUA & MUA MẠNH)" if buy_only else "tín hiệu"
+    print(f"[DTPro] Hoàn tất — Tìm thấy {len(results)} mã có {tag}.")
     return results
