@@ -16,8 +16,8 @@ if [ -f "$PID_FILE" ]; then
     fi
 fi
 
-# Thử tìm tiến trình background_runner.py nếu không có file pid
-PIDS=$(pgrep -f "background_runner.py")
+# Thử tìm tiến trình dtpro_runner.py hoặc background_runner.py nếu không có file pid
+PIDS=$(pgrep -f "dtpro_runner.py|background_runner.py")
 if [ -n "$PIDS" ]; then
     kill $PIDS
     rm -f "$PID_FILE"

@@ -16,8 +16,8 @@ if [ -f "$PID_FILE" ]; then
     fi
 fi
 
-# Chạy ngầm dưới nền với nohup
-nohup "$DIR/venv/bin/python3" "$DIR/background_runner.py" >> "$LOG_FILE" 2>&1 &
+# Chạy ngầm dưới nền với nohup (DÒNG TIỀN PRO)
+nohup "$DIR/venv/bin/python3" "$DIR/dtpro_runner.py" --listen >> "$LOG_FILE" 2>&1 &
 BOT_PID=$!
 echo $BOT_PID > "$PID_FILE"
 
