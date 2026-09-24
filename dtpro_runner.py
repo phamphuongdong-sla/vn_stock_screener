@@ -797,7 +797,7 @@ def run_daemon():
                         save_alerted_stocks_today(alerted_stocks_today)
                 except Exception as e:
                     print(f"[Lỗi quét daemon] {e}")
-            last_scan = now
+            last_scan = time.time()
 
         time.sleep(2)
 

@@ -46,13 +46,13 @@ RR_TP3 = 3.0   # Chốt lời tối đa theo sóng
 # 3. CẤU HÌNH LỊCH QUÉT TỰ ĐỘNG
 # ==========================================
 # Khoảng thời gian nghỉ giữa mỗi lần quét (giây) khi chạy chế độ lặp
-SCAN_INTERVAL_SECONDS = 60   # 1 phút quét 1 lần theo thời gian thực trong giờ giao dịch
+SCAN_INTERVAL_SECONDS = 180   # 3 phút quét 1 lần trong giờ giao dịch (giúp máy chạy êm, tiết kiệm CPU)
 
 # Các sàn muốn quét: "HOSE", "HNX"
 EXCHANGES = ["HOSE", "HNX"]
 
 # Số luồng phân tích chuyên sâu đồng thời
-MAX_WORKERS = 16
+MAX_WORKERS = 4
 
 # ==========================================
 # 4. GDNL — Vùng Xu Hướng PRO (Pine Script Port)
