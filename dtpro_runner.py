@@ -154,7 +154,7 @@ def _confidence_label(n: int) -> str:
 
 
 def fmt_stats_block(sym: str, bs: dict) -> str:
-    """Format bảng thống kê 5 năm lịch sử trực quan, dễ xem trên di động."""
+    """Format bảng thống kê 5 năm lịch sử trực quan theo từng vùng chỉ báo trên Khung Ngày."""
     if not bs or bs.get('total_buys', 0) <= 0:
         return ""
     
@@ -163,21 +163,35 @@ def fmt_stats_block(sym: str, bs: dict) -> str:
     tot_l = tot - tot_w
     tot_wr = bs.get('tot_winrate', 0.0)
 
-    up_cnt = bs.get('vni_up_cnt', 0)
-    up_win = bs.get('vni_up_wins', 0)
-    up_wr = bs.get('vni_up_winrate', 0.0)
+    # Vùng Mua Mạnh (Diamond)
+    n_dia = bs.get('n_buy_diamond', 0)
+    dia_w = bs.get('dia_wins', 0)
+    dia_l = n_dia - dia_w
+    dia_wr = bs.get('dia_winrate', 0.0)
 
-    dn_cnt = bs.get('vni_dn_cnt', 0)
-    dn_win = bs.get('vni_dn_wins', 0)
-    dn_wr = bs.get('vni_dn_winrate', 0.0)
+    # Vùng Mua Chuẩn (Standard)
+    n_std = bs.get('n_buy', 0)
+    std_w = bs.get('std_wins', 0)
+    std_l = n_std - std_w
+    std_wr = bs.get('std_winrate', 0.0)
+
+    dia_line = (
+        f"• 💎 *VÙNG MUA MẠNH* (Đáy NW + SuperTrend):\n"
+        f"  `{dia_w} Thắng` / `{dia_l} Thua` ({n_dia} lệnh) → *Win Rate: `{dia_wr:.1f}%`*\n"
+    ) if n_dia > 0 else "• 💎 *VÙNG MUA MẠNH:* Chưa xuất hiện lệnh trong 5 năm\n"
+
+    std_line = (
+        f"• 🟢 *VÙNG MUA CHUẨN* (SuperTrend Đảo Chiều):\n"
+        f"  `{std_w} Thắng` / `{std_l} Thua` ({n_std} lệnh) → *Win Rate: `{std_wr:.1f}%`*\n"
+    ) if n_std > 0 else ""
 
     return (
-        f"📈 *TỔNG KẾT HIỆU QUẢ 5 NĂM QUA ({sym})*\n"
-        f"• Tổng số lệnh Mua: `{tot}` lệnh (Chuẩn: `{bs.get('n_buy',0)}` • Mạnh: `{bs.get('n_buy_diamond',0)}`)\n"
-        f"• Khi VN-Index TĂNG: `{up_win}/{up_cnt}` thắng (`{up_wr:.1f}%`)\n"
-        f"• Khi VN-Index GIẢM: `{dn_win}/{dn_cnt}` thắng (`{dn_wr:.1f}%`)\n"
-        f"• 👉 *Toàn bộ 5 năm:* `{tot_w} Thắng` / `{tot_l} Thua` → *Win Rate: `{tot_wr:.1f}%`*\n"
+        f"📊 *HIỆU QUẢ THEO VÙNG CHỈ BÁO (5 NĂM KHUNG NGÀY)*\n"
+        f"{dia_line}"
+        f"{std_line}"
+        f"• 👉 *TỔNG CỘNG 5 NĂM:* `{tot_w} Thắng` / `{tot_l} Thua` ({tot} lệnh) → *Win Rate: `{tot_wr:.1f}%`*\n"
     )
+
 
 
 
