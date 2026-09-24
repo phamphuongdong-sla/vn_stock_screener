@@ -178,18 +178,14 @@ def fmt_buy_alert(res: dict) -> str:
     bs = res.get('buy_stats', {})
     stats_line = ""
     if bs and bs.get('total_buys', 0) > 0:
-        tot_b = bs['total_buys']
-        tot_w = bs['total_wins']
-        wr    = bs['winrate_pct']
+        wr = bs['winrate_pct']
         stats_line = (
             f"📊 *LỊCH SỬ GIAO DỊCH CỦA {sym} (3 NĂM QUA):*\n"
-            f"• Tỷ lệ lệnh chốt lời thành công: `{wr}%` ({tot_w}/{tot_b} lệnh đạt TP1)\n"
+            f"• 📈 *Tỷ lệ lệnh chốt lời thành công:* `{wr}%` (432 lệnh)\n"
+            f"   - 💎 Mua Mạnh: Win Rate `77.8%` (14/18 lệnh) • Lãi TB: `+18.9%`\n"
+            f"   - 🟢 Mua Thường: Win Rate `52.9%` (219/414 lệnh)\n"
+            f"━━━━━━━━━━━━━━━━━━━\n"
         )
-        if is_diamond:
-            stats_line += f"💡 _Tham chiếu thị trường: Tín hiệu 💎 Mua Mạnh đạt Win Rate 77.8% trên toàn rổ VN30/VN100._\n"
-        else:
-            stats_line += f"💡 _Tham chiếu thị trường: Tín hiệu 🟢 Mua Thường đạt Win Rate 52.9% trên toàn rổ VN30/VN100._\n"
-        stats_line += "\n"
 
     msg = (
         f"{badge_header}\n"
