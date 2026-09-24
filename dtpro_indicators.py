@@ -173,23 +173,35 @@ def calc_mtf_states(
     ema_slow: int = 50,
 ) -> Tuple[int, int]:
     """
-    Daily state  = MTF state of the daily df itself
+    Daily state  = MTF state of the daily df itself (EMA20/50 on daily close)
     Weekly state = MTF state on weekly-resampled close
     Returns: (state_D, state_W)
+    NOTE: Weekly resampling uses only fully-closed weeks to avoid look-ahead bias.
     """
-    # Daily: use full df
+    # Daily: use full df (tất cả nến ngày đã đóng — nến hiện tại chưa đóng
+    # không được ghép vào df này trong flow chính)
     state_d = _ema_state(df['close'], ema_fast, ema_slow)
 
-    # Weekly: resample daily → weekly close (last close of each week)
+    # Weekly: resample daily → weekly close (last close of each completed week)
     try:
         df_ts = df.copy()
-        df_ts['date'] = pd.to_datetime(df_ts['time'], unit='s')
+        df_ts['date'] = pd.to_datetime(df_ts['time'], unit='s', utc=True).dt.tz_convert('Asia/Ho_Chi_Minh')
         df_ts = df_ts.set_index('date')
         weekly_close = df_ts['close'].resample('W').last().dropna()
+
+        # Loại bỏ tuần hiện tại nếu chưa kết thúc (tránh look-ahead bias)
+        from datetime import datetime
+        import pytz
+        vn_tz = pytz.timezone('Asia/Ho_Chi_Minh')
+        now = datetime.now(vn_tz)
+        # Tuần kết thúc vào Chủ Nhật — nếu hôm nay chưa phải CN thì tuần cuối chưa đóng
+        if now.weekday() < 6:  # 6 = Sunday
+            weekly_close = weekly_close.iloc[:-1]
+
         if len(weekly_close) >= ema_slow:
             state_w = _ema_state(weekly_close, ema_fast, ema_slow)
         else:
-            state_w = state_d   # fallback
+            state_w = state_d   # fallback nếu không đủ dữ liệu tuần
     except Exception:
         state_w = 0
 

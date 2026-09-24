@@ -136,7 +136,7 @@ def get_vnindex_status() -> dict:
         r = s.get(u, timeout=(2.0, 4.0))
         if r.status_code == 200:
             d = r.json()
-            if 'c' in d and len(d['c']) > 20:
+            if 'c' in d and len(d['c']) > 60:
                 df_vni = pd.DataFrame({
                     'time': d['t'],
                     'open': d['o'],
@@ -145,30 +145,35 @@ def get_vnindex_status() -> dict:
                     'close': d['c'],
                     'volume': d['v']
                 })
-                from dtpro_indicators import calc_supertrend
+                from dtpro_indicators import calc_supertrend, calc_ema
                 st_dir, _ = calc_supertrend(df_vni, st_len=config.DTPRO_ST_LEN, atr_mult=config.DTPRO_ST_MULT, atr_len=config.DTPRO_ATR_LEN)
                 dir_val = int(st_dir.iloc[-1])
                 c_series = df_vni['close']
-                ma20 = float(c_series.rolling(20).mean().iloc[-1])
                 cur_p = float(c_series.iloc[-1])
                 prev_p = float(c_series.iloc[-2]) if len(c_series) > 1 else cur_p
                 chg = (cur_p - prev_p) / prev_p * 100
 
-                diff_pct = (cur_p - ma20) / ma20 * 100.0
-                if abs(diff_pct) <= 0.2:
-                    state = "NGANG"
-                    state_str = "⚪ NGANG"
-                elif cur_p > ma20:
+                # Dùng EMA20/EMA50 nhất quán với Pine Script f_trend()
+                # KHÔNG dùng SMA + threshold — đó là logic sai
+                ema20 = float(calc_ema(c_series, config.DTPRO_EMA_FAST).iloc[-1])
+                ema50 = float(calc_ema(c_series, config.DTPRO_EMA_SLOW).iloc[-1])
+                if cur_p > ema20 and ema20 > ema50:
                     state = "TĂNG"
                     state_str = "🟢 TĂNG"
-                else:
+                elif cur_p < ema20 and ema20 < ema50:
                     state = "GIẢM"
                     state_str = "🔴 GIẢM"
+                else:
+                    state = "NGANG"
+                    state_str = "⚪ NGANG"
+                ma20 = ema20  # backward compat
 
                 _vni_cache = {
                     'price': cur_p,
                     'chg_pct': chg,
                     'ma20': ma20,
+                    'ema20': ema20,
+                    'ema50': ema50,
                     'st_dir': dir_val,
                     'state': state,
                     'state_str': state_str,

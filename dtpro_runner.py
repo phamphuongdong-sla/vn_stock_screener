@@ -139,6 +139,20 @@ def _pct(v: float) -> str:
     return f"+{v:.1f}%" if v >= 0 else f"{v:.1f}%"
 
 
+def _confidence_label(n: int) -> str:
+    """Phân loại độ tin cậy theo cỡ mẫu (theo spec)."""
+    if n < 5:
+        return "⚪ CHƯA ĐỦ DỮ LIỆU"
+    elif n < 10:
+        return "🔴 MẪU NHỎ"
+    elif n < 20:
+        return "🟠 DỮ LIỆU HẠN CHẾ"
+    elif n < 50:
+        return "🟡 DỮ LIỆU KHÁ"
+    else:
+        return "🟢 DỮ LIỆU ĐỦ LỚN"
+
+
 def fmt_stats_block(sym: str, bs: dict) -> str:
     """Format bảng thống kê theo yêu cầu mới."""
     if not bs or bs.get('total_buys', 0) <= 0:
@@ -177,19 +191,15 @@ def fmt_stats_block(sym: str, bs: dict) -> str:
 
 def determine_stock_3state(res: dict):
     """
-    Xác định 3 trạng thái xu hướng của cổ phiếu:
-    - 🟢 TĂNG
-    - 🔴 GIẢM
-    - ⚪ NGANG
+    Xác định 3 trạng thái xu hướng của cổ phiếu theo Pine Script f_trend():
+    - 🟢 TĂNG: close > EMA20 AND EMA20 > EMA50 (state_d == 1)
+    - 🔴 GIẢM: close < EMA20 AND EMA20 < EMA50 (state_d == -1)
+    - ⚪ NGANG: các trường hợp còn lại (state_d == 0)
+    Không dùng SuperTrend direction làm override — chỉ dùng EMA state.
     """
-    dir_val = res.get('direction', 1)
     state_d = res.get('state_d', 0)
-    
-    if dir_val == 1 and state_d >= 0:
-        return "TĂNG", "🟢 TĂNG"
-    elif dir_val == -1 and state_d <= 0:
-        return "GIẢM", "🔴 GIẢM"
-    elif state_d == 1:
+
+    if state_d == 1:
         return "TĂNG", "🟢 TĂNG"
     elif state_d == -1:
         return "GIẢM", "🔴 GIẢM"
@@ -275,12 +285,18 @@ def get_context_history_str(bs: dict, vni_state: str) -> str:
         v_wr  = bs.get('tot_winrate', 0.0)
         hist_label = "THỊ TRƯỜNG TRUNG TÍNH"
 
-    if v_cnt > 0:
+    confidence = _confidence_label(v_cnt)
+
+    if v_cnt == 0:
         return (
             f"📊 *LỊCH SỬ CÙNG BỐI CẢNH ({hist_label}):*\n"
-            f"• Kết quả: `{v_win}/{v_cnt}` lệnh thắng • Win Rate: `{v_wr:.1f}%`\n\n"
+            f"• ⚪ CHƯA ĐỦ DỮ LIỆU trong bối cảnh này\n\n"
         )
-    return ""
+    return (
+        f"📊 *LỊCH SỬ CÙNG BỐI CẢNH ({hist_label}):*\n"
+        f"• Số lệnh: `{v_cnt}` | Thắng: `{v_win}` | Thua: `{v_cnt - v_win}`\n"
+        f"• Win Rate lịch sử: `{v_wr:.1f}%` | Độ tin cậy: {confidence}\n\n"
+    )
 
 
 def fmt_buy_alert(res: dict) -> str:
@@ -317,7 +333,8 @@ def fmt_buy_alert(res: dict) -> str:
     vni_state_str = vni_info.get('state_str', '🟢 TĂNG')
     vni_p = vni_info.get('price', 0.0)
     vni_c = vni_info.get('chg_pct', 0.0)
-    vni_p_str = f"{vni_p:,.2f} đ".replace(",", ".") if vni_p > 0 else ""
+    # VN-Index tính theo điểm, KHÔNG phải đồng (đ)
+    vni_p_str = f"{vni_p:,.2f} điểm".replace(",", ".") if vni_p > 0 else ""
     vni_detail_str = f"({vni_p_str} • {_pct(vni_c)})" if vni_p > 0 else ""
 
     stock_state, stock_state_str = determine_stock_3state(res)
@@ -454,7 +471,8 @@ def fmt_detail(res: dict) -> str:
     vni_state_str = vni_info.get('state_str', '🟢 TĂNG')
     vni_p = vni_info.get('price', 0.0)
     vni_c = vni_info.get('chg_pct', 0.0)
-    vni_p_str = f"{vni_p:,.2f} đ".replace(",", ".") if vni_p > 0 else ""
+    # VN-Index tính theo điểm, KHÔNG phải đồng (đ)
+    vni_p_str = f"{vni_p:,.2f} điểm".replace(",", ".") if vni_p > 0 else ""
     vni_detail_str = f"({vni_p_str} • {_pct(vni_c)})" if vni_p > 0 else ""
 
     stock_state, stock_state_str = determine_stock_3state(res)
