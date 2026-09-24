@@ -3,6 +3,9 @@
 File cấu hình cho Bot Quét Cổ Phiếu Cá Mập (Vietnam Stock Screener)
 """
 
+import os
+import json
+
 # ==========================================
 # 1. CẤU HÌNH TELEGRAM CẢNH BÁO
 # ==========================================
@@ -86,5 +89,27 @@ DTPRO_LOOKBACK    = 7      # Cửa sổ chờ hợp lưu NW (Nến), mặc đị
 DTPRO_RR1         = 1.0    # R:R mức TP1
 DTPRO_RR2         = 2.0    # R:R mức TP2
 DTPRO_HISTORY_DAYS = 400   # Số ngày lịch sử (~270 phiên, tải siêu tốc <0.1s thay vì 10s)
+
+# ==========================================
+# 6. THÔNG TIN DOANH NGHIỆP NIÊM YẾT
+# ==========================================
+_companies_cache = None
+
+def get_company_info(symbol: str) -> dict:
+    """Lấy thông tin công ty (tên đầy đủ, viết tắt) từ stock_companies.json."""
+    global _companies_cache
+    if _companies_cache is None:
+        try:
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            json_path = os.path.join(base_dir, "stock_companies.json")
+            if os.path.exists(json_path):
+                with open(json_path, "r", encoding="utf-8") as f:
+                    _companies_cache = json.load(f)
+            else:
+                _companies_cache = {}
+        except Exception:
+            _companies_cache = {}
+    return _companies_cache.get(symbol.strip().upper(), {})
+
 
 

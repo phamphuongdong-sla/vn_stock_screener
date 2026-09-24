@@ -10,25 +10,8 @@ from datetime import datetime
 from tabulate import tabulate
 
 import config
-from screener import run_screener
+from screener import run_screener, is_trading_hour
 from telegram_bot import send_telegram_alert
-
-def is_trading_hour() -> bool:
-    """
-    Kiểm tra xem hiện tại có phải trong phiên giao dịch chứng khoán Việt Nam hay không
-    (Thứ 2 đến Thứ 6, từ 9h00 - 11h30 và 13h00 - 15h00)
-    """
-    now = datetime.now()
-    if now.weekday() > 4:
-        return False
-    
-    current_time = now.time()
-    t_0900 = datetime.strptime("09:00", "%H:%M").time()
-    t_1130 = datetime.strptime("11:30", "%H:%M").time()
-    t_1300 = datetime.strptime("13:00", "%H:%M").time()
-    t_1500 = datetime.strptime("15:00", "%H:%M").time()
-
-    return (t_0900 <= current_time <= t_1130) or (t_1300 <= current_time <= t_1500)
 
 def load_alerted_stocks_today() -> set:
     """
@@ -268,6 +251,14 @@ def main():
                 last_scan_time = current_now
 
             time.sleep(2)
+    elif choice in ["1", ""]:
+        print("\n[*] Đang quét toàn bộ thị trường chứng khoán...")
+        signals = run_screener()
+        display_and_notify_results(signals)
+    else:
+        print(f"\n[!] Lựa chọn không hợp lệ: '{choice}'. Mặc định quét toàn bộ thị trường:")
+        signals = run_screener()
+        display_and_notify_results(signals)
 
 if __name__ == "__main__":
     main()

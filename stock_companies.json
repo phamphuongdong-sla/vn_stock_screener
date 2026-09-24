@@ -1,0 +1,6430 @@
+{
+  "SSI": {
+    "name": "Công ty Cổ phần Chứng khoán SSI",
+    "short_name": "Chứng khoán SSI"
+  },
+  "BCM": {
+    "name": "Tổng Công ty Đầu tư và Phát triển Công nghiệp - CTCP",
+    "short_name": "Becamex IDC"
+  },
+  "VHM": {
+    "name": "Công ty Cổ phần Vinhomes",
+    "short_name": "Vinhomes"
+  },
+  "VIC": {
+    "name": "Tập đoàn Vingroup - Công ty CP",
+    "short_name": "VinGroup"
+  },
+  "VRE": {
+    "name": "Công ty Cổ phần Vincom Retail",
+    "short_name": "Vincom Retail"
+  },
+  "BVH": {
+    "name": "Tập đoàn Bảo Việt",
+    "short_name": "Tập đoàn Bảo Việt"
+  },
+  "POW": {
+    "name": "Tổng Công ty Điện lực Dầu khí Việt Nam - CTCP",
+    "short_name": "Điện lực Dầu khí Việt Nam"
+  },
+  "GAS": {
+    "name": "Tổng Công ty Khí Việt Nam - Công ty Cổ phần",
+    "short_name": "PV Gas"
+  },
+  "ACB": {
+    "name": "Ngân hàng Thương mại Cổ phần Á Châu",
+    "short_name": "ACB"
+  },
+  "BID": {
+    "name": "Ngân hàng Thương mại Cổ phần Đầu tư và Phát triển Việt Nam",
+    "short_name": "BIDV"
+  },
+  "CTG": {
+    "name": "Ngân hàng Thương mại Cổ phần Công thương Việt Nam",
+    "short_name": "VietinBank"
+  },
+  "HDB": {
+    "name": "Ngân hàng Thương mại Cổ phần Phát Triển Thành phố Hồ Chí Minh",
+    "short_name": "HDBank"
+  },
+  "MBB": {
+    "name": "Ngân hàng Thương mại Cổ phần Quân đội",
+    "short_name": "MBBank"
+  },
+  "SSB": {
+    "name": "Ngân hàng Thương mại Cổ phần Đông Nam Á",
+    "short_name": "SeABank"
+  },
+  "SHB": {
+    "name": "Ngân hàng Thương mại Cổ phần Sài Gòn – Hà Nội",
+    "short_name": "SHB"
+  },
+  "STB": {
+    "name": "Ngân hàng Thương mại Cổ phần Sài Gòn Thương Tín",
+    "short_name": "Sacombank"
+  },
+  "TCB": {
+    "name": "Ngân hàng Thương mại Cổ phần Kỹ thương Việt Nam",
+    "short_name": "Techcombank"
+  },
+  "TPB": {
+    "name": "Ngân hàng Thương mại Cổ phần Tiên Phong",
+    "short_name": "TPBank"
+  },
+  "VCB": {
+    "name": "Ngân hàng Thương mại Cổ phần Ngoại thương Việt Nam",
+    "short_name": "Vietcombank"
+  },
+  "VIB": {
+    "name": "Ngân hàng Thương mại Cổ phần Quốc tế Việt Nam",
+    "short_name": "VIBBank"
+  },
+  "VPB": {
+    "name": "Ngân hàng Thương mại Cổ phần Việt Nam Thịnh Vượng",
+    "short_name": "VPBank"
+  },
+  "HPG": {
+    "name": "Công ty Cổ phần Tập đoàn Hòa Phát",
+    "short_name": "Hòa Phát"
+  },
+  "GVR": {
+    "name": "Tập đoàn Công nghiệp Cao su Việt Nam - Công ty Cổ phần",
+    "short_name": "Tập đoàn CN Cao su VN"
+  },
+  "MSN": {
+    "name": "Công ty Cổ phần Tập đoàn Masan",
+    "short_name": "Tập đoàn Masan"
+  },
+  "VNM": {
+    "name": "Công ty Cổ phần Sữa Việt Nam",
+    "short_name": "VINAMILK"
+  },
+  "SAB": {
+    "name": "Tổng Công ty Cổ phần Bia - Rượu - Nước Giải khát Sài Gòn",
+    "short_name": "SABECO"
+  },
+  "VJC": {
+    "name": "Công ty Cổ phần Hàng không Vietjet",
+    "short_name": "Vietjet Air"
+  },
+  "MWG": {
+    "name": "Công ty Cổ phần Đầu tư Thế Giới Di Động",
+    "short_name": "Thế giới di động"
+  },
+  "PLX": {
+    "name": "Tập đoàn Xăng dầu Việt Nam",
+    "short_name": "Petrolimex"
+  },
+  "FPT": {
+    "name": "Công ty Cổ phần FPT",
+    "short_name": "FPT Corp"
+  },
+  "MFS": {
+    "name": "Công ty Cổ phần Dịch vụ kỹ thuật Mobifone",
+    "short_name": "Mobifone Service"
+  },
+  "ABC": {
+    "name": "Công ty Cổ phần Truyền thông VMG",
+    "short_name": "Truyền thông VMG"
+  },
+  "VGI": {
+    "name": "Tổng Công ty Cổ phần Đầu tư Quốc tế Viettel",
+    "short_name": "Đầu tư Quốc tế Viettel"
+  },
+  "FOX": {
+    "name": "Công ty Cổ phần Viễn thông FPT",
+    "short_name": "FPT Telecom"
+  },
+  "PAI": {
+    "name": "Công ty Cổ phần Công nghê thông tin, Viễn thông và Tự động hóa Dầu khí",
+    "short_name": "CNTT, VT và Tự động hóa Dầu khí - PAIC"
+  },
+  "PIA": {
+    "name": "Công ty Cổ phần Tin học Viễn thông Petrolimex",
+    "short_name": "Tin học Viễn thông Petrolimex"
+  },
+  "PTP": {
+    "name": "Công ty Cổ phần Dịch vụ Viễn Thông và In Bưu điện",
+    "short_name": "Viễn Thông và In Bưu điện"
+  },
+  "TTN": {
+    "name": "Công ty Cổ phần Công nghệ & Truyền thông Việt Nam",
+    "short_name": "Công nghệ và Truyền thông VN"
+  },
+  "FUCTVGF3": {
+    "name": "Quỹ Đầu tư Tăng trưởng Thiên Việt 3",
+    "short_name": "Quỹ Đầu tư Tăng trưởng Thiên Việt 3"
+  },
+  "FUEIP100": {
+    "name": "Quỹ ETF IPAAM VN100",
+    "short_name": "ETF IPAAM VN100"
+  },
+  "FUEKIV30": {
+    "name": "Quỹ ETF KIM GROWTH VN30",
+    "short_name": "KIM GROWTH VN30 ETF"
+  },
+  "FUCTVGF4": {
+    "name": "Quỹ Đầu tư Tăng trưởng Thiên Việt 4",
+    "short_name": "Quỹ Đầu tư Tăng trưởng Thiên Việt 4"
+  },
+  "FUEDCMID": {
+    "name": "Quỹ ETF DCVFMVNMIDCAP",
+    "short_name": "Quỹ ETF DCVFMVNMIDCAP"
+  },
+  "FUEKIVFS": {
+    "name": "Quỹ ETF KIM GROWTH VNFINSELECT",
+    "short_name": "KIM GROWTH VNFINSELECT ETF"
+  },
+  "FUEMAVND": {
+    "name": "Quỹ ETF MAFM VNDIAMOND",
+    "short_name": "Quỹ ETF MAFM VNDIAMOND"
+  },
+  "FUEFCV50": {
+    "name": "Quỹ ETF FPT CAPITAL VNX50",
+    "short_name": "Quỹ ETF FPT CAPITAL VNX50"
+  },
+  "FUEBFVND": {
+    "name": "Quỹ ETF BVFVN DIAMOND",
+    "short_name": "ETF BVFVN DIAMOND"
+  },
+  "FUESSV50": {
+    "name": "Quỹ ETF SSIAM VNX50",
+    "short_name": "Quỹ ETF SSIAM VNX50"
+  },
+  "E1VFVN30": {
+    "name": "Quỹ ETF DCVFMVN30",
+    "short_name": "Quỹ ETF DCVFMVN30"
+  },
+  "FUESSVFL": {
+    "name": "Quỹ ETF SSIAM VNFIN LEAD",
+    "short_name": "Quỹ ETF SSIAM VNFIN LEAD"
+  },
+  "FUEMAV30": {
+    "name": "Quỹ ETF MAFM VN30",
+    "short_name": "Quỹ ETF MAFM VN30"
+  },
+  "FUESSV30": {
+    "name": "Quỹ ETF SSIAM VN30",
+    "short_name": "Quỹ ETF SSIAM VN30"
+  },
+  "FUEVFVND": {
+    "name": "Quỹ ETF DCVFMVN DIAMOND",
+    "short_name": "Quỹ ETF DCVFMVN DIAMOND"
+  },
+  "FUEVN100": {
+    "name": "Quỹ ETF VINACAPITAL VN100",
+    "short_name": "Quỹ ETF VINACAPITAL VN100"
+  },
+  "FUCVREIT": {
+    "name": "Quỹ đầu tư Bất động sản Techcom Việt Nam",
+    "short_name": "Quỹ đầu tư BĐS Techcom Việt Nam"
+  },
+  "ABW": {
+    "name": "Công ty Cổ phần Chứng khoán An Bình",
+    "short_name": "Chứng khoán An Bình"
+  },
+  "AGR": {
+    "name": "Công ty Cổ phần Chứng khoán AGRIBANK",
+    "short_name": "Agriseco"
+  },
+  "APG": {
+    "name": "Công ty Cổ phần Chứng khoán APG",
+    "short_name": "Chứng khoán APG"
+  },
+  "APS": {
+    "name": "Công ty Cổ phần Chứng khoán Châu Á - Thái Bình Dương",
+    "short_name": "CK Châu Á - TBD"
+  },
+  "BCG": {
+    "name": "Công ty Cổ phần Tập đoàn Bamboo Capital",
+    "short_name": "Bamboo Capital"
+  },
+  "BMS": {
+    "name": "Công ty Cổ phần Chứng khoán Bảo Minh",
+    "short_name": "Chứng khoán Bảo Minh"
+  },
+  "BSI": {
+    "name": "Công ty Cổ phần Chứng khoán BIDV",
+    "short_name": "Chứng khoán BIDV"
+  },
+  "BVS": {
+    "name": "Công ty Cổ phần Chứng khoán Bảo Việt",
+    "short_name": "Chứng khoán Bảo Việt"
+  },
+  "TIN": {
+    "name": "Công ty Tài chính Cổ phần Tín Việt",
+    "short_name": "Tài chính Cổ phần Tín Việt"
+  },
+  "CTS": {
+    "name": "Công ty Cổ phần Chứng khoán Ngân hàng Công thương Việt Nam",
+    "short_name": "Chứng khoán Vietinbank"
+  },
+  "DSC": {
+    "name": "Công ty Cổ phần Chứng khoán DSC",
+    "short_name": "Chứng khoán DSC"
+  },
+  "EVF": {
+    "name": "Công ty Tài chính Cổ phần Điện Lực",
+    "short_name": "Tài chính Điện lực"
+  },
+  "FIT": {
+    "name": "Công ty Cổ phần Tập đoàn F.I.T",
+    "short_name": "Tập đoàn F.I.T"
+  },
+  "ART": {
+    "name": "Công ty Cổ phần Chứng khoán BOS",
+    "short_name": "Chứng khoán BOS"
+  },
+  "FTS": {
+    "name": "Công ty Cổ phần Chứng khoán FPT",
+    "short_name": "Chứng khoán FPT"
+  },
+  "AAS": {
+    "name": "Công ty Cổ phần Chứng khoán SmartInvest",
+    "short_name": "Chứng khoán SmartInvest"
+  },
+  "HBS": {
+    "name": "Công ty Cổ phần Chứng khoán Hòa Bình",
+    "short_name": "Chứng khoán Hòa Bình"
+  },
+  "HCM": {
+    "name": "Công ty Cổ phần Chứng khoán Thành phố Hồ Chí Minh",
+    "short_name": "Chứng khoán HSC"
+  },
+  "HAC": {
+    "name": "Công ty Cổ phần Chứng khoán Hải Phòng",
+    "short_name": "Chứng khoán Hải Phòng"
+  },
+  "IBC": {
+    "name": "Công ty Cổ phần Đầu tư APAX Holdings",
+    "short_name": "Đầu tư APAX Holdings"
+  },
+  "IVS": {
+    "name": "Công ty Cổ phần Chứng khoán Guotai Junan (Việt Nam)",
+    "short_name": "Chứng khoán Guotai Junan (Việt Nam)"
+  },
+  "EVS": {
+    "name": "Công ty Cổ phần Chứng khoán Everest",
+    "short_name": "Chứng khoán Everest"
+  },
+  "OGC": {
+    "name": "Công ty Cổ phần Tập đoàn Đại Dương",
+    "short_name": "Tập đoàn Đại Dương"
+  },
+  "ORS": {
+    "name": "Công ty Cổ phần Chứng khoán Tiên Phong",
+    "short_name": "Chứng khoán Tiên Phong"
+  },
+  "CSI": {
+    "name": "Công ty Cổ phần Chứng khoán Kiến thiết Việt Nam",
+    "short_name": "Chứng khoán Kiến thiết VN"
+  },
+  "PHS": {
+    "name": "Công ty Cổ phần Chứng khoán Phú Hưng",
+    "short_name": "Chứng khoán Phú Hưng"
+  },
+  "PSI": {
+    "name": "Công ty Cổ phần Chứng khoán Dầu khí",
+    "short_name": "Chứng khoán Dầu khí"
+  },
+  "SBS": {
+    "name": "Công ty Cổ phần Chứng khoán SBS",
+    "short_name": "Chứng khoán Sacombank"
+  },
+  "SHS": {
+    "name": "Công ty Cổ phần Chứng khoán Sài Gòn - Hà Nội",
+    "short_name": "Chứng khoán SG - HN"
+  },
+  "TCI": {
+    "name": "Công ty Cổ phần Chứng khoán Thành Công",
+    "short_name": "Chứng khoán Thành Công"
+  },
+  "MBS": {
+    "name": "Công ty Cổ phần Chứng khoán MB",
+    "short_name": "Chứng khoán MB"
+  },
+  "TVB": {
+    "name": "Công ty Cổ phần Chứng khoán Trí Việt",
+    "short_name": "Chứng khoán Trí Việt"
+  },
+  "TVC": {
+    "name": "Công ty Cổ phần Tập đoàn Quản lý Tài sản Trí Việt",
+    "short_name": "Tập đoàn Trí Việt"
+  },
+  "TVS": {
+    "name": "Công ty Cổ phần Chứng khoán Thiên Việt",
+    "short_name": "Chứng khoán Thiên Việt"
+  },
+  "VCI": {
+    "name": "Công ty Cổ phần Chứng khoán Vietcap",
+    "short_name": "Chứng khoán Vietcap"
+  },
+  "VDS": {
+    "name": "Công ty Cổ phần Chứng khoán Rồng Việt",
+    "short_name": "Chứng khoán Rồng Việt"
+  },
+  "VFS": {
+    "name": "Công ty Cổ phần Chứng khoán Nhất Việt",
+    "short_name": "Chứng khoán Nhất Việt"
+  },
+  "VUA": {
+    "name": "Công ty Cổ phần Chứng khoán Stanley Brothers",
+    "short_name": "Chứng khoán Stanley Brothers"
+  },
+  "VIG": {
+    "name": "Công ty Cổ phần Chứng khoán Đầu tư Tài chính Việt Nam",
+    "short_name": "Chứng khoán Đầu tư Tài chính Việt Nam"
+  },
+  "VIX": {
+    "name": "Công ty Cổ phần Chứng khoán VIX",
+    "short_name": "Chứng khoán VIX"
+  },
+  "VND": {
+    "name": "Công ty Cổ phần Chứng khoán VNDIRECT",
+    "short_name": "Chứng khoán VNDIRECT"
+  },
+  "WSS": {
+    "name": "Công ty Cổ phần Chứng khoán Phố Wall",
+    "short_name": "Chứng khoán Phố Wall"
+  },
+  "BVL": {
+    "name": "Công ty Cổ phần BV Land",
+    "short_name": "BV Land"
+  },
+  "SSH": {
+    "name": "Công ty Cổ phần Phát triển Sunshine Homes",
+    "short_name": "Phát triển Sunshine Homes"
+  },
+  "BIG": {
+    "name": "Công ty cổ phần BIG Invest Group",
+    "short_name": "BIG Invest Group"
+  },
+  "MGR": {
+    "name": "Công ty cổ phần Tập đoàn MGROUP",
+    "short_name": "Tập đoàn MGROUP"
+  },
+  "AAV": {
+    "name": "Công ty Cổ phần AAV Group",
+    "short_name": "Việt Tiên Sơn Địa ốc"
+  },
+  "AGG": {
+    "name": "Công ty Cổ phần Đầu tư và Phát triển Bất động sản An Gia",
+    "short_name": "Bất động sản An Gia"
+  },
+  "AMD": {
+    "name": "Công ty Cổ phần Đầu tư và Khoáng sản FLC Stone",
+    "short_name": "FLC Stone"
+  },
+  "API": {
+    "name": "Công ty Cổ phần Đầu tư Châu Á - Thái Bình Dương",
+    "short_name": "Đầu tư Châu Á - Thái Bình Dương"
+  },
+  "BII": {
+    "name": "Công ty Cổ phần Đầu tư và Phát triển Công nghiệp Bảo Thư",
+    "short_name": "Đầu tư và Phát triển Công nghiệp Bảo Thư"
+  },
+  "MH3": {
+    "name": "Công ty Cổ phần Khu công nghiệp Cao su Bình Long",
+    "short_name": "KCN Cao su Bình Long"
+  },
+  "C21": {
+    "name": "Công ty Cổ phần Thế kỷ 21",
+    "short_name": "Thế kỷ 21"
+  },
+  "CCL": {
+    "name": "Công ty Cổ phần Đầu tư và Phát triển Đô thị Dầu khí Cửu Long",
+    "short_name": "Đầu tư và Phát triển Đô thị Dầu khí Cửu Long"
+  },
+  "CRE": {
+    "name": "Công ty Cổ phần Bất động sản Thế Kỷ",
+    "short_name": "Bất động sản Thế Kỷ"
+  },
+  "CEO": {
+    "name": "Công ty Cổ phần Tập đoàn C.E.O",
+    "short_name": "Tập đoàn CEO"
+  },
+  "CKG": {
+    "name": "Công ty Cổ phần Tập đoàn Tư vấn Đầu tư Xây dựng Kiên Giang",
+    "short_name": "Xây dựng Kiên Giang"
+  },
+  "CK8": {
+    "name": "Công ty Cổ phần Cơ khí 120",
+    "short_name": "Cơ khí 120"
+  },
+  "CLG": {
+    "name": "Công ty Cổ phần Đầu tư và Phát triển Nhà đất Cotec",
+    "short_name": "Cotec Land"
+  },
+  "D11": {
+    "name": "Công ty Cổ phần Địa ốc 11",
+    "short_name": "Địa ốc 11"
+  },
+  "D2D": {
+    "name": "Công ty Cổ phần Phát triển Đô thị Công nghiệp số 2",
+    "short_name": "Phát triển Đô thị số 2"
+  },
+  "DIG": {
+    "name": "Tổng Công ty Cổ phần Đầu tư Phát triển Xây dựng",
+    "short_name": "DIC Corp"
+  },
+  "DRH": {
+    "name": "Công ty Cổ phần DRH Holdings",
+    "short_name": "DRH Holdings"
+  },
+  "DTA": {
+    "name": "Công ty Cổ phần Đệ Tam",
+    "short_name": "BĐS Đệ Tam"
+  },
+  "DXG": {
+    "name": "Công ty Cổ phần Tập đoàn Đất Xanh",
+    "short_name": "Địa ốc Đất Xanh"
+  },
+  "DXS": {
+    "name": "Công ty Cổ phần Dịch vụ Bất động sản Đất Xanh",
+    "short_name": "Dịch vụ BĐS Đất Xanh"
+  },
+  "EFI": {
+    "name": "Công ty Cổ phần Đầu tư Tài chính Giáo dục",
+    "short_name": "Tài chính giáo dục"
+  },
+  "LEC": {
+    "name": "Công ty Cổ phần Bất động sản Điện lực Miền Trung",
+    "short_name": "BĐS Điện lực Miền Trung"
+  },
+  "FDC": {
+    "name": "Công ty Cổ phần Ngoại thương và Phát triển Đầu tư Thành phố Hồ Chí Minh",
+    "short_name": "FIDECO"
+  },
+  "FID": {
+    "name": "Công ty Cổ phần Đầu tư và Phát triển Doanh nghiệp Việt Nam",
+    "short_name": "Đầu tư và PT doanh nghiệp VN"
+  },
+  "FIR": {
+    "name": "Công ty Cổ phần Địa ốc First Real",
+    "short_name": "Địa ốc First Real"
+  },
+  "FLC": {
+    "name": "Công ty Cổ phần Tập đoàn FLC",
+    "short_name": "Tập đoàn FLC"
+  },
+  "HPX": {
+    "name": "Công ty Cổ phần Đầu tư Hải Phát",
+    "short_name": "Đầu tư Hải Phát"
+  },
+  "HD6": {
+    "name": "Công ty Cổ phần Đầu tư và Phát triển nhà số 6 Hà Nội",
+    "short_name": "Phát triển nhà số 6 Hà Nội"
+  },
+  "HAR": {
+    "name": "Công ty Cổ phần Đầu tư Thương mại Bất động sản An Dương Thảo Điền",
+    "short_name": "BĐS An Dương Thảo Điền"
+  },
+  "XDH": {
+    "name": "Công ty Cổ phần Đầu tư Xây dựng Dân dụng Hà Nội",
+    "short_name": "Đầu tư XD Dân dụng Hà Nội"
+  },
+  "HDC": {
+    "name": "Công ty Cổ phần Phát triển Nhà Bà Rịa Vũng Tàu",
+    "short_name": "Phát triển Nhà BR-VT"
+  },
+  "HDG": {
+    "name": "Công ty Cổ phần Tập đoàn Hà Đô",
+    "short_name": "Tập đoàn Hà Đô"
+  },
+  "TCH": {
+    "name": "Công ty Cổ phần Đầu tư Dịch vụ Tài chính Hoàng Huy",
+    "short_name": "ĐT DV Tài chính Hoàng Huy"
+  },
+  "HPI": {
+    "name": "Công ty Cổ phần Khu công nghiệp Hiệp Phước",
+    "short_name": "Khu công nghiệp Hiệp Phước"
+  },
+  "HLD": {
+    "name": "Công ty Cổ phần Đầu tư và Phát triển Bất động sản HUDLAND",
+    "short_name": "Bất động sản HUDLAND"
+  },
+  "DCH": {
+    "name": "Công ty Cổ phần Địa chính Hà Nội",
+    "short_name": "Địa chính Hà Nội"
+  },
+  "HQC": {
+    "name": "Công ty Cổ phần Tư vấn - Thương mại - Dịch vụ Địa ốc Hoàng Quân",
+    "short_name": "Địa ốc Hoàng Quân"
+  },
+  "HRB": {
+    "name": "Công ty Cổ phần Harec Đầu tư và Thương Mại",
+    "short_name": "Harec Đầu tư và Thương Mại"
+  },
+  "HTN": {
+    "name": "Công ty Cổ phần Hưng Thịnh Incons",
+    "short_name": "Hưng Thịnh Incons"
+  },
+  "HD2": {
+    "name": "Công ty Cổ phần Đầu tư phát triển nhà HUD2",
+    "short_name": "Đầu tư phát triển nhà HUD 2"
+  },
+  "HU6": {
+    "name": "Công ty Cổ phần Đầu tư Phát triển Nhà và Đô thị HUD6",
+    "short_name": "PT Nhà và Đô thị HUD6"
+  },
+  "HD8": {
+    "name": "Công ty Cổ phần Đầu tư Phát triển Nhà và Đô thị HUD8",
+    "short_name": "PT Nhà và Đô thị HUD8"
+  },
+  "IDC": {
+    "name": "Tổng Công ty IDICO - CTCP",
+    "short_name": "IDICO"
+  },
+  "IDJ": {
+    "name": "Công ty Cổ phần Đầu tư IDJ Việt Nam",
+    "short_name": "Đầu tư IDJ Việt Nam"
+  },
+  "IDV": {
+    "name": "Công ty Cổ phần Phát triển Hạ tầng Vĩnh Phúc",
+    "short_name": "PT Hạ tầng Vĩnh Phúc"
+  },
+  "IJC": {
+    "name": "Công ty Cổ phần Phát triển Hạ tầng Kỹ thuật",
+    "short_name": "Becamex IJC"
+  },
+  "ITA": {
+    "name": "Công ty Cổ phần Đầu tư và Công nghiệp Tân Tạo",
+    "short_name": "Đầu tư CN Tân Tạo"
+  },
+  "ITC": {
+    "name": "Công ty Cổ phần Đầu tư - Kinh doanh nhà",
+    "short_name": "Đầu tư kinh doanh Nhà"
+  },
+  "KAC": {
+    "name": "Công ty Cổ phần Đầu tư Địa ốc Khang An",
+    "short_name": "Địa ốc Khang An"
+  },
+  "KBC": {
+    "name": "Tổng Công ty Phát triển Đô thị Kinh Bắc",
+    "short_name": "TCT Đô thị Kinh Bắc"
+  },
+  "KDH": {
+    "name": "Công ty Cổ phần Đầu tư và Kinh doanh nhà Khang Điền",
+    "short_name": "Nhà Khang Điền"
+  },
+  "KHG": {
+    "name": "Công ty Cổ phần Tập đoàn Khải Hoàn Land",
+    "short_name": "Tập đoàn Khải Hoàn Land"
+  },
+  "KOS": {
+    "name": "Công ty Cổ phần KOSY",
+    "short_name": "Công ty KOSY"
+  },
+  "LSG": {
+    "name": "Công ty Cổ phần Bất động sản Sài Gòn Vi na",
+    "short_name": "BĐS Sài Gòn Vina"
+  },
+  "LDG": {
+    "name": "Công ty Cổ phần Đầu tư LDG",
+    "short_name": "Đầu tư LDG"
+  },
+  "LGL": {
+    "name": "Công ty Cổ phần Đầu tư và Phát triển Đô thị Long Giang",
+    "short_name": "Long Giang Land"
+  },
+  "LHG": {
+    "name": "Công ty Cổ phần Long Hậu",
+    "short_name": "KCN Long Hậu"
+  },
+  "LMH": {
+    "name": "Công ty Cổ phần Quốc Tế Holding",
+    "short_name": "Quoc te Holding"
+  },
+  "MA1": {
+    "name": "Công ty Cổ phần Thiết bị",
+    "short_name": "MACHINCO1"
+  },
+  "NBB": {
+    "name": "Công ty Cổ phần Đầu tư Năm Bảy Bảy",
+    "short_name": "577 CORP"
+  },
+  "NDN": {
+    "name": "Công ty Cổ phần Đầu tư Phát triển Nhà Đà Nẵng",
+    "short_name": "PT Nhà Đà Nẵng"
+  },
+  "NRC": {
+    "name": "Công ty Cổ phần Tập đoàn Danh Khôi",
+    "short_name": "Tập đoàn Danh Khôi"
+  },
+  "NLG": {
+    "name": "Công ty Cổ phần Đầu tư Nam Long",
+    "short_name": "BĐS Nam Long"
+  },
+  "NVL": {
+    "name": "Công ty Cổ phần Tập đoàn Đầu tư Địa ốc No Va",
+    "short_name": "Đầu tư Địa ốc No Va (Novaland)"
+  },
+  "NTB": {
+    "name": "Công ty Cổ phần Đầu tư Xây dựng và Khai thác Công trình giao thông 584",
+    "short_name": "Công trình giao thông 584"
+  },
+  "NTC": {
+    "name": "Công ty Cổ phần Khu Công nghiệp Nam Tân Uyên",
+    "short_name": "KCN Nam Tân Uyên"
+  },
+  "NTL": {
+    "name": "Công ty Cổ phần Phát triển Đô thị Từ Liêm",
+    "short_name": "Đô thị Từ Liêm"
+  },
+  "NVT": {
+    "name": "Công ty Cổ phần Bất động sản Du lịch Ninh Vân Bay",
+    "short_name": "Ninh Vân Bay"
+  },
+  "PDR": {
+    "name": "Công ty Cổ phần Phát triển Bất động sản Phát Đạt",
+    "short_name": "BĐS Phát Đạt"
+  },
+  "PIV": {
+    "name": "Công ty Cổ phần PIV",
+    "short_name": "PIV JSC"
+  },
+  "PLA": {
+    "name": "Công ty Cổ phần Đầu tư và Dịch vụ hạ tầng Xăng dầu",
+    "short_name": "Đầu tư và Dịch vụ hạ tầng Xăng dầu (PLAND)"
+  },
+  "PPI": {
+    "name": "Công ty Cổ phần Đầu tư và Phát triển dự án hạ tầng Thái Bình Dương",
+    "short_name": "BĐS Thái Bình Dương"
+  },
+  "KSF": {
+    "name": "Công ty cổ phần Tập đoàn Real Tech",
+    "short_name": "Tập đoàn Real Tech"
+  },
+  "PTL": {
+    "name": "Công ty Cổ phần Victory Capital",
+    "short_name": "Victory Capital"
+  },
+  "PTN": {
+    "name": "Công ty Cổ phần Phát triển Nhà Khánh Hòa",
+    "short_name": "Phát triển Nhà Khánh Hòa"
+  },
+  "PV2": {
+    "name": "Công ty Cổ phần Đầu tư PV2",
+    "short_name": "Đầu tư PV2"
+  },
+  "PXC": {
+    "name": "Công ty Cổ phần Phát triển Đô thị Dầu khí",
+    "short_name": "Phát triển Đô thị Dầu khí"
+  },
+  "PVL": {
+    "name": "Công ty Cổ phần Đầu tư Nhà Đất Việt",
+    "short_name": "Đầu tư Nhà Đất Việt"
+  },
+  "PVR": {
+    "name": "Công ty Cổ phần Đầu tư PVR Hà Nội",
+    "short_name": "Đầu tư PVR Hà Nội"
+  },
+  "PWA": {
+    "name": "Công ty Cổ phần Bất động sản dầu khí",
+    "short_name": "Bất động sản dầu khí"
+  },
+  "PXA": {
+    "name": "Công ty Cổ phần Đầu tư và Thương mại Dầu khí Nghệ An",
+    "short_name": "Đầu tư và Thương mại Dầu khí Nghệ An"
+  },
+  "PXL": {
+    "name": "Công ty Cổ phần Đầu tư Khu Công Nghiệp Dầu khí Long Sơn",
+    "short_name": "KCN Dầu khí Long Sơn"
+  },
+  "QCG": {
+    "name": "Công ty Cổ phần Quốc Cường Gia Lai",
+    "short_name": "Quốc Cường Gia Lai"
+  },
+  "RCL": {
+    "name": "Công ty Cổ phần Địa ốc Chợ Lớn",
+    "short_name": "Địa Ốc Chợ Lớn"
+  },
+  "TBR": {
+    "name": "Công ty Cổ phần Địa ốc Tân Bình",
+    "short_name": "Địa ốc Tân Bình"
+  },
+  "SID": {
+    "name": "Công ty Cổ phần Đầu tư Phát triển Sài Gòn Co.op",
+    "short_name": "Đầu tư PT Sài Gòn Co.op"
+  },
+  "SCR": {
+    "name": "Công ty Cổ phần Địa Ốc Sài Gòn Thương Tín",
+    "short_name": "Sacomreal"
+  },
+  "SGR": {
+    "name": "Công ty Cổ phần Tổng Công ty Cổ phần Địa ốc Sài Gòn",
+    "short_name": "Địa ốc Sài Gòn"
+  },
+  "SIP": {
+    "name": "Công ty Cổ phần Đầu tư Sài Gòn VRG",
+    "short_name": "Đầu tư Sài Gòn VRG"
+  },
+  "SZC": {
+    "name": "Công ty Cổ phần Sonadezi Châu Đức",
+    "short_name": "Sonadezi Châu Đức"
+  },
+  "SJS": {
+    "name": "Công ty Cổ phần Đầu tư Phát triển Đô thị và Khu công nghiệp Sông Đà",
+    "short_name": "SUDICO"
+  },
+  "SZG": {
+    "name": "Công ty Cổ phần Sonadezi Giang Điền",
+    "short_name": "Sonadezi Giang Điền"
+  },
+  "STL": {
+    "name": "Công ty Cổ phần Sông Đà - Thăng Long",
+    "short_name": "Sông Đà - Thăng Long"
+  },
+  "SZL": {
+    "name": "Công ty Cổ phần Sonadezi Long Thành",
+    "short_name": "Sonadezi Long Thành"
+  },
+  "SZB": {
+    "name": "Công ty Cổ phần Sonadezi Long Bình",
+    "short_name": "Sonadezi Long Bình"
+  },
+  "TDC": {
+    "name": "Công ty Cổ phần Kinh doanh và Phát triển Bình Dương",
+    "short_name": "Becamex TDC"
+  },
+  "TDH": {
+    "name": "Công ty Cổ phần Phát triển Nhà Thủ Đức",
+    "short_name": "Thủ Đức House"
+  },
+  "TEG": {
+    "name": "Công ty Cổ phần Năng Lượng và Bất động sản Trường Thành",
+    "short_name": "TECGROUP"
+  },
+  "THD": {
+    "name": "Công ty Cổ phần Thaiholdings",
+    "short_name": "Công ty Thaiholdings"
+  },
+  "TIG": {
+    "name": "Công ty Cổ phần Tập đoàn Đầu tư Thăng Long",
+    "short_name": "Tập đoàn Đầu tư Thăng Long"
+  },
+  "TID": {
+    "name": "Công ty Cổ phần Tổng Công ty Tín Nghĩa",
+    "short_name": "Tổng Công ty Tín Nghĩa"
+  },
+  "TIP": {
+    "name": "Công ty Cổ phần Phát triển Khu công nghiệp Tín Nghĩa",
+    "short_name": "PT KCN Tín Nghĩa"
+  },
+  "TIX": {
+    "name": "Công ty Cổ phần Sản xuất Kinh doanh Xuất nhập khẩu Dịch vụ và Đầu tư Tân Bình",
+    "short_name": "TANIMEX"
+  },
+  "TLD": {
+    "name": "Công ty Cổ phần Đầu tư Xây dựng và Phát triển Đô thị Thăng Long",
+    "short_name": "ĐT XD và PT Đô thị Thăng Long"
+  },
+  "TN1": {
+    "name": "Công ty Cổ phần Thương mại Dịch vụ TNS Holdings",
+    "short_name": "TNS Holdings"
+  },
+  "V11": {
+    "name": "Công ty Cổ phần Xây dựng số 11",
+    "short_name": "VINACONEX No11"
+  },
+  "V21": {
+    "name": "Công ty Cổ phần Vinaconex 21",
+    "short_name": "Vinaconex 21"
+  },
+  "VC3": {
+    "name": "Công ty Cổ phần Tập đoàn Nam Mê Kông",
+    "short_name": "Tập đoàn Nam Mê Kông"
+  },
+  "VCR": {
+    "name": "Công ty Cổ phần Đầu tư và Phát triển Du lịch Vinaconex",
+    "short_name": "Vinaconex - ITC"
+  },
+  "VHD": {
+    "name": "Công ty Cổ phần Đầu tư phát triển nhà và đô thị VINAHUD",
+    "short_name": "PT Nhà và Đô thị Vinaconex"
+  },
+  "VGV": {
+    "name": "Tổng Công ty Tư vấn Xây dựng Việt Nam - CTCP",
+    "short_name": "Tư vấn Xây dựng Việt Nam"
+  },
+  "VNI": {
+    "name": "Công ty Cổ phần Đầu tư Bất động sản Việt Nam",
+    "short_name": "ĐT BĐS Việt Nam"
+  },
+  "VPH": {
+    "name": "Công ty Cổ phần Vạn Phát Hưng",
+    "short_name": "Vạn Phát Hưng"
+  },
+  "VPI": {
+    "name": "Công ty Cổ phần Đầu tư Văn Phú - Invest",
+    "short_name": "Đầu tư Văn Phú - Invest"
+  },
+  "VRC": {
+    "name": "Công ty Cổ phần Bất động sản và Đầu tư VRC",
+    "short_name": "Bất động sản và Đầu tư VRC"
+  },
+  "VRG": {
+    "name": "Công ty Cổ phần Phát triển Đô thị và Khu Công nghiệp Cao Su Việt Nam",
+    "short_name": "PT Đô thị và KCN Cao su VN"
+  },
+  "ABI": {
+    "name": "Công ty Cổ phần Bảo hiểm Ngân hàng Nông Nghiệp",
+    "short_name": "BH NH Nông Nghiệp"
+  },
+  "BIC": {
+    "name": "Tổng Công ty Cổ phần Bảo hiểm Ngân hàng Đầu tư và Phát triển Việt Nam",
+    "short_name": "Bảo hiểm BIDV"
+  },
+  "BLI": {
+    "name": "Tổng Công ty Cổ phần Bảo hiểm Bảo Long",
+    "short_name": "Bảo hiểm Nhà Rồng"
+  },
+  "BMI": {
+    "name": "Tổng Công ty Cổ phần Bảo Minh",
+    "short_name": "Bảo hiểm Bảo Minh"
+  },
+  "BHI": {
+    "name": "Tổng Công ty Cổ phần Bảo hiểm Sài Gòn - Hà Nội",
+    "short_name": "Bảo hiểm Sài Gòn - Hà Nội"
+  },
+  "MIG": {
+    "name": "Tổng Công ty Cổ phần Bảo hiểm Quân đội",
+    "short_name": "Bảo hiểm Quân đội"
+  },
+  "PGI": {
+    "name": "Tổng Công ty Cổ phần Bảo hiểm Petrolimex",
+    "short_name": "Bảo hiểm PJICO"
+  },
+  "PTI": {
+    "name": "Tổng Công ty Cổ phần Bảo hiểm Bưu điện",
+    "short_name": "Bảo hiểm Bưu điện"
+  },
+  "PVI": {
+    "name": "Công ty Cổ phần PVI",
+    "short_name": "Bảo hiểm PVI"
+  },
+  "PRE": {
+    "name": "Tổng Công ty Cổ phần Tái bảo hiểm Hà Nội",
+    "short_name": "Tái bảo hiểm PVI"
+  },
+  "AIC": {
+    "name": "Tổng Công ty Cổ phần Bảo hiểm Hàng không",
+    "short_name": "Bảo hiểm Hàng không"
+  },
+  "VNR": {
+    "name": "Tổng Công ty Cổ phần Tái bảo hiểm Quốc gia Việt Nam",
+    "short_name": "Tái bảo hiểm Quốc gia"
+  },
+  "AVC": {
+    "name": "Công ty Cổ phần Thủy điện A Vương",
+    "short_name": "Thủy điện A Vương"
+  },
+  "BSA": {
+    "name": "Công ty Cổ phần Thủy điện Buôn Đôn",
+    "short_name": "Thủy điện Buôn Đôn"
+  },
+  "BHA": {
+    "name": "Công ty cổ phần Thủy điện Bắc Hà",
+    "short_name": "Thủy điện Bắc Hà"
+  },
+  "BTP": {
+    "name": "Công ty Cổ phần Nhiệt điện Bà Rịa",
+    "short_name": "Nhiệt điện Bà Rịa"
+  },
+  "CHP": {
+    "name": "Công ty Cổ phần Thủy điện Miền Trung",
+    "short_name": "Thủy điện Miền Trung"
+  },
+  "TDB": {
+    "name": "Công ty Cổ phần Thủy điện Định Bình",
+    "short_name": "Thủy điện Định Bình"
+  },
+  "TTE": {
+    "name": "Công ty Cổ phần Đầu tư Năng lượng Trường Thịnh",
+    "short_name": "ĐT Năng lượng Trường Thịnh"
+  },
+  "DNC": {
+    "name": "Công ty Cổ phần Điện nước Lắp máy Hải Phòng",
+    "short_name": "Điện nước Hải Phòng"
+  },
+  "DNH": {
+    "name": "Công ty Cổ phần Thủy điện Đa Nhim - Hàm Thuận - Đa Mi",
+    "short_name": "Thủy điện Đa Nhim-Hàm Thuận-Đa Mi"
+  },
+  "DRL": {
+    "name": "Công ty Cổ phần Thủy điện - Điện lực 3",
+    "short_name": "Thủy điện - Điện lực 3"
+  },
+  "DTE": {
+    "name": "Công ty Cổ phần Đầu tư Năng lượng Đại Trường Thành Holdings",
+    "short_name": "Đại Trường Thành Holdings"
+  },
+  "DTV": {
+    "name": "Công ty Cổ phần Phát triển điện Trà Vinh",
+    "short_name": "PT điện Nông thôn Trà Vinh"
+  },
+  "PGV": {
+    "name": "Tổng Công ty Phát điện 3 - Công ty Cổ phần",
+    "short_name": "Tổng Công ty Phát điện 3"
+  },
+  "GHC": {
+    "name": "Công ty Cổ phần Thủy điện Gia Lai",
+    "short_name": "Thủy điện Gia Lai"
+  },
+  "GEG": {
+    "name": "Công ty Cổ phần Điện Gia Lai",
+    "short_name": "Điện Gia Lai"
+  },
+  "GSM": {
+    "name": "Công ty Cổ phần Thủy điện Hương Sơn",
+    "short_name": "Thủy điện Hương Sơn"
+  },
+  "HTE": {
+    "name": "Công ty Cổ phần Đầu tư Kinh doanh Điện lực Thành phố Hồ Chí Minh",
+    "short_name": "Kinh doanh điện lực TP HCM"
+  },
+  "HJS": {
+    "name": "Công ty Cổ phần Thủy điện Nậm Mu",
+    "short_name": "Thủy điện Nậm Mu"
+  },
+  "HNA": {
+    "name": "Công ty Cổ phần Thủy điện Hủa Na",
+    "short_name": "Thủy điện Hủa Na"
+  },
+  "HPD": {
+    "name": "Công ty Cổ phần Thủy điện Đăk Đoa",
+    "short_name": "Thủy điện Đăk Đoa"
+  },
+  "KHP": {
+    "name": "Công ty Cổ phần Điện lực Khánh Hòa",
+    "short_name": "Điện lực Khánh Hòa"
+  },
+  "NBP": {
+    "name": "Công ty Cổ phần Nhiệt Điện Ninh Bình",
+    "short_name": "Nhiệt điện Ninh Bình"
+  },
+  "ND2": {
+    "name": "Công ty Cổ phần Đầu tư và Phát triển điện Miền Bắc 2",
+    "short_name": "Đầu tư và PT điện Miền Bắc 2"
+  },
+  "HND": {
+    "name": "Công ty Cổ phần Nhiệt điện Hải Phòng",
+    "short_name": "Nhiệt điện Hải Phòng"
+  },
+  "NT2": {
+    "name": "Công ty Cổ phần Điện lực Dầu khí Nhơn Trạch 2",
+    "short_name": "Điện lực Nhơn Trạch 2"
+  },
+  "PIC": {
+    "name": "Công ty Cổ phần Đầu tư Điện lực 3",
+    "short_name": "Đầu tư Điện lực 3"
+  },
+  "PPC": {
+    "name": "Công ty Cổ phần Nhiệt điện Phả Lại",
+    "short_name": "Nhiệt điện Phả Lại"
+  },
+  "PBK": {
+    "name": "Công ty Cổ phần Điện lực Dầu khí Bắc Kạn",
+    "short_name": "Điện lực Dầu khí Bắc Kạn"
+  },
+  "QTP": {
+    "name": "Công ty Cổ phần Nhiệt điện Quảng Ninh",
+    "short_name": "Nhiệt điện Quảng Ninh"
+  },
+  "QPH": {
+    "name": "Công ty Cổ phần Thủy điện Quế Phong",
+    "short_name": "Thủy điện Quế Phong"
+  },
+  "SBA": {
+    "name": "Công ty Cổ phần Sông Ba",
+    "short_name": "Sông Ba JSC"
+  },
+  "SBH": {
+    "name": "Công ty Cổ phần Thủy điện Sông Ba Hạ",
+    "short_name": "Thủy điện Sông Ba Hạ"
+  },
+  "SEB": {
+    "name": "Công ty Cổ phần Đầu tư và Phát triển Điện Miền Trung",
+    "short_name": "Điện miền Trung"
+  },
+  "SHP": {
+    "name": "Công ty Cổ phần Thủy điện Miền Nam",
+    "short_name": "Thủy điện Miền Nam"
+  },
+  "SJD": {
+    "name": "Công ty Cổ phần Thủy điện Cần Đơn",
+    "short_name": "Thủy điện Cần Đơn"
+  },
+  "SMA": {
+    "name": "Công ty Cổ phần Thiết bị Phụ tùng Sài Gòn",
+    "short_name": "Thiết bị Phụ tùng Sài Gòn"
+  },
+  "SP2": {
+    "name": "Công ty Cổ phần Thủy điện Sử Pán 2",
+    "short_name": "Thủy điện Sử Pán 2"
+  },
+  "ISH": {
+    "name": "Công ty Cổ phần Thủy điện Srok Phu Miêng IDICO",
+    "short_name": "Thủy điện Srok Phu Miêng"
+  },
+  "S4A": {
+    "name": "Công ty Cổ phần Thủy điện Sê San 4A",
+    "short_name": "Thủy điện Sê San 4A"
+  },
+  "SVH": {
+    "name": "Công ty Cổ phần Thủy điện Sông Vàng",
+    "short_name": "Thủy điện Sông Vàng"
+  },
+  "TBC": {
+    "name": "Công ty Cổ phần Thủy điện Thác Bà",
+    "short_name": "Thủy điện Thác Bà"
+  },
+  "VCP": {
+    "name": "Công ty Cổ phần Xây dựng và Năng lượng VCP",
+    "short_name": "Xây dựng và Năng lượng VCP"
+  },
+  "NTH": {
+    "name": "Công ty Cổ phần Thủy điện Nước Trong",
+    "short_name": "Thủy điện Nước Trong"
+  },
+  "TMP": {
+    "name": "Công ty Cổ phần Thủy điện Thác Mơ",
+    "short_name": "Thủy điện Thác Mơ"
+  },
+  "TTA": {
+    "name": "Công ty Cổ phần Đầu tư Xây dựng và Phát triển Trường Thành",
+    "short_name": "XD và PT Trường Thành"
+  },
+  "DTK": {
+    "name": "Tổng Công ty Điện lực TKV - Công ty Cổ phần",
+    "short_name": "Vinacomin Power"
+  },
+  "VPD": {
+    "name": "Công ty Cổ phần Phát triển Điện lực Việt Nam",
+    "short_name": "Phát triển Điện lực Việt Nam"
+  },
+  "VSH": {
+    "name": "Công ty Cổ phần Thủy điện Vĩnh Sơn - Sông Hinh",
+    "short_name": "Thủy điện Vĩnh Sơn - Sông Hinh"
+  },
+  "XMP": {
+    "name": "Công ty Cổ phần Thủy điện Xuân Minh",
+    "short_name": "Thủy điện Xuân Minh"
+  },
+  "PPT": {
+    "name": "Công ty cổ phần Petro Times",
+    "short_name": "Petro Times"
+  },
+  "ASP": {
+    "name": "Công ty Cổ phần Tập đoàn Dầu khí An Pha",
+    "short_name": "Dầu khí An Pha"
+  },
+  "BLW": {
+    "name": "Công ty Cổ phần Cấp nước Bạc Liêu",
+    "short_name": "Cấp nước Bạc Liêu"
+  },
+  "BDW": {
+    "name": "Công ty Cổ phần Cấp thoát nước Bình Định",
+    "short_name": "Cấp thoát nước Bình Định"
+  },
+  "NBT": {
+    "name": "Công ty Cổ phần Cấp thoát nước Bến Tre",
+    "short_name": "Cấp thoát nước Bến Tre"
+  },
+  "BGW": {
+    "name": "Công ty Cổ phần Nước sạch Bắc Giang",
+    "short_name": "Nước sạch Bắc Giang"
+  },
+  "BWE": {
+    "name": "Công ty Cổ phần - Tổng công ty Nước - Môi trường Bình Dương",
+    "short_name": "Nước - Môi trường Bình Dương"
+  },
+  "BMF": {
+    "name": "Công ty Cổ phần Vật liệu Xây dựng và Chất đốt Đồng Nai",
+    "short_name": "VLXD và Chất đốt Đồng Nai"
+  },
+  "BNW": {
+    "name": "Công ty Cổ phần Nước sạch Bắc Ninh",
+    "short_name": "Nước sạch Bắc Ninh"
+  },
+  "BTW": {
+    "name": "Công ty Cổ phần Cấp nước Bến Thành",
+    "short_name": "Cấp nước Bến Thành"
+  },
+  "BWA": {
+    "name": "Công ty Cổ phần Cấp thoát nước và Xây dựng Bảo Lộc",
+    "short_name": "Cấp thoát nước và Xây dựng Bảo Lộc"
+  },
+  "BWS": {
+    "name": "Công ty Cổ phần Cấp Nước Bà Rịa - Vũng Tàu",
+    "short_name": "Cấp Nước Bà Rịa Vũng Tàu"
+  },
+  "CMW": {
+    "name": "Công ty Cổ phần Cấp nước Cà Mau",
+    "short_name": "Cấp nước Cà Mau"
+  },
+  "CCI": {
+    "name": "Công ty Cổ phần Đầu tư Phát triển Công nghiệp Thương mại Củ Chi",
+    "short_name": "CIDICO"
+  },
+  "CLW": {
+    "name": "Công ty Cổ phần Cấp nước Chợ Lớn",
+    "short_name": "Cấp nước Chợ Lớn"
+  },
+  "CNG": {
+    "name": "Công ty Cổ phần CNG Việt Nam",
+    "short_name": "CNG Việt Nam"
+  },
+  "CTW": {
+    "name": "Công ty Cổ phần Cấp thoát nước Cần Thơ",
+    "short_name": "Cấp thoát nước Cần Thơ"
+  },
+  "DWC": {
+    "name": "Công ty Cổ phần Cấp nước Đắk Lắk",
+    "short_name": "Cấp nước Đắk Lắk"
+  },
+  "DLM": {
+    "name": "Công ty Cổ phần Chiếu sáng công cộng Đà Nẵng",
+    "short_name": "Chiếu sáng công cộng Đà Nẵng"
+  },
+  "DMS": {
+    "name": "Công ty Cổ phần Hóa phẩm dầu khí DMC - Miền Nam",
+    "short_name": "Dầu khí DMC-miền Nam"
+  },
+  "DNW": {
+    "name": "Công ty Cổ phần Cấp nước Đồng Nai",
+    "short_name": "Cấp nước Đồng Nai"
+  },
+  "DNN": {
+    "name": "Công ty Cổ phần Cấp nước Đà Nẵng",
+    "short_name": "Cấp nước Đà Nẵng"
+  },
+  "DWS": {
+    "name": "Công ty Cổ phần Cấp nước và Môi trường Đô thị Đồng Tháp",
+    "short_name": "Cấp nước Đồng Tháp"
+  },
+  "DVC": {
+    "name": "Công ty Cổ phần Thương mại dịch vụ Tổng Hợp Cảng Hải Phòng",
+    "short_name": "TM dịch vụ Cảng Hải Phòng"
+  },
+  "GDW": {
+    "name": "Công ty Cổ phần Cấp nước Gia Định",
+    "short_name": "Cấp nước Gia Định"
+  },
+  "GLW": {
+    "name": "Công ty Cổ phần Cấp thoát nước Gia Lai",
+    "short_name": "Cấp thoát nước Gia Lai"
+  },
+  "HGW": {
+    "name": "Công ty Cổ phần Cấp thoát nước - Công trình Đô thị Hậu Giang",
+    "short_name": "Công trình đô thị Hậu Giang"
+  },
+  "HDW": {
+    "name": "Công ty Cổ phần Kinh doanh Nước sạch Hải Dương",
+    "short_name": "Nước sạch Hải Dương"
+  },
+  "HFC": {
+    "name": "Công ty Cổ phần Xăng dầu HFC",
+    "short_name": "Xăng dầu HFC"
+  },
+  "HPW": {
+    "name": "Công ty Cổ phần Cấp nước Hải Phòng",
+    "short_name": "Cấp nước Hải Phòng"
+  },
+  "HTC": {
+    "name": "Công ty Cổ phần Thương mại Hóc Môn",
+    "short_name": "Thương mại Hóc Môn"
+  },
+  "HWS": {
+    "name": "Công ty Cổ phần Cấp nước Thừa Thiên Huế",
+    "short_name": "Cấp nước Thừa Thiên Huế"
+  },
+  "DDG": {
+    "name": "Công ty Cổ phần Đầu tư Công nghiệp Xuất nhập khẩu Đông Dương",
+    "short_name": "Đầu tư CN XNK Đông Dương"
+  },
+  "KHW": {
+    "name": "Công ty Cổ phần Cấp thoát nước Khánh Hòa",
+    "short_name": "Cấp thoát nước Khánh Hòa"
+  },
+  "LAW": {
+    "name": "Công ty Cổ phần Cấp thoát nước Long An",
+    "short_name": "Cấp thoát nước Long An"
+  },
+  "LDW": {
+    "name": "Công ty Cổ phần Cấp thoát nước Lâm Đồng",
+    "short_name": "Cấp thoát nước Lâm Đồng"
+  },
+  "LKW": {
+    "name": "Công ty Cổ phần Cấp nước Long Khánh",
+    "short_name": "Cấp nước Long Khánh"
+  },
+  "MTG": {
+    "name": "Công ty Cổ phần MT Gas",
+    "short_name": "MTGAS"
+  },
+  "NAW": {
+    "name": "Công ty Cổ phần Cấp nước Nghệ An",
+    "short_name": "Cấp nước Nghệ An"
+  },
+  "NBW": {
+    "name": "Công ty Cổ phần Cấp nước Nhà Bè",
+    "short_name": "Cấp nước Nhà Bè"
+  },
+  "NDW": {
+    "name": "Công ty Cổ phần Cấp nước Nam Định",
+    "short_name": "Cấp nước Nam Định"
+  },
+  "NLS": {
+    "name": "Công ty Cổ phần Cấp thoát nước Lạng Sơn",
+    "short_name": "Cấp thoát nước Lạng Sơn"
+  },
+  "NNT": {
+    "name": "Công ty Cổ phần Cấp nước Ninh Thuận",
+    "short_name": "Cấp nước Ninh Thuận"
+  },
+  "NQB": {
+    "name": "Công ty Cổ phần Cấp nước Quảng Bình",
+    "short_name": "Cấp nước Quảng Bình"
+  },
+  "NQT": {
+    "name": "Công ty Cổ phần Nước sạch Quảng Trị",
+    "short_name": "Nước sạch Quảng Trị"
+  },
+  "NS2": {
+    "name": "Công ty Cổ phần Nước sạch số 2 Hà Nội",
+    "short_name": "Nước sạch số 2 Hà Nội"
+  },
+  "PSH": {
+    "name": "Công ty Cổ phần Thương mại Đầu tư Dầu khí Nam Sông Hậu",
+    "short_name": "TMại ĐT Dầu khí Nam Sông Hậu"
+  },
+  "NTW": {
+    "name": "Công ty Cổ phần Cấp nước Nhơn Trạch",
+    "short_name": "Cấp nước Nhơn Trạch"
+  },
+  "TOW": {
+    "name": "Công ty Cổ phần Cấp nước Trà Nóc - Ô Môn",
+    "short_name": "Cấp nước Trà Nóc - Ô Môn"
+  },
+  "PCG": {
+    "name": "Công ty Cổ phần Đầu tư Phát triển Gas Đô thị",
+    "short_name": "Đầu tư PT Gas Đô thị"
+  },
+  "PEG": {
+    "name": "Tổng Công ty Thương mại Kỹ thuật và Đầu tư - Công ty Cổ phần",
+    "short_name": "TM Kỹ thuật và Đầu tư (PETEC)"
+  },
+  "PGC": {
+    "name": "Tổng Công ty Gas Petrolimex - Công ty Cổ phần",
+    "short_name": "Gas Petrolimex"
+  },
+  "PGD": {
+    "name": "Công ty Cổ phần Phân phối khí thấp áp dầu khí Việt Nam",
+    "short_name": "PV GAS D"
+  },
+  "PGS": {
+    "name": "Công ty Cổ phần Kinh doanh Khí Miền Nam",
+    "short_name": "Khí Miền Nam"
+  },
+  "PJC": {
+    "name": "Công ty Cổ phần Thương mại và Vận tải Petrolimex Hà Nội",
+    "short_name": "TM và Vận tải Petrolimex HN"
+  },
+  "PJS": {
+    "name": "Công ty Cổ phần Cấp nước Phú Hòa Tân",
+    "short_name": "Cấp nước Phú Hòa Tân"
+  },
+  "PMG": {
+    "name": "Công ty Cổ phần Đầu tư và Sản xuất Petro Miền Trung",
+    "short_name": "ĐT và SX Petro Miền Trung"
+  },
+  "PMW": {
+    "name": "Công ty Cổ phần Cấp Nước Phú Mỹ",
+    "short_name": "Cấp Nước Phú Mỹ"
+  },
+  "PND": {
+    "name": "Công ty Cổ phần Xăng dầu Dầu khí Nam Định",
+    "short_name": "Xăng dầu Dầu khí Nam Định"
+  },
+  "POB": {
+    "name": "Công ty Cổ phần Xăng dầu Dầu khí Thái Bình",
+    "short_name": "PVOIL Thái Bình"
+  },
+  "POV": {
+    "name": "Công ty Cổ phần Xăng dầu Dầu khí Vũng Áng",
+    "short_name": "PV Oil Vũng Áng"
+  },
+  "DNA": {
+    "name": "Công ty Cổ phần Điện nước An Giang",
+    "short_name": "Điện nước An Giang"
+  },
+  "GCB": {
+    "name": "Công ty Cổ phần PETEC Bình Định",
+    "short_name": "PETEC Bình Định"
+  },
+  "PTH": {
+    "name": "Công ty Cổ phần Vận tải và Dịch vụ Petrolimex Hà Tây",
+    "short_name": "Vận tải và DV Petrolimex Hà Tây"
+  },
+  "PVG": {
+    "name": "Công ty Cổ phần Kinh doanh LPG Việt Nam",
+    "short_name": "Kinh doanh LPG Việt Nam"
+  },
+  "PPY": {
+    "name": "Công ty Cổ phần Xăng dầu dầu khí Phú Yên",
+    "short_name": "Xăng dầu dầu khí Phú Yên"
+  },
+  "PWS": {
+    "name": "Công ty Cổ phần Cấp thoát nước Phú Yên",
+    "short_name": "Cấp thoát nước Phú Yên"
+  },
+  "QNW": {
+    "name": "Công ty Cổ phần Cấp thoát nước và xây dựng Quảng Ngãi",
+    "short_name": "Cấp thoát nước và XD Quảng Ngãi"
+  },
+  "NQN": {
+    "name": "Công ty Cổ phần Nước sạch Quảng Ninh",
+    "short_name": "Nước sạch Quảng Ninh"
+  },
+  "CHS": {
+    "name": "Công ty Cổ phần Chiếu sáng Công cộng Thành phố Hồ Chí Minh",
+    "short_name": "Chiếu sáng TPHCM"
+  },
+  "SFC": {
+    "name": "Công ty Cổ phần Nhiên liệu Sài Gòn",
+    "short_name": "Nhiên liệu Sài Gòn"
+  },
+  "SII": {
+    "name": "Công ty Cổ phần Hạ tầng Nước Sài Gòn",
+    "short_name": "Hạ tầng Nước Sài Gòn"
+  },
+  "NSL": {
+    "name": "Công ty Cổ phần Cấp nước Sơn La",
+    "short_name": "Cấp nước Sơn La"
+  },
+  "STW": {
+    "name": "Công ty Cổ phần Cấp nước Sóc Trăng",
+    "short_name": "Cấp nước Sóc Trăng"
+  },
+  "TAW": {
+    "name": "Công ty Cổ phần Cấp nước Trung An",
+    "short_name": "Cấp nước Trung An"
+  },
+  "TDG": {
+    "name": "Công ty Cổ phần Đầu tư TDG Global",
+    "short_name": "Đầu tư TDG Global"
+  },
+  "TDM": {
+    "name": "Công ty Cổ phần Nước Thủ Dầu Một",
+    "short_name": "Nước Thủ Dầu Một"
+  },
+  "TDW": {
+    "name": "Công ty Cổ phần Cấp nước Thủ Đức",
+    "short_name": "Cấp nước Thủ Đức"
+  },
+  "TLP": {
+    "name": "Tổng Công ty Thương mại Xuất nhập khẩu Thanh Lễ - CTCP",
+    "short_name": "Thương mại XNK Thanh Lễ"
+  },
+  "THN": {
+    "name": "Công ty Cổ phần Cấp nước Thanh Hóa",
+    "short_name": "Cấp nước Thanh Hóa"
+  },
+  "THW": {
+    "name": "Công ty Cổ phần Cấp nước Tân Hòa",
+    "short_name": "Cấp nước Tân Hòa"
+  },
+  "TMC": {
+    "name": "Công ty Cổ phần Thương mại Xuất nhập khẩu Thủ Đức",
+    "short_name": "XNK Thủ Đức"
+  },
+  "TVW": {
+    "name": "Công ty Cổ phần Cấp thoát nước Trà Vinh",
+    "short_name": "Cấp thoát nước Trà Vinh"
+  },
+  "TQW": {
+    "name": "Công ty Cổ phần Cấp thoát nước Tuyên Quang",
+    "short_name": "Cấp thoát nước Tuyên Quang"
+  },
+  "TNW": {
+    "name": "Công ty Cổ phần Nước sạch Thái Nguyên",
+    "short_name": "Nước sạch Thái Nguyên"
+  },
+  "UPC": {
+    "name": "Công ty Cổ phần Phát triển Công viên Cây xanh và Đô thị Vũng Tàu",
+    "short_name": "Cây xanh Vũng Tàu"
+  },
+  "VAV": {
+    "name": "Công ty Cổ phần VIWACO",
+    "short_name": "VIWACO"
+  },
+  "VWS": {
+    "name": "Công ty Cổ phần Nước và Môi trường Việt Nam",
+    "short_name": "Nước và Môi trường VN"
+  },
+  "VMG": {
+    "name": "Công ty Cổ phần Thương mại và Dịch vụ Dầu khí Vũng Tàu",
+    "short_name": "Vimexco Gas"
+  },
+  "VXT": {
+    "name": "Công ty Cổ phần Kho vận và dịch vụ thương mại",
+    "short_name": "Kho vận và DV Thương mại"
+  },
+  "VPW": {
+    "name": "Công ty Cổ phần Cấp thoát nước số 1 Vĩnh Phúc",
+    "short_name": "Cấp thoát nước số 1 Vĩnh Phúc"
+  },
+  "NVP": {
+    "name": "Công ty Cổ phần Nước sạch Vĩnh Phúc",
+    "short_name": "Nước sạch Vĩnh Phúc"
+  },
+  "VLW": {
+    "name": "Công ty Cổ phần Cấp nước Vĩnh Long",
+    "short_name": "Cấp nước Vĩnh Long"
+  },
+  "VCW": {
+    "name": "Công ty Cổ phần Đầu tư Nước sạch Sông Đà",
+    "short_name": "Đầu tư Nước sạch Sông Đà"
+  },
+  "ABB": {
+    "name": "Ngân hàng Thương mại Cổ phần An Bình",
+    "short_name": "Ngân hàng An Bình"
+  },
+  "EIB": {
+    "name": "Ngân hàng Thương mại Cổ phần Xuất nhập khẩu Việt Nam",
+    "short_name": "Eximbank"
+  },
+  "BVB": {
+    "name": "Ngân hàng Thương mại Cổ phần Bản Việt",
+    "short_name": "Ngân hàng Bản Việt"
+  },
+  "KLB": {
+    "name": "Ngân hàng Thương mại Cổ phần Kiên Long",
+    "short_name": "KienlongBank"
+  },
+  "LPB": {
+    "name": "Ngân hàng Thương mại Cổ phần Bưu Điện Liên Việt",
+    "short_name": "LienVietPostBank"
+  },
+  "MSB": {
+    "name": "Ngân hàng Thương mại Cổ phần Hàng Hải Việt Nam",
+    "short_name": "MSB Bank"
+  },
+  "NAB": {
+    "name": "Ngân hàng Thương mại Cổ phần Nam Á",
+    "short_name": "Ngân hàng Nam Á"
+  },
+  "BAB": {
+    "name": "Ngân hàng Thương mại Cổ phần Bắc Á",
+    "short_name": "Ngân hàng Bắc Á"
+  },
+  "NVB": {
+    "name": "Ngân hàng Thương mại Cổ phần Quốc Dân",
+    "short_name": "Ngân hàng Quốc Dân"
+  },
+  "OCB": {
+    "name": "Ngân hàng Thương mại Cổ phần Phương Đông",
+    "short_name": "Ngân hàng Phương Đông"
+  },
+  "PGB": {
+    "name": "Ngân hàng Thương mại Cổ phần Xăng dầu Petrolimex",
+    "short_name": "PG Bank"
+  },
+  "SGB": {
+    "name": "Ngân hàng Thương mại Cổ phần Sài Gòn Công thương",
+    "short_name": "Sài Gòn Công thương"
+  },
+  "VAB": {
+    "name": "Ngân hàng Thương mại Cổ phần Việt Á",
+    "short_name": "Ngân hàng Việt Á"
+  },
+  "VBB": {
+    "name": "Ngân hàng Thương mại Cổ phần Việt Nam Thương Tín",
+    "short_name": "VietBank"
+  },
+  "ACG": {
+    "name": "Công ty Cổ phần Gỗ An Cường",
+    "short_name": "Gỗ An Cường"
+  },
+  "CAP": {
+    "name": "Công ty Cổ phần Lâm Nông sản Thực phẩm Yên Bái",
+    "short_name": "Lâm nông sản Yên Bái"
+  },
+  "DHC": {
+    "name": "Công ty Cổ phần Đông Hải Bến Tre",
+    "short_name": "Đông Hải Bến Tre"
+  },
+  "DLG": {
+    "name": "Công ty Cổ phần Tập đoàn Đức Long Gia Lai",
+    "short_name": "Đức Long Gia Lai"
+  },
+  "FRM": {
+    "name": "Công ty Cổ phần Lâm nghiệp Sài Gòn",
+    "short_name": "Lâm nghiệp Sài Gòn"
+  },
+  "FRC": {
+    "name": "Công ty Cổ phần Lâm đặc sản xuất khẩu Quảng Nam",
+    "short_name": "Lâm đặc sản xuất khẩu Quảng Nam"
+  },
+  "GTA": {
+    "name": "Công ty Cổ phần Chế biến Gỗ Thuận An",
+    "short_name": "Gỗ Thuận An"
+  },
+  "HAP": {
+    "name": "Công ty Cổ phần Tập Đoàn Hapaco",
+    "short_name": "Tập đoàn Hapaco"
+  },
+  "HHP": {
+    "name": "Công ty Cổ phần HHP Global",
+    "short_name": "Giấy Hoàng Hà Hải Phòng"
+  },
+  "MDF": {
+    "name": "Công ty Cổ phần Gỗ MDF VRG - Quảng Trị",
+    "short_name": "Gỗ MDF VRG - Quảng Trị"
+  },
+  "PIS": {
+    "name": "Tổng Công ty Pisico Bình Định - Công ty Cổ phần",
+    "short_name": "Pisico Bình Định"
+  },
+  "PTB": {
+    "name": "Công ty Cổ phần Phú Tài",
+    "short_name": "Công ty Cổ phần Phú Tài"
+  },
+  "SAV": {
+    "name": "Công ty Cổ phần Hợp tác Kinh tế và Xuất nhập khẩu Savimex",
+    "short_name": "Savimex"
+  },
+  "SVT": {
+    "name": "Công ty Cổ phần Công nghệ Sài Gòn Viễn Đông",
+    "short_name": "Công nghệ SG Viễn Đông"
+  },
+  "TQN": {
+    "name": "Công ty Cổ phần Thông Quảng Ninh",
+    "short_name": "Thông Quảng Ninh"
+  },
+  "TMW": {
+    "name": "Công ty Cổ phần Tổng hợp Gỗ Tân Mai",
+    "short_name": "Gỗ Tân Mai"
+  },
+  "TTF": {
+    "name": "Công ty Cổ phần Tập đoàn Kỹ nghệ Gỗ Trường Thành",
+    "short_name": "Gỗ Trường Thành"
+  },
+  "VID": {
+    "name": "Công ty Cổ phần Đầu tư Phát triển Thương mại Viễn Đông",
+    "short_name": "Viễn Đông"
+  },
+  "VIF": {
+    "name": "Tổng Công ty Lâm nghiệp Việt Nam - Công ty Cổ phần",
+    "short_name": "Lâm nghiệp Việt Nam"
+  },
+  "GVT": {
+    "name": "Công ty Cổ phần Giấy Việt Trì",
+    "short_name": "Giấy Việt Trì"
+  },
+  "HSV": {
+    "name": "Công ty Cổ phần Tập đoàn HSV Việt Nam",
+    "short_name": "Gang Thép Hà Nội"
+  },
+  "BCA": {
+    "name": "Công ty cổ phần B.C.H",
+    "short_name": "Công ty B.C.H"
+  },
+  "BVG": {
+    "name": "Công ty cổ phần Group Bắc Việt",
+    "short_name": "Group Bắc Việt"
+  },
+  "CBI": {
+    "name": "Công ty Cổ phần Gang thép Cao Bằng",
+    "short_name": "Gang thép Cao Bằng"
+  },
+  "TTS": {
+    "name": "Công ty Cổ phần Cán thép Thái Trung",
+    "short_name": "Cán thép Thái Trung"
+  },
+  "DPS": {
+    "name": "Công ty Cổ phần Đầu tư Phát triển Sóc Sơn",
+    "short_name": "Đầu tư Phát triển Sóc Sơn"
+  },
+  "DTL": {
+    "name": "Công ty Cổ phần Đại Thiên Lộc",
+    "short_name": "Đại Thiên Lộc"
+  },
+  "HLA": {
+    "name": "Công ty Cổ phần Hữu Liên Á Châu",
+    "short_name": "Hữu Liên Á Châu"
+  },
+  "HMC": {
+    "name": "Công ty Cổ phần Kim khí Thành phố Hồ Chí Minh - VNSTEEL",
+    "short_name": "Kim khí TP.HCM"
+  },
+  "HMG": {
+    "name": "Công ty Cổ phần Kim Khí Hà Nội - VNSTEEL",
+    "short_name": "Kim Khí Hà Nội"
+  },
+  "HSG": {
+    "name": "Công ty Cổ phần Tập đoàn Hoa Sen",
+    "short_name": "Tập đoàn Hoa Sen"
+  },
+  "ITQ": {
+    "name": "Công ty Cổ phần Tập đoàn Thiên Quang",
+    "short_name": "Tập đoàn Thiên Quang"
+  },
+  "KKC": {
+    "name": "Công ty Cổ phần Tập đoàn Thành Thái",
+    "short_name": "Tập đoàn Thành Thái"
+  },
+  "KLM": {
+    "name": "Công ty Cổ phần Kim loại màu Nghệ Tĩnh",
+    "short_name": "Kim loại màu Nghệ Tĩnh"
+  },
+  "KMT": {
+    "name": "Công ty Cổ phần Kim khí Miền Trung",
+    "short_name": "Kim khí Miền Trung"
+  },
+  "KTL": {
+    "name": "Công ty Cổ phần Kim khí Thăng Long",
+    "short_name": "Kim khí Thăng Long"
+  },
+  "KVC": {
+    "name": "Công ty Cổ phần Sản xuất Xuất nhập khẩu Inox Kim Vĩ",
+    "short_name": "XNK Inox Kim Vĩ"
+  },
+  "MEL": {
+    "name": "Công ty Cổ phần Thép Mê Lin",
+    "short_name": "Thép Mê Lin"
+  },
+  "MHL": {
+    "name": "Công ty Cổ phần Minh Hữu Liên",
+    "short_name": "Minh Hữu Liên"
+  },
+  "NHV": {
+    "name": "Công ty Cổ phần Sức khỏe Hồi sinh Việt Nam",
+    "short_name": "Đầu tư NHV"
+  },
+  "NKG": {
+    "name": "Công ty Cổ phần Thép Nam Kim",
+    "short_name": "Thép Nam Kim"
+  },
+  "PAS": {
+    "name": "Công ty Cổ phần Quốc tế Phương Anh",
+    "short_name": "Quốc tế Phương Anh"
+  },
+  "POM": {
+    "name": "Công ty Cổ phần Thép Pomina",
+    "short_name": "Thép Pomina"
+  },
+  "SHA": {
+    "name": "Công ty Cổ phần Sơn Hà Sài Gòn",
+    "short_name": "Sơn Hà Sài Gòn"
+  },
+  "NSH": {
+    "name": "Công ty Cổ phần Tập đoàn Nhôm Sông Hồng Shalumi",
+    "short_name": "Nhôm Sông Hồng"
+  },
+  "SHI": {
+    "name": "Công ty Cổ phần Quốc tế Sơn Hà",
+    "short_name": "Quốc tế Sơn Hà"
+  },
+  "SMC": {
+    "name": "Công ty Cổ phần Đầu tư Thương mại SMC",
+    "short_name": "Đầu tư Thương mại SMC"
+  },
+  "SSM": {
+    "name": "Công ty Cổ phần Chế tạo kết cấu thép VNECO.SSM",
+    "short_name": "Kết cấu Thép VNECO"
+  },
+  "TDS": {
+    "name": "Công ty Cổ phần Thép Thủ Đức - VNSTEEL",
+    "short_name": "Thép Thủ Đức"
+  },
+  "TIS": {
+    "name": "Công ty Cổ phần Gang thép Thái Nguyên",
+    "short_name": "Gang thép Thái Nguyên"
+  },
+  "TKG": {
+    "name": "Công ty Cổ phần Sản xuất và Thương mại Tùng Khánh",
+    "short_name": "SX và T.Mại Tùng Khánh"
+  },
+  "TKU": {
+    "name": "Công ty Cổ phần Công nghiệp Tung Kuang",
+    "short_name": "Công nghiệp Tung Kuang"
+  },
+  "TLH": {
+    "name": "Công ty Cổ phần Tập đoàn Thép Tiến Lên",
+    "short_name": "Thép Tiến Lên"
+  },
+  "TNA": {
+    "name": "Công ty Cổ phần Thương mại Xuất nhập khẩu Thiên Nam",
+    "short_name": "XNK Thiên Nam"
+  },
+  "TNB": {
+    "name": "Công ty Cổ phần Thép Nhà Bè - VNSTEEL",
+    "short_name": "Thép Nhà Bè"
+  },
+  "TNS": {
+    "name": "Công ty Cổ phần Thép Tấm Lá Thống Nhất",
+    "short_name": "Thép tấm lá Thống Nhất"
+  },
+  "TNI": {
+    "name": "Công ty Cổ phần Tập đoàn Thành Nam",
+    "short_name": "Tập đoàn Thành Nam"
+  },
+  "VCA": {
+    "name": "Công ty Cổ phần Thép VICASA - VNSTEEL",
+    "short_name": "Thép VICASA - VNSTEEL"
+  },
+  "VDT": {
+    "name": "Công ty Cổ phần Lưới thép Bình Tây",
+    "short_name": "Lưới thép Bình Tây"
+  },
+  "VGS": {
+    "name": "Công ty Cổ phần Ống thép Việt Đức VG PIPE",
+    "short_name": "Ống thép Việt Đức"
+  },
+  "TMG": {
+    "name": "Công ty Cổ phần Kim loại màu Thái Nguyên - Vimico",
+    "short_name": "Kim loại màu Thái Nguyên - Vimico"
+  },
+  "VGL": {
+    "name": "Công ty Cổ phần Mạ kẽm công nghiệp Vingal-Vnsteel",
+    "short_name": "Mạ kẽm công nghiệp Vingal-Vnsteel"
+  },
+  "TVN": {
+    "name": "Tổng Công ty Thép Việt Nam - Công ty Cổ phần",
+    "short_name": "Thép Việt Nam"
+  },
+  "DFC": {
+    "name": "Công ty Cổ phần Xích líp Đông Anh",
+    "short_name": "Xích líp Đông Anh"
+  },
+  "CST": {
+    "name": "Công ty Cổ phần Than Cao Sơn - TKV",
+    "short_name": "Than Cao Sơn - TKV"
+  },
+  "ACM": {
+    "name": "Công ty Cổ phần Tập đoàn Khoáng sản Á Cường",
+    "short_name": "Tập đoàn Khoáng sản Á Cường"
+  },
+  "AMC": {
+    "name": "Công ty Cổ phần Khoáng sản Á Châu",
+    "short_name": "Khoáng sản Á Châu"
+  },
+  "ATG": {
+    "name": "Công ty Cổ phần An Trường An",
+    "short_name": "An Trường An"
+  },
+  "BCB": {
+    "name": "Công ty Cổ phần 397",
+    "short_name": "Công ty 397"
+  },
+  "BKC": {
+    "name": "Công ty Cổ phần Khoáng sản Bắc Kạn",
+    "short_name": "Khoáng sản Bắc Kạn"
+  },
+  "BMC": {
+    "name": "Công ty Cổ phần Khoáng sản Bình Định",
+    "short_name": "Khoáng sản Bình Định"
+  },
+  "BMJ": {
+    "name": "Công ty Cổ phần Khoáng sản Miền Đông AHP",
+    "short_name": "Khoáng sản Miền Đông AHP"
+  },
+  "KCB": {
+    "name": "Công ty Cổ phần Khoáng Sản và Luyện Kim Cao Bằng",
+    "short_name": "Khoáng Sản Luyện Kim Cao Bằng"
+  },
+  "VBG": {
+    "name": "Công ty Cổ phần Địa chất Việt Bắc - TKV",
+    "short_name": "Địa chất Việt Bắc - TKV"
+  },
+  "DHM": {
+    "name": "Công ty Cổ phần Thương mại & Khai thác Khoáng sản Dương Hiếu",
+    "short_name": "Khoáng sản Dương Hiếu"
+  },
+  "GLC": {
+    "name": "Công ty Cổ phần Vàng Lào Cai",
+    "short_name": "Vàng Lào Cai"
+  },
+  "HGM": {
+    "name": "Công ty Cổ phần Cơ khí và Khoáng sản Hà Giang",
+    "short_name": "Khoáng sản Hà Giang"
+  },
+  "HLC": {
+    "name": "Công ty Cổ phần Than Hà Lầm - Vinacomin",
+    "short_name": "Than Hà Lầm"
+  },
+  "HPM": {
+    "name": "Công ty Cổ phần Xây dựng Thương mại và Khoáng sản Hoàng Phúc",
+    "short_name": "Khoáng sản Hoàng Phúc"
+  },
+  "KSB": {
+    "name": "Công ty Cổ phần Khoáng sản và Xây dựng Bình Dương",
+    "short_name": "Khoáng sản Bình Dương"
+  },
+  "KSH": {
+    "name": "Công ty Cổ phần Damac GLS",
+    "short_name": "Damac GLS"
+  },
+  "KHD": {
+    "name": "Công ty Cổ phần Khai thác, Chế biến Khoáng sản Hải Dương",
+    "short_name": "Khoáng sản Hải Dương"
+  },
+  "LMC": {
+    "name": "Công ty Cổ phần Long Beach LMC",
+    "short_name": "Khoáng sản LATCA"
+  },
+  "KSQ": {
+    "name": "Công ty Cổ phần CNC Capital Việt Nam",
+    "short_name": "CNC Capital Việt Nam"
+  },
+  "KSS": {
+    "name": "Tổng Công ty Cổ phần Khoáng sản Na Rì Hamico",
+    "short_name": "Na Rì Hamico"
+  },
+  "KSV": {
+    "name": "Tổng Công ty Khoáng sản TKV - Công ty Cổ phần",
+    "short_name": "Khoáng sản TKV"
+  },
+  "LCM": {
+    "name": "Công ty Cổ phần Khai thác và Chế biến Khoáng sản Lào Cai",
+    "short_name": "Khoáng sản Lào Cai"
+  },
+  "MDC": {
+    "name": "Công ty Cổ phần Than Mông Dương - Vinacomin",
+    "short_name": "Than Mông Dương"
+  },
+  "MIC": {
+    "name": "Công ty Cổ phần Kỹ nghệ Khoáng sản Quảng Nam",
+    "short_name": "Khoáng sản Quảng Nam"
+  },
+  "MIM": {
+    "name": "Công ty Cổ phần Khoáng sản và Cơ khí",
+    "short_name": "Khoáng sản và Cơ khí"
+  },
+  "MTA": {
+    "name": "Tổng Công ty Khoáng sản và Thương mại Hà Tĩnh - Công ty Cổ phần",
+    "short_name": "Khoáng sản và TM Hà Tĩnh"
+  },
+  "MSR": {
+    "name": "Công ty Cổ phần Masan High-Tech Materials",
+    "short_name": "Masan High-Tech Materials"
+  },
+  "NBC": {
+    "name": "Công ty Cổ phần Than Núi Béo - Vinacomin",
+    "short_name": "Than Núi Béo"
+  },
+  "SHN": {
+    "name": "Công ty Cổ phần Đầu tư Tổng hợp Hà Nội",
+    "short_name": "Đầu tư Tổng hợp Hà Nội"
+  },
+  "SPI": {
+    "name": "Công ty Cổ phần Spiral Galaxy",
+    "short_name": "Đá Spilít"
+  },
+  "SQC": {
+    "name": "Công ty Cổ phần Khoáng sản Sài Gòn - Quy Nhơn",
+    "short_name": "Khoáng sản SG-Quy Nhơn"
+  },
+  "TC6": {
+    "name": "Công ty Cổ phần Than Cọc Sáu - Vinacomin",
+    "short_name": "Than Cọc Sáu"
+  },
+  "TDN": {
+    "name": "Công ty Cổ phần Than Đèo Nai - Vinacomin",
+    "short_name": "Than Đèo Nai"
+  },
+  "THT": {
+    "name": "Công ty Cổ phần Than Hà Tu - Vinacomin",
+    "short_name": "Than Hà Tu"
+  },
+  "TNT": {
+    "name": "Công ty Cổ phần Tập đoàn TNT",
+    "short_name": "Tập đoàn TNT"
+  },
+  "TVD": {
+    "name": "Công ty Cổ phần Than Vàng Danh - Vinacomin",
+    "short_name": "Than Vàng Danh"
+  },
+  "CLM": {
+    "name": "Công ty Cổ phần Xuất nhập khẩu Than - Vinacomin",
+    "short_name": "Xuất nhập khẩu Than - Vinacomin"
+  },
+  "VDB": {
+    "name": "Công ty Cổ phần Vận tải và Chế biến Than Đông Bắc",
+    "short_name": "Vận tải và CB Than Đông Bắc"
+  },
+  "MVB": {
+    "name": "Tổng Công ty Công nghiệp mỏ Việt Bắc TKV - Công ty Cổ phần",
+    "short_name": "Mỏ Việt Bắc - TKV"
+  },
+  "VIM": {
+    "name": "Công ty Cổ phần Khoáng sản Viglacera",
+    "short_name": "Khoáng sản Viglacera"
+  },
+  "MGC": {
+    "name": "Công ty Cổ phần Địa chất mỏ - TKV",
+    "short_name": "Địa chất mỏ - TKV"
+  },
+  "TMB": {
+    "name": "Công ty Cổ phần Kinh doanh Than Miền Bắc - Vinacomin",
+    "short_name": "Than Miền Bắc - Vinacomin"
+  },
+  "VPG": {
+    "name": "Công ty Cổ phần Đầu tư Thương mại Xuất nhập khẩu Việt Phát",
+    "short_name": "Đầu tư TMại XNK Việt Phát"
+  },
+  "YBM": {
+    "name": "Công ty Cổ phần Khoáng sản Công nghiệp Yên Bái",
+    "short_name": "Khoáng sản CN Yên Bái"
+  },
+  "VTZ": {
+    "name": "Công ty Cổ phần Sản xuất và Thương mại Nhựa Việt Thành",
+    "short_name": "Nhựa Việt Thành"
+  },
+  "PCH": {
+    "name": "Công ty Cổ phần Nhựa Picomat",
+    "short_name": "Nhựa Picomat"
+  },
+  "AAA": {
+    "name": "Công ty Cổ phần Nhựa An Phát Xanh",
+    "short_name": "An Phát Bioplastics"
+  },
+  "LTG": {
+    "name": "Công ty Cổ phần Tập đoàn Lộc Trời",
+    "short_name": "Tập đoàn Lộc Trời (BVTV An Giang)"
+  },
+  "APP": {
+    "name": "Công ty Cổ phần Phát triển Phụ gia và Sản phẩm dầu mỏ",
+    "short_name": "Phụ gia và SP Dầu mỏ"
+  },
+  "HII": {
+    "name": "Công ty Cổ phần An Tiến Industries",
+    "short_name": "An Tiến Industries"
+  },
+  "BRR": {
+    "name": "Công ty Cổ phần Cao su Bà Rịa",
+    "short_name": "Cao su Bà Rịa"
+  },
+  "BFC": {
+    "name": "Công ty Cổ phần Phân bón Bình Điền",
+    "short_name": "Phân bón Bình Điền"
+  },
+  "BRC": {
+    "name": "Công ty Cổ phần Cao su Bến Thành",
+    "short_name": "Cao su Bến Thành"
+  },
+  "CPC": {
+    "name": "Công ty Cổ phần Thuốc sát trùng Cần Thơ",
+    "short_name": "Thuốc sát trùng Cần Thơ"
+  },
+  "CSV": {
+    "name": "Công ty Cổ phần Hóa chất Cơ bản miền Nam",
+    "short_name": "Hóa chất Cơ bản miền Nam"
+  },
+  "DAG": {
+    "name": "Công ty Cổ phần Tập đoàn Nhựa Đông Á",
+    "short_name": "TĐ Nhựa Đông Á"
+  },
+  "DRG": {
+    "name": "Công ty Cổ phần Cao su Đắk Lắk",
+    "short_name": "Cao su Đắk Lắk"
+  },
+  "DRI": {
+    "name": "Công ty Cổ phần Đầu tư Cao su Đắk Lắk",
+    "short_name": "Đầu tư Cao su Đắk Lắk"
+  },
+  "DHB": {
+    "name": "Công ty Cổ phần Phân đạm và Hóa chất Hà Bắc",
+    "short_name": "Đạm Hà Bắc"
+  },
+  "DCM": {
+    "name": "Công ty Cổ phần Phân bón Dầu Khí Cà Mau",
+    "short_name": "Đạm Cà Mau"
+  },
+  "DDV": {
+    "name": "Công ty Cổ phần DAP - Vinachem",
+    "short_name": "DAP - Vinachem"
+  },
+  "DGC": {
+    "name": "Công ty Cổ phần Tập đoàn Hóa chất Đức Giang",
+    "short_name": "Hóa chất Đức Giang"
+  },
+  "DOC": {
+    "name": "Công ty Cổ phần Vật tư nông nghiệp Đồng Nai",
+    "short_name": "Vật tư nông nghiệp Đồng Nai"
+  },
+  "DPM": {
+    "name": "Tổng Công ty Cổ phần Phân bón và Hóa chất Dầu khí - Công ty Cổ phần",
+    "short_name": "Đạm Phú Mỹ"
+  },
+  "DPR": {
+    "name": "Công ty Cổ phần Cao su Đồng Phú",
+    "short_name": "Cao su Đồng Phú"
+  },
+  "DTT": {
+    "name": "Công ty Cổ phần Kỹ nghệ Đô Thành",
+    "short_name": "Kỹ nghệ Đô Thành"
+  },
+  "GER": {
+    "name": "Công ty Cổ phần Thể thao Ngôi sao Geru",
+    "short_name": "Thể thao Ngôi sao Geru"
+  },
+  "HAI": {
+    "name": "Công ty Cổ phần Nông dược HAI",
+    "short_name": "Nông Dược HAI"
+  },
+  "HNP": {
+    "name": "Công ty Cổ phần Hanel Xốp Nhựa",
+    "short_name": "Hanel Xốp Nhựa"
+  },
+  "HCD": {
+    "name": "Công ty Cổ phần Đầu tư Sản xuất và Thương mại HCD",
+    "short_name": "SX và Thương mại HCD"
+  },
+  "HPH": {
+    "name": "Công ty Cổ phần Hóa Chất Hưng Phát Hà Bắc",
+    "short_name": "Hóa Chất Hưng Phát Hà Bắc"
+  },
+  "HRC": {
+    "name": "Công ty Cổ phần Cao su Hòa Bình",
+    "short_name": "Cao su Hòa Bình"
+  },
+  "HSI": {
+    "name": "Công ty Cổ phần Vật tư Tổng hợp và Phân bón Hóa sinh",
+    "short_name": "Phân bón Hóa sinh"
+  },
+  "HVT": {
+    "name": "Công ty Cổ phần Hóa chất Việt Trì",
+    "short_name": "Hóa chất Việt trì"
+  },
+  "IRC": {
+    "name": "Công ty Cổ phần Cao su Công nghiệp",
+    "short_name": "Cao su Công nghiệp"
+  },
+  "LAS": {
+    "name": "Công ty Cổ phần Supe Phốt phát và Hóa chất Lâm Thao",
+    "short_name": "Hóa chất Lâm Thao"
+  },
+  "LNC": {
+    "name": "Công ty Cổ phần Lệ Ninh",
+    "short_name": "Lệ Ninh - Quảng Bình"
+  },
+  "VET": {
+    "name": "Công ty Cổ phần Thuốc Thú y Trung ương NAVETCO",
+    "short_name": "Thuốc thú y trung ương Navetco"
+  },
+  "NFC": {
+    "name": "Công ty Cổ phần Phân lân Ninh Bình",
+    "short_name": "Phân lân Ninh Bình"
+  },
+  "NHH": {
+    "name": "Công ty Cổ phần Nhựa Hà Nội",
+    "short_name": "Nhựa Hà Nội"
+  },
+  "PMB": {
+    "name": "Công ty Cổ phần Phân bón và Hóa chất Dầu khí Miền Bắc",
+    "short_name": "Phân bón và Hóa chất Dầu khí Miền Bắc"
+  },
+  "PGN": {
+    "name": "Công ty Cổ phần Phụ Gia Nhựa",
+    "short_name": "Phụ Gia Nhựa"
+  },
+  "PLP": {
+    "name": "Công ty Cổ phần Sản xuất và Công nghệ Nhựa Pha Lê",
+    "short_name": "SX và CN Nhựa Pha Lê"
+  },
+  "PHR": {
+    "name": "Công ty Cổ phần Cao su Phước Hòa",
+    "short_name": "Cao su Phước Hòa"
+  },
+  "PLC": {
+    "name": "Tổng Công ty Hóa dầu Petrolimex - Công ty Cổ phần",
+    "short_name": "Hóa dầu Petrolimex"
+  },
+  "BT1": {
+    "name": "Công ty Cổ phần Bảo vệ thực vật 1 Trung ương",
+    "short_name": "Bảo vệ thực vật 1 TW"
+  },
+  "PSE": {
+    "name": "Công ty Cổ phần Phân bón và hóa chất dầu khí Đông Nam Bộ",
+    "short_name": "Phân bón và hóa chất dầu khí Đông Nam Bộ"
+  },
+  "PCE": {
+    "name": "Công ty Cổ phần Phân bón và hóa chất dầu khí Miền Trung",
+    "short_name": "Phân bón và Hóa chất DK Miền Trung"
+  },
+  "PCN": {
+    "name": "Công ty Cổ phần Hóa phẩm dầu khí DMC - Miền Bắc",
+    "short_name": "Dầu khí DMC-Miền Bắc"
+  },
+  "PSW": {
+    "name": "Công ty Cổ phần Phân bón và hóa chất dầu khí Tây Nam Bộ",
+    "short_name": "Phân bón hóa chất dầu khí Tây Nam Bộ"
+  },
+  "QBS": {
+    "name": "Công ty Cổ phần Xuất nhập khẩu Quảng Bình",
+    "short_name": "Xuất nhập khẩu Quảng Bình"
+  },
+  "RDP": {
+    "name": "Công ty Cổ phần Rạng Đông Holding",
+    "short_name": "Nhựa Rạng Đông"
+  },
+  "RBC": {
+    "name": "Công ty Cổ phần Công Nghiệp và Xuất nhập khẩu Cao Su",
+    "short_name": "Công Nghiệp và Xuất nhập khẩu Cao Su"
+  },
+  "SEP": {
+    "name": "Công ty Cổ phần Tổng Công ty Thương mại Quảng Trị",
+    "short_name": "Thương mại Quảng Trị"
+  },
+  "SFG": {
+    "name": "Công ty Cổ phần Phân bón Miền Nam",
+    "short_name": "Phân bón Miền Nam"
+  },
+  "NSG": {
+    "name": "Công ty Cổ phần Nhựa Sài Gòn",
+    "short_name": "Nhựa Sài Gòn"
+  },
+  "SIV": {
+    "name": "Công ty Cổ phần SIVICO",
+    "short_name": "Sơn Sivico"
+  },
+  "SJF": {
+    "name": "Công ty Cổ phần Đầu tư Sao Thái Dương",
+    "short_name": "Đầu tư Sao Thái Dương"
+  },
+  "SBR": {
+    "name": "Công ty Cổ phần Cao su Sông Bé",
+    "short_name": "Cao su Sông Bé"
+  },
+  "SPC": {
+    "name": "Công ty Cổ phần Bảo vệ Thực vật Sài Gòn",
+    "short_name": "BV Thực vật Sài Gòn"
+  },
+  "RTB": {
+    "name": "Công ty Cổ phần Cao su Tân Biên",
+    "short_name": "Cao su Tân Biên"
+  },
+  "TNC": {
+    "name": "Công ty Cổ phần Cao su Thống Nhất",
+    "short_name": "Cao su Thống Nhất"
+  },
+  "TPC": {
+    "name": "Công ty Cổ phần Nhựa Tân Đại Hưng",
+    "short_name": "Nhựa Tân Đại Hưng"
+  },
+  "TRC": {
+    "name": "Công ty Cổ phần Cao su Tây Ninh",
+    "short_name": "Cao su Tây Ninh"
+  },
+  "TSC": {
+    "name": "Công ty Cổ phần Vật tư Kỹ thuật Nông nghiệp Cần Thơ",
+    "short_name": "Kỹ thuật NN Cần Thơ"
+  },
+  "VAF": {
+    "name": "Công ty Cổ phần Phân lân nung chảy Văn Điển",
+    "short_name": "Phân lân Văn Điển"
+  },
+  "PAT": {
+    "name": "Công ty Cổ phần Phốt pho Apatit Việt Nam",
+    "short_name": "Phốt pho Apatit Việt Nam"
+  },
+  "VFG": {
+    "name": "Công ty Cổ phần Khử trùng Việt Nam",
+    "short_name": "Khử trùng Việt Nam"
+  },
+  "PVO": {
+    "name": "Công ty Cổ phần Dầu nhờn PV Oil",
+    "short_name": "Dầu nhờn PV Oil"
+  },
+  "VPS": {
+    "name": "Công ty Cổ phần Thuốc sát trùng Việt Nam",
+    "short_name": "Thuốc sát trùng Việt Nam"
+  },
+  "VKP": {
+    "name": "Công ty Cổ phần Nhựa Tân Hóa",
+    "short_name": "Nhựa Tân Hóa"
+  },
+  "VNP": {
+    "name": "Công ty Cổ phần Nhựa Việt Nam",
+    "short_name": "Nhựa Việt Nam"
+  },
+  "VNY": {
+    "name": "Công ty Cổ phần Thuốc thú y Trung ương I",
+    "short_name": "Thuốc thú y Trung ương I"
+  },
+  "VTQ": {
+    "name": "Công ty Cổ phần Việt Trung Quảng Bình",
+    "short_name": "Việt Trung Quảng Bình"
+  },
+  "VXP": {
+    "name": "Công ty Cổ phần Thuốc Thú y Trung ương VETVACO",
+    "short_name": "Thuốc Thú y Trung ương VETVACO"
+  },
+  "VVS": {
+    "name": "Công ty Cổ phần Đầu tư Phát triển Máy Việt Nam",
+    "short_name": "Đầu tư Phát triển Máy Việt Nam"
+  },
+  "CMC": {
+    "name": "Công ty Cổ phần Đầu tư CMC",
+    "short_name": "Đầu tư CMC"
+  },
+  "CSM": {
+    "name": "Công ty Cổ phần Công nghiệp Cao su Miền Nam",
+    "short_name": "Cao su Miền Nam"
+  },
+  "CTF": {
+    "name": "Công ty Cổ phần City Auto",
+    "short_name": "City Auto"
+  },
+  "DRC": {
+    "name": "Công ty Cổ phần Cao su Đà Nẵng",
+    "short_name": "Cao su Đà Nẵng"
+  },
+  "FTI": {
+    "name": "Công ty Cổ phần Công nghiệp - Thương mại Hữu Nghị",
+    "short_name": "Công nghiệp - Thương mại Hữu Nghị"
+  },
+  "GGG": {
+    "name": "Công ty Cổ phần Ô tô Giải Phóng",
+    "short_name": "Ôtô Giải Phóng"
+  },
+  "HAX": {
+    "name": "Công ty Cổ phần Dịch vụ Ô tô Hàng Xanh",
+    "short_name": "Ô tô Hàng Xanh"
+  },
+  "HHS": {
+    "name": "Công ty Cổ phần Đầu tư Dịch vụ Hoàng Huy",
+    "short_name": "Đầu tư DV Hoàng Huy"
+  },
+  "HTL": {
+    "name": "Công ty Cổ phần Kỹ thuật và Ô tô Trường Long",
+    "short_name": "Ô tô Trường Long"
+  },
+  "SRC": {
+    "name": "Công ty Cổ phần Cao su Sao Vàng",
+    "short_name": "Cao su Sao Vàng"
+  },
+  "SVC": {
+    "name": "Công ty Cổ phần Dịch vụ tổng hợp Sài Gòn",
+    "short_name": "SAVICO"
+  },
+  "TMT": {
+    "name": "Công ty Cổ phần Ô tô TMT",
+    "short_name": "Ô tô TMT"
+  },
+  "VKC": {
+    "name": "Công ty Cổ phần VKC Holdings",
+    "short_name": "VKC Holdings"
+  },
+  "VMA": {
+    "name": "Công ty Cổ phần Công nghiệp Ô tô Vinacomin",
+    "short_name": "CN ô tô Vinacomin"
+  },
+  "CMM": {
+    "name": "Công ty Cổ phần Camimex",
+    "short_name": "Camimex"
+  },
+  "CNA": {
+    "name": "Công ty Cổ phần Tổng công ty Chè Nghệ An",
+    "short_name": "Tổng công ty Chè Nghệ An - CTCP"
+  },
+  "GCF": {
+    "name": "Công ty Cổ phần Thực phẩm G.C",
+    "short_name": "Thực phẩm G.C"
+  },
+  "AAM": {
+    "name": "Công ty Cổ Phần Thủy Sản MeKong",
+    "short_name": "Thủy sản Mekong"
+  },
+  "ABT": {
+    "name": "Công ty Cổ phần Xuất nhập khẩu Thủy sản Bến Tre",
+    "short_name": "Thủy sản Bến Tre"
+  },
+  "ACL": {
+    "name": "Công ty Cổ phần Xuất nhập khẩu Thủy sản Cửu Long An Giang",
+    "short_name": "Thủy sản CL An Giang"
+  },
+  "AGF": {
+    "name": "Công ty Cổ phần Xuất nhập khẩu Thủy sản An Giang",
+    "short_name": "Thủy sản An Giang"
+  },
+  "AGM": {
+    "name": "Công ty Cổ phần Xuất nhập khẩu An Giang",
+    "short_name": "XNK An Giang"
+  },
+  "ANT": {
+    "name": "Công ty Cổ phần Rau quả Thực phẩm An Giang",
+    "short_name": "Rau quả thực phẩm An Giang"
+  },
+  "ANV": {
+    "name": "Công ty Cổ phần Nam Việt",
+    "short_name": "Thủy sản Nam Việt"
+  },
+  "APF": {
+    "name": "Công ty Cổ phần Nông sản Thực phẩm Quảng Ngãi",
+    "short_name": "Nông sản Quảng Ngãi"
+  },
+  "ASM": {
+    "name": "Công ty Cổ phần Tập đoàn Sao Mai",
+    "short_name": "Tập đoàn Sao Mai"
+  },
+  "ATA": {
+    "name": "Công ty Cổ phần NTACO",
+    "short_name": "NTACO"
+  },
+  "AVF": {
+    "name": "Công ty Cổ phần Việt An",
+    "short_name": "Thủy sản Việt An"
+  },
+  "BAF": {
+    "name": "Công ty Cổ phần Nông nghiệp BAF Việt Nam",
+    "short_name": "Nông nghiệp BAF Việt Nam"
+  },
+  "BNA": {
+    "name": "Công ty Cổ phần Đầu tư Sản xuất Bảo Ngọc",
+    "short_name": "Đầu tư SX Bảo Ngọc"
+  },
+  "BBC": {
+    "name": "Công ty Cổ phần Bibica",
+    "short_name": "Bánh kẹo BIBICA"
+  },
+  "PRT": {
+    "name": "Tổng Công ty Sản xuất - Xuất nhập khẩu Bình Dương - Công ty cổ phần",
+    "short_name": "Sản xuất - XNK Bình Dương"
+  },
+  "BLT": {
+    "name": "Công ty Cổ phần Lương thực Bình Định",
+    "short_name": "Lương Thực Bình Định"
+  },
+  "BLF": {
+    "name": "Công ty Cổ phần Thủy sản Bạc Liêu",
+    "short_name": "Thủy sản Bạc Liêu"
+  },
+  "C22": {
+    "name": "Công ty Cổ phần 22",
+    "short_name": "Công ty 22"
+  },
+  "CAD": {
+    "name": "Công ty Cổ phần Chế biến và Xuất khẩu Thủy sản Cadovimex",
+    "short_name": "Thủy sản Cadovimex"
+  },
+  "CAN": {
+    "name": "Công ty Cổ phần Đồ hộp Hạ Long",
+    "short_name": "Đồ hộp Hạ Long"
+  },
+  "CCA": {
+    "name": "Công ty Cổ phần Xuất nhập khẩu Thủy sản Cần Thơ",
+    "short_name": "XNK Thuỷ sản Cần Thơ"
+  },
+  "CBS": {
+    "name": "Công ty Cổ phần Mía đường Cao Bằng",
+    "short_name": "Mía đường Cao Bằng"
+  },
+  "CLX": {
+    "name": "Công ty Cổ phần Xuất nhập khẩu và Đầu tư Chợ Lớn (CHOLIMEX)",
+    "short_name": "XNK và Đầu tư Chợ Lớn (CHOLIMEX)"
+  },
+  "CMF": {
+    "name": "Công ty Cổ phần Thực phẩm Cholimex",
+    "short_name": "Thực phẩm Cholimex"
+  },
+  "CAT": {
+    "name": "Công ty Cổ phần Thủy sản Cà Mau",
+    "short_name": "Thủy sản Cà Mau"
+  },
+  "CMX": {
+    "name": "Công ty Cổ phần CAMIMEX Group",
+    "short_name": "CAMIMEX Group"
+  },
+  "CMN": {
+    "name": "Công ty Cổ phần Lương thực Thực phẩm Colusa - Miliket",
+    "short_name": "Colusa -  Miliket"
+  },
+  "DBC": {
+    "name": "Công ty Cổ phần Tập đoàn Dabaco Việt Nam",
+    "short_name": "Tập đoàn DABACO"
+  },
+  "NSS": {
+    "name": "Công ty Cổ phần Nông súc sản Đồng Nai",
+    "short_name": "Nông súc sản Đồng Nai"
+  },
+  "DMN": {
+    "name": "Công ty Cổ phần Domenal",
+    "short_name": "Domenal"
+  },
+  "FMC": {
+    "name": "Công ty Cổ phần Thực phẩm Sao Ta",
+    "short_name": "Thực phẩm Sao Ta"
+  },
+  "FCS": {
+    "name": "Công ty Cổ phần Lương thực Thành phố Hồ Chí Minh",
+    "short_name": "Lương thực TP Hồ Chí Minh"
+  },
+  "HAG": {
+    "name": "Công ty Cổ phần Hoàng Anh Gia Lai",
+    "short_name": "Hoàng Anh Gia Lai"
+  },
+  "HHC": {
+    "name": "Công ty Cổ phần Bánh kẹo Hải Hà",
+    "short_name": "Bánh kẹo Hải Hà"
+  },
+  "HSL": {
+    "name": "Công ty Cổ phần Đầu tư Phát triển Thực phẩm Hồng Hà",
+    "short_name": "Thực phẩm Hồng Hà"
+  },
+  "HKB": {
+    "name": "Công ty Cổ phần Nông nghiệp và Thực phẩm Hà Nội - Kinh Bắc",
+    "short_name": "Thực phẩm Hà Nội - Kinh Bắc"
+  },
+  "BKH": {
+    "name": "Công ty Cổ phần Bánh mứt kẹo Hà Nội",
+    "short_name": "Bánh mứt kẹo Hà Nội"
+  },
+  "HAF": {
+    "name": "Công ty Cổ phần Thực phẩm Hà Nội",
+    "short_name": "Thực phẩm Hà Nội"
+  },
+  "HNG": {
+    "name": "Công ty Cổ phần Nông nghiệp Quốc tế Hoàng Anh Gia Lai",
+    "short_name": "Nông nghiệp Quốc tế HAGL"
+  },
+  "HNM": {
+    "name": "Công ty Cổ phần Sữa Hà Nội",
+    "short_name": "HANOIMILK"
+  },
+  "HNF": {
+    "name": "Công ty Cổ phần Thực phẩm Hữu Nghị",
+    "short_name": "Bánh kẹo Hữu Nghị"
+  },
+  "HVA": {
+    "name": "Công ty Cổ phần Đầu tư HVA",
+    "short_name": "Đầu tư HVA"
+  },
+  "HVG": {
+    "name": "Công ty Cổ phần Hùng Vương",
+    "short_name": "Thủy sản Hùng Vương"
+  },
+  "ICF": {
+    "name": "Công ty Cổ phần Đầu tư-Thương mại-Thủy sản",
+    "short_name": "Đầu tư Thương mại Thủy sản"
+  },
+  "IDI": {
+    "name": "Công ty Cổ phần Đầu tư và Phát triển Đa Quốc Gia I.D.I",
+    "short_name": "Đầu tư và PT Đa Quốc Gia"
+  },
+  "IDP": {
+    "name": "Công ty Cổ phần Sữa Quốc tế",
+    "short_name": "Sữa Quốc tế"
+  },
+  "ILA": {
+    "name": "Công ty Cổ phần ILA",
+    "short_name": "Công ty ILA"
+  },
+  "KDC": {
+    "name": "Công ty Cổ phần Tập đoàn KIDO",
+    "short_name": "Tập đoàn KIDO"
+  },
+  "KTC": {
+    "name": "Công ty Cổ phần Thương mại Kiên Giang",
+    "short_name": "Thương mại Kiên Giang"
+  },
+  "KHS": {
+    "name": "Công ty Cổ phần Kiên Hùng",
+    "short_name": "Thủy sản Kiên Hùng"
+  },
+  "KTS": {
+    "name": "Công ty Cổ phần Đường Kon Tum",
+    "short_name": "Đường Kon Tum"
+  },
+  "LAF": {
+    "name": "Công ty Cổ phần Chế biến Hàng Xuất khẩu Long An",
+    "short_name": "Chế biến Hàng XK Long An"
+  },
+  "LSS": {
+    "name": "Công ty Cổ phần Mía đường Lam Sơn",
+    "short_name": "Mía đường Lam Sơn"
+  },
+  "MCF": {
+    "name": "Công ty Cổ phần Xây lắp Cơ khí và Lương thực Thực phẩm",
+    "short_name": "Cơ khí và Lương thực Thực phẩm"
+  },
+  "MCM": {
+    "name": "Công ty Cổ phần Giống bò sữa Mộc Châu",
+    "short_name": "Giống bò sữa Mộc Châu"
+  },
+  "JOS": {
+    "name": "Công ty Cổ phần Chế biến Thủy sản Xuất khẩu Minh Hải",
+    "short_name": "Thủy sản Minh Hải"
+  },
+  "MLS": {
+    "name": "Công ty Cổ phần Chăn nuôi - Mitraco",
+    "short_name": "Chăn nuôi Mitraco"
+  },
+  "MML": {
+    "name": "Công ty Cổ phần Masan MEATLife",
+    "short_name": "Masan MEATLife"
+  },
+  "MPC": {
+    "name": "Công ty Cổ phần Tập đoàn Thủy sản Minh Phú",
+    "short_name": "Thủy sản Minh Phú"
+  },
+  "MCH": {
+    "name": "Công ty Cổ phần Hàng Tiêu Dùng MaSan",
+    "short_name": "Hàng Tiêu Dùng MaSan"
+  },
+  "NCS": {
+    "name": "Công ty Cổ phần Suất ăn Hàng không Nội Bài",
+    "short_name": "Suất ăn Hàng không Nội Bài"
+  },
+  "NDF": {
+    "name": "Công ty Cổ phần Chế biến thực phẩm nông sản xuất khẩu Nam Định",
+    "short_name": "Nông sản XK Nam Định"
+  },
+  "NGC": {
+    "name": "Công ty Cổ phần Chế biến Thủy sản Xuất khẩu Ngô Quyền",
+    "short_name": "Thủy sản Ngô Quyền"
+  },
+  "NSC": {
+    "name": "Công ty Cổ phần Tập đoàn Giống cây trồng Việt Nam",
+    "short_name": "Tập đoàn Giống cây trồng Việt Nam"
+  },
+  "OCH": {
+    "name": "Công ty Cổ phần One Capital Hospitality",
+    "short_name": "Khách sạn và Dịch vụ OCH"
+  },
+  "PAN": {
+    "name": "Công ty Cổ phần Tập đoàn PAN",
+    "short_name": "Tập đoàn PAN"
+  },
+  "PRO": {
+    "name": "Công ty Cổ phần Procimex Việt Nam",
+    "short_name": "Procimex Việt Nam"
+  },
+  "PSL": {
+    "name": "Công ty Cổ phần Chăn nuôi Phú Sơn",
+    "short_name": "Chăn nuôi Phú Sơn"
+  },
+  "DAT": {
+    "name": "Công ty Cổ phần Đầu tư Du lịch và Phát triển Thủy sản",
+    "short_name": "ĐT Du lịch và PT Thủy sản"
+  },
+  "CQN": {
+    "name": "Công ty Cổ phần Cảng Quảng Ninh",
+    "short_name": "Cảng Quảng Ninh"
+  },
+  "QNS": {
+    "name": "Công ty Cổ phần Đường Quảng Ngãi",
+    "short_name": "Đường Quảng Ngãi"
+  },
+  "SAF": {
+    "name": "Công ty Cổ phần Lương thực Thực phẩm SAFOCO",
+    "short_name": "Thực Phẩm SAFOCO"
+  },
+  "APT": {
+    "name": "Công ty Cổ phần Kinh doanh thủy hải sản Sài Gòn",
+    "short_name": "Thủy hải sản Sài Gòn"
+  },
+  "SBT": {
+    "name": "Công ty Cổ phần Thành Thành Công - Biên Hòa",
+    "short_name": "Mía đường Thành Thành Công - Biên Hòa"
+  },
+  "SEA": {
+    "name": "Tổng Công ty Thủy sản Việt Nam - Công ty Cổ phần",
+    "short_name": "SEAPRODEX"
+  },
+  "SPV": {
+    "name": "Công ty Cổ phần Thủy Đặc Sản",
+    "short_name": "Thủy đặc sản"
+  },
+  "SGC": {
+    "name": "Công ty Cổ phần Xuất nhập khẩu Sa Giang",
+    "short_name": "Bánh phồng tôm Sa Giang"
+  },
+  "SGO": {
+    "name": "Công ty Cổ phần Dầu thực vật Sài Gòn",
+    "short_name": "Dầu thực vật Sài Gòn"
+  },
+  "SJ1": {
+    "name": "Công ty Cổ phần Nông nghiệp Hùng Hậu",
+    "short_name": "Nông nghiệp Hùng Hậu"
+  },
+  "SLS": {
+    "name": "Công ty Cổ phần Mía đường Sơn La",
+    "short_name": "Mía đường Sơn La"
+  },
+  "SNC": {
+    "name": "Công ty Cổ phần Xuất nhập khẩu Thủy sản Năm Căn",
+    "short_name": "Thủy sản Năm Căn"
+  },
+  "SPD": {
+    "name": "Công ty Cổ phần Xuất nhập khẩu Thủy sản Miền Trung",
+    "short_name": "Thủy sản Miền Trung"
+  },
+  "SPH": {
+    "name": "Công ty Cổ phần Xuất Nhập khẩu Thủy sản Hà Nội",
+    "short_name": "XNK Thủy sản Hà Nội"
+  },
+  "SSC": {
+    "name": "Công ty Cổ phần Giống cây trồng Miền Nam",
+    "short_name": "Giống cây trồng Miền Nam"
+  },
+  "SSN": {
+    "name": "Công ty Cổ phần Xuất nhập khẩu Thủy sản Sài Gòn",
+    "short_name": "Thủy sản Sài Gòn"
+  },
+  "TFC": {
+    "name": "Công ty Cổ phần Trang",
+    "short_name": "Trang Corp."
+  },
+  "TCJ": {
+    "name": "Công ty Cổ phần Tô Châu",
+    "short_name": "Tô Châu"
+  },
+  "BCF": {
+    "name": "Công ty Cổ phần Thực phẩm Bích Chi",
+    "short_name": "Thực phẩm Bích Chi"
+  },
+  "THP": {
+    "name": "Công ty Cổ phần Thủy sản và Thương mại Thuận Phước",
+    "short_name": "Thủy sản và TMại Thuận Phước"
+  },
+  "TAR": {
+    "name": "Công ty Cổ phần Nông nghiệp Công nghệ cao Trung An",
+    "short_name": "Nông nghiệp CN cao Trung An"
+  },
+  "TS4": {
+    "name": "Công ty Cổ phần Thủy sản số 4",
+    "short_name": "Thủy sản số 4"
+  },
+  "VHC": {
+    "name": "Công ty Cổ phần Vĩnh Hoàn",
+    "short_name": "Thủy sản Vĩnh Hoàn"
+  },
+  "VHF": {
+    "name": "Công ty Cổ phần Xây dựng và Chế biến lương thực Vĩnh Hà",
+    "short_name": "Chế biến lương thực Vĩnh Hà"
+  },
+  "VLC": {
+    "name": "Tổng Công ty Chăn nuôi Việt Nam - Công ty Cổ phần",
+    "short_name": "Chăn nuôi Việt Nam"
+  },
+  "VSN": {
+    "name": "Công ty Cổ phần Việt Nam Kỹ Nghệ Súc Sản",
+    "short_name": "VN Kỹ Nghệ Súc Sản (VISSAN)"
+  },
+  "VLF": {
+    "name": "Công ty Cổ phần Lương thực Thực phẩm Vĩnh Long",
+    "short_name": "Lương thực Vĩnh Long"
+  },
+  "BMV": {
+    "name": "Công ty Cổ phần Bột mỳ Vinafood 1",
+    "short_name": "Bột mỳ Vinafood 1"
+  },
+  "VSF": {
+    "name": "Tổng Công ty Lương thực Miền Nam - Công ty Cổ phần",
+    "short_name": "Vinafood 2"
+  },
+  "VNH": {
+    "name": "Công ty Cổ phần Đầu tư Việt Việt Nhật",
+    "short_name": "Đầu tư Việt Việt Nhật"
+  },
+  "VOC": {
+    "name": "Tổng Công ty Công nghiệp Dầu thực vật Việt Nam - Công ty Cổ phần",
+    "short_name": "Dầu thực vật Việt Nam"
+  },
+  "CBC": {
+    "name": "Công ty Cổ phần Chè Bàu Cạn",
+    "short_name": "Chè Bàu Cạn"
+  },
+  "BHK": {
+    "name": "Công ty Cổ phần Bia Hà Nội - Kim Bài",
+    "short_name": "Bia Hà Nội - Kim Bài"
+  },
+  "BHN": {
+    "name": "Tổng Công ty Cổ phần Bia - Rượu - Nước giải khát Hà Nội",
+    "short_name": "HABECO"
+  },
+  "BHP": {
+    "name": "Công ty Cổ phần Bia Hà Nội - Hải Phòng",
+    "short_name": "Bia Hà Nội - Hải Phòng"
+  },
+  "BHG": {
+    "name": "Công ty Cổ phần Chè Biển Hồ",
+    "short_name": "Chè Biển Hồ"
+  },
+  "BSP": {
+    "name": "Công ty Cổ phần Bia Sài Gòn - Phú Thọ",
+    "short_name": "Bia Sài Gòn - Phú Thọ"
+  },
+  "CPA": {
+    "name": "Công ty Cổ phần Cà phê Phước An",
+    "short_name": "Cà phê Phước An"
+  },
+  "CFV": {
+    "name": "Công ty Cổ phần Cà phê Thắng Lợi",
+    "short_name": "Cà phê Thắng Lợi"
+  },
+  "CTP": {
+    "name": "Công ty Cổ phần Minh Khang Capital Trading Public",
+    "short_name": "Minh Khang Capital Trading Public"
+  },
+  "BSD": {
+    "name": "Công ty Cổ phần Bia, Rượu Sài Gòn - Đồng Xuân",
+    "short_name": "Bia, rượu Sài Gòn - Đồng Xuân"
+  },
+  "EPC": {
+    "name": "Công ty Cổ phần Cà Phê Ea Pốk",
+    "short_name": "Cà Phê Ea Pốk"
+  },
+  "FGL": {
+    "name": "Công ty Cổ phần Cà phê Gia Lai",
+    "short_name": "Cà Phê Gia Lai"
+  },
+  "HAD": {
+    "name": "Công ty Cổ phần Bia Hà Nội - Hải Dương",
+    "short_name": "Bia Hà Nội - Hải Dương"
+  },
+  "HNR": {
+    "name": "Công ty Cổ phần Rượu và Nước Giải Khát Hà Nội",
+    "short_name": "Cồn Rượu và Nước Giải Khát Hà Nội"
+  },
+  "HLB": {
+    "name": "Công ty Cổ phần Bia và Nước giải khát Hạ Long",
+    "short_name": "Bia và NGK Hạ Long"
+  },
+  "BBM": {
+    "name": "Công ty Cổ phần Bia Hà Nội - Nam Định",
+    "short_name": "Bia Hà Nội - Nam Định"
+  },
+  "HAT": {
+    "name": "Công ty Cổ phần Thương mại Bia Hà Nội",
+    "short_name": "TM Bia Hà Nội"
+  },
+  "HAV": {
+    "name": "Công ty Cổ phần Rượu Hapro",
+    "short_name": "Rượu Hapro"
+  },
+  "HBH": {
+    "name": "Công ty Cổ phần HABECO - Hải Phòng",
+    "short_name": "HABECO Hải Phòng"
+  },
+  "HKT": {
+    "name": "Công ty Cổ phần Đầu tư Ego Việt Nam",
+    "short_name": "Đầu tư Ego Việt Nam"
+  },
+  "IFS": {
+    "name": "Công ty Cổ phần Thực phẩm Quốc tế",
+    "short_name": "Thực phẩm Quốc tế"
+  },
+  "NAF": {
+    "name": "Công ty Cổ phần Nafoods Group",
+    "short_name": "Nafoods Group"
+  },
+  "PCF": {
+    "name": "Công ty Cổ phần Cà phê PETEC",
+    "short_name": "Cà phê PETEC"
+  },
+  "BQB": {
+    "name": "Công ty Cổ phần Bia Hà Nội - Quảng Bình",
+    "short_name": "Bia Hà Nội - Quảng Bình"
+  },
+  "QHW": {
+    "name": "Công ty Cổ phần Nước khoáng Quảng Ninh",
+    "short_name": "Nước khoáng Quảng Ninh"
+  },
+  "BSH": {
+    "name": "Công ty Cổ phần Bia Sài Gòn - Hà Nội",
+    "short_name": "Bia Sài Gòn - Hà Nội"
+  },
+  "BSQ": {
+    "name": "Công ty Cổ phần Bia Sài Gòn - Quảng Ngãi",
+    "short_name": "Bia Sài Gòn - Quảng Ngãi"
+  },
+  "SKV": {
+    "name": "Công ty Cổ phần Nước Giải khát Yến sào Khánh Hòa",
+    "short_name": "NGK Yến sào Khánh Hòa"
+  },
+  "SKH": {
+    "name": "Công ty Cổ phần Nước giải khát Sanest Khánh Hòa",
+    "short_name": "NGK Sanest Khánh Hòa"
+  },
+  "BSL": {
+    "name": "Công ty Cổ phần Bia Sài Gòn - Sông Lam",
+    "short_name": "Bia Sài Gòn - Sông Lam"
+  },
+  "SBL": {
+    "name": "Công ty Cổ phần Bia Sài Gòn - Bạc Liêu",
+    "short_name": "Bia Sài Gòn - Bạc Liêu"
+  },
+  "SCD": {
+    "name": "Công ty Cổ phần Nước giải khát Chương Dương",
+    "short_name": "Giải khát Chương Dương"
+  },
+  "SKN": {
+    "name": "Công ty Cổ phần Nước giải khát Sanna Khánh Hòa",
+    "short_name": "NGK Sanna Khánh Hòa"
+  },
+  "SMB": {
+    "name": "Công ty Cổ phần Bia Sài Gòn - Miền Trung",
+    "short_name": "Bia Sài Gòn - Miền Trung"
+  },
+  "THB": {
+    "name": "Công ty Cổ phần Bia Hà Nội - Thanh Hóa",
+    "short_name": "Bia Hà Nội - Thanh Hóa"
+  },
+  "BTB": {
+    "name": "Công ty Cổ phần Bia Hà Nội - Thái Bình",
+    "short_name": "Bia Hà Nội - Thái Bình"
+  },
+  "TAN": {
+    "name": "Công ty Cổ phần Cà phê Thuận An",
+    "short_name": "Cà phê Thuận An"
+  },
+  "FCC": {
+    "name": "Công ty Cổ phần Liên hợp Thực phẩm",
+    "short_name": "Liên hợp Thực phẩm"
+  },
+  "VCF": {
+    "name": "Công ty Cổ phần VinaCafé Biên Hòa",
+    "short_name": "VinaCafé Biên Hòa"
+  },
+  "VDL": {
+    "name": "Công ty Cổ phần Thực phẩm Lâm Đồng",
+    "short_name": "Thực phẩm Lâm Đồng"
+  },
+  "SB1": {
+    "name": "Công ty Cổ phần Bia Sài Gòn - Nghệ Tĩnh",
+    "short_name": "Bia Sài Gòn - Nghệ Tĩnh"
+  },
+  "VTL": {
+    "name": "Công ty Cổ phần Vang Thăng Long",
+    "short_name": "Vang Thăng Long"
+  },
+  "WSB": {
+    "name": "Công ty Cổ phần Bia Sài Gòn - Miền Tây",
+    "short_name": "Bia Sài Gòn - Miền Tây"
+  },
+  "CLC": {
+    "name": "Công ty Cổ phần Cát Lợi",
+    "short_name": "Thuốc lá Cát Lợi"
+  },
+  "HJC": {
+    "name": "Công ty Cổ phần Hòa Việt",
+    "short_name": "Công ty Cổ phần Hòa Việt"
+  },
+  "NST": {
+    "name": "Công ty Cổ phần Ngân Sơn",
+    "short_name": "Thuốc lá Ngân Sơn"
+  },
+  "VTJ": {
+    "name": "Công ty Cổ phần Thương mại và Đầu tư VI NA TA BA",
+    "short_name": "TM và Đầu tư VINATABA"
+  },
+  "BEL": {
+    "name": "Công ty Cổ phần Điện tử Biên Hòa",
+    "short_name": "Điện tử Biên Hoà"
+  },
+  "GLT": {
+    "name": "Công ty Cổ phần Kỹ thuật điện Toàn Cầu",
+    "short_name": "KT Điện Toàn Cầu"
+  },
+  "NHT": {
+    "name": "Công ty Cổ phần Sản xuất và Thương mại Nam Hoa",
+    "short_name": "Sản xuất và Thương mại Nam Hoa"
+  },
+  "DCS": {
+    "name": "Công ty Cổ phần Tập đoàn Đại Châu",
+    "short_name": "Đại Châu"
+  },
+  "DQC": {
+    "name": "Công ty Cổ phần Tập đoàn Điện Quang",
+    "short_name": "Tập đoàn Điện Quang"
+  },
+  "FBA": {
+    "name": "Công ty Cổ phần Tập đoàn Quốc tế FBA",
+    "short_name": "Tập đoàn Quốc tế FBA"
+  },
+  "GDT": {
+    "name": "Công ty Cổ phần Chế biến Gỗ Đức Thành",
+    "short_name": "Gỗ Đức Thành"
+  },
+  "KSD": {
+    "name": "Công ty Cổ phần Đầu tư DNA",
+    "short_name": "Đầu tư DNA"
+  },
+  "RAL": {
+    "name": "Công ty Cổ phần Bóng đèn Phích nước Rạng Đông",
+    "short_name": "Bóng đèn Phích nước Rạng Đông"
+  },
+  "SHE": {
+    "name": "Công ty Cổ phần Phát triển Năng Lượng Sơn Hà",
+    "short_name": "PT Năng Lượng Sơn Hà"
+  },
+  "TLG": {
+    "name": "Công ty Cổ phần Tập đoàn Thiên Long",
+    "short_name": "Tập đoàn Thiên Long"
+  },
+  "XHC": {
+    "name": "Công ty Cổ phần Xuân Hòa Việt Nam",
+    "short_name": "Nội thất Xuân Hòa"
+  },
+  "SGI": {
+    "name": "Công ty Cổ phần Đầu tư phát triển Sài Gòn 3 Group",
+    "short_name": "ĐT PT Sài Gòn 3 Group"
+  },
+  "AAT": {
+    "name": "Công ty Cổ phần Tập đoàn Tiên Sơn Thanh Hóa",
+    "short_name": "Tập đoàn Tiên Sơn Thanh Hóa"
+  },
+  "AG1": {
+    "name": "Công ty Cổ phần 28.1",
+    "short_name": "28.1 JSC"
+  },
+  "ASA": {
+    "name": "Công ty Cổ phần ASA",
+    "short_name": "Hàng tiêu dùng ASA"
+  },
+  "A32": {
+    "name": "Công ty Cổ phần 32",
+    "short_name": "Công ty 32"
+  },
+  "BBT": {
+    "name": "Công ty Cổ phần Bông Bạch Tuyết",
+    "short_name": "Bông Bạch Tuyết"
+  },
+  "BDG": {
+    "name": "Công ty Cổ phần May mặc Bình Dương",
+    "short_name": "May mặc Bình Dương"
+  },
+  "BKG": {
+    "name": "Công ty Cổ phần Đầu tư BKG Việt Nam",
+    "short_name": "Đầu tư BKG Việt Nam"
+  },
+  "BMG": {
+    "name": "Công ty Cổ phần May Bình Minh",
+    "short_name": "May Bình Minh"
+  },
+  "BVN": {
+    "name": "Công ty Cổ phần Bông Việt Nam",
+    "short_name": "Bông Việt Nam"
+  },
+  "STK": {
+    "name": "Công ty Cổ phần Sợi Thế Kỷ",
+    "short_name": "Sợi Thế Kỷ"
+  },
+  "DCG": {
+    "name": "Công ty Cổ phần Tổng Công ty May Đáp Cầu",
+    "short_name": "May Đáp Cầu"
+  },
+  "ADS": {
+    "name": "Công ty Cổ phần DAMSAN",
+    "short_name": "Dệt sợi DAMSAN"
+  },
+  "DM7": {
+    "name": "Công ty Cổ phần Dệt may 7",
+    "short_name": "Dệt may 7"
+  },
+  "MGG": {
+    "name": "Tổng Công ty Đức Giang - Công ty Cổ phần",
+    "short_name": "May Đức Giang"
+  },
+  "EVE": {
+    "name": "Công ty Cổ phần Everpia",
+    "short_name": "Everpia"
+  },
+  "FTM": {
+    "name": "Công ty Cổ phần Đầu tư và Phát triển Đức Quân",
+    "short_name": "Phát triển Đức Quân"
+  },
+  "G20": {
+    "name": "Công ty Cổ phần Đầu tư Dệt may Vĩnh Phúc",
+    "short_name": "Đầu tư Dệt may Vĩnh Phúc"
+  },
+  "M10": {
+    "name": "Tổng công ty May 10 - Công ty Cổ phần",
+    "short_name": "May10"
+  },
+  "GIL": {
+    "name": "Công ty Cổ phần Sản xuất Kinh doanh Xuất nhập khẩu Bình Thạnh",
+    "short_name": "XNK Bình Thạnh"
+  },
+  "GMC": {
+    "name": "Công ty Cổ phần Garmex Sài Gòn",
+    "short_name": "Garmex Sài Gòn"
+  },
+  "HCB": {
+    "name": "Công ty Cổ phần Dệt may 29/3",
+    "short_name": "Dệt may 29/3"
+  },
+  "HLT": {
+    "name": "Công ty Cổ phần Dệt may Hoàng Thị Loan",
+    "short_name": "Dệt may Hoàng Thị Loan"
+  },
+  "HSM": {
+    "name": "Tổng Công ty Cổ phần Dệt May Hà Nội",
+    "short_name": "HANOSIMEX"
+  },
+  "HDM": {
+    "name": "Công ty Cổ phần Dệt May Huế",
+    "short_name": "Dệt May Huế"
+  },
+  "HTG": {
+    "name": "Tổng Công ty Cổ phần Dệt may Hòa Thọ",
+    "short_name": "Dệt may Hòa Thọ"
+  },
+  "HNI": {
+    "name": "Công ty Cổ phần May Hữu Nghị",
+    "short_name": "May Hữu Nghị"
+  },
+  "HUG": {
+    "name": "Tổng công ty May Hưng Yên - Công ty Cổ phần",
+    "short_name": "May Hưng Yên"
+  },
+  "KMR": {
+    "name": "Công ty Cổ phần Mirae",
+    "short_name": "MIRAE"
+  },
+  "LGM": {
+    "name": "Công ty Cổ phần Giày da và may mặc xuất khẩu (Legamex)",
+    "short_name": "Giày da và may mặc XK (Legamex)"
+  },
+  "LIX": {
+    "name": "Công ty Cổ phần Bột Giặt LiX",
+    "short_name": "Bột Giặt Lix"
+  },
+  "MPT": {
+    "name": "Công ty Cổ phần Tập đoàn MPT",
+    "short_name": "Tập đoàn MPT"
+  },
+  "NJC": {
+    "name": "Công ty Cổ phần May Nam Định",
+    "short_name": "May Nam Định"
+  },
+  "NET": {
+    "name": "Công ty Cổ phần Bột giặt Net",
+    "short_name": "Bột giặt Net"
+  },
+  "MNB": {
+    "name": "Tổng Công ty May Nhà Bè - Công ty Cổ phần",
+    "short_name": "May Nhà Bè"
+  },
+  "NTT": {
+    "name": "Công ty Cổ phần Dệt - May Nha Trang",
+    "short_name": "Dệt - May Nha Trang"
+  },
+  "PNJ": {
+    "name": "Công ty Cổ phần Vàng bạc Đá quý Phú Nhuận",
+    "short_name": "Vàng Phú Nhuận"
+  },
+  "PPH": {
+    "name": "Tổng Công ty Cổ phần Phong Phú",
+    "short_name": "Phong Phú Corp."
+  },
+  "PTG": {
+    "name": "Công ty Cổ phần May Xuất Khẩu Phan Thiết",
+    "short_name": "May Phan Thiết"
+  },
+  "MSH": {
+    "name": "Công ty Cổ phần May Sông Hồng",
+    "short_name": "May Sông Hồng"
+  },
+  "SPB": {
+    "name": "Công ty Cổ phần Sợi Phú Bài",
+    "short_name": "Sợi Phú Bài"
+  },
+  "SSF": {
+    "name": "Công ty Cổ phần Giáo dục G Sài Gòn",
+    "short_name": "Giáo dục G Sài Gòn"
+  },
+  "SVD": {
+    "name": "Công ty Cổ phần Đầu tư & Thương mại Vũ Đăng",
+    "short_name": "Đầu tư & Thương mại Vũ Đăng"
+  },
+  "TCM": {
+    "name": "Công ty Cổ phần Dệt may - Đầu tư - Thương mại Thành Công",
+    "short_name": "Dệt may Thành Công"
+  },
+  "GTD": {
+    "name": "Công ty Cổ phần Giầy Thượng Đình",
+    "short_name": "Giầy Thượng Đình"
+  },
+  "TDT": {
+    "name": "Công ty Cổ phần Đầu tư và Phát triển TDT",
+    "short_name": "Đầu tư và Phát triển TDT"
+  },
+  "CET": {
+    "name": "Công ty Cổ phần HTC Holding",
+    "short_name": "HTC Holding"
+  },
+  "TET": {
+    "name": "Công ty Cổ phần Vải sợi May mặc Miền Bắc",
+    "short_name": "May mặc Miền Bắc"
+  },
+  "TLI": {
+    "name": "Công ty Cổ phần May Quốc tế Thắng Lợi",
+    "short_name": "May Quốc tế Thắng Lợi"
+  },
+  "TNG": {
+    "name": "Công ty Cổ phần Đầu tư và Thương mại TNG",
+    "short_name": "Đầu tư và Thương mại TNG"
+  },
+  "TTG": {
+    "name": "Công ty Cổ phần May Thanh Trì",
+    "short_name": "May Thanh Trì"
+  },
+  "VDN": {
+    "name": "Công ty Cổ phần Vinatex Đà Nẵng",
+    "short_name": "Vinatex Đà Nẵng"
+  },
+  "NDT": {
+    "name": "Tổng Công ty Cổ phần Dệt may Nam Định",
+    "short_name": "Dệt may Nam Định"
+  },
+  "TVT": {
+    "name": "Tổng Công ty Việt Thắng - CTCP",
+    "short_name": "May Việt Thắng"
+  },
+  "VGT": {
+    "name": "Tập đoàn Dệt May Việt Nam",
+    "short_name": "VINATEX"
+  },
+  "VGG": {
+    "name": "Tổng Công Ty Cổ phần May Việt Tiến",
+    "short_name": "May Việt Tiến"
+  },
+  "VTI": {
+    "name": "Công ty Cổ phần Sản xuất - Xuất nhập khẩu Dệt may",
+    "short_name": "Sản xuất - XNK Dệt may"
+  },
+  "X20": {
+    "name": "Công ty Cổ phần X20",
+    "short_name": "May mặc X20"
+  },
+  "X26": {
+    "name": "Công ty Cổ phần 26",
+    "short_name": "Công ty 26"
+  },
+  "XPH": {
+    "name": "Công ty Cổ phần Xà phòng Hà Nội",
+    "short_name": "Xà phòng Hà Nội"
+  },
+  "ODE": {
+    "name": "Công ty cổ phần Tập đoàn Truyền thông và Giải trí ODE",
+    "short_name": "Tập đoàn Truyền thông và Giải trí ODE"
+  },
+  "ADC": {
+    "name": "Công ty Cổ phần Mĩ thuật và Truyền thông",
+    "short_name": "Mĩ thuật và Truyền thông"
+  },
+  "ALT": {
+    "name": "Công ty Cổ phần Văn hóa Tân Bình",
+    "short_name": "Văn hóa Tân Bình"
+  },
+  "BDB": {
+    "name": "Công ty Cổ phần Sách và Thiết bị Bình Định",
+    "short_name": "Sách Bình Định"
+  },
+  "BED": {
+    "name": "Công ty Cổ phần Sách và Thiết bị trường học Đà Nẵng",
+    "short_name": "Sách Đà Nẵng"
+  },
+  "BST": {
+    "name": "Công ty Cổ phần Sách và Thiết bị Bình Thuận",
+    "short_name": "Sách và Thiết bị Bình Thuận"
+  },
+  "ADG": {
+    "name": "Công ty Cổ phần Clever Group",
+    "short_name": "Clever Group"
+  },
+  "DAD": {
+    "name": "Công ty Cổ phần Đầu tư và Phát triển Giáo dục Đà Nẵng",
+    "short_name": "Phát triển GD Đà Nẵng"
+  },
+  "DAE": {
+    "name": "Công ty Cổ phần Sách Giáo dục tại TP.Đà Nẵng",
+    "short_name": "Sách Giáo dục Đà Nẵng"
+  },
+  "DST": {
+    "name": "Công ty Cổ phần Đầu tư Sao Thăng Long",
+    "short_name": "Đầu tư Sao Thăng Long"
+  },
+  "EBS": {
+    "name": "Công ty Cổ phần Sách Giáo dục tại Thành phố Hà Nội",
+    "short_name": "Sách Giáo dục Hà Nội"
+  },
+  "ECI": {
+    "name": "Công ty Cổ phần Tập đoàn ECI",
+    "short_name": "Bản đồ và tranh ảnh GD"
+  },
+  "EID": {
+    "name": "Công ty Cổ phần Đầu tư và Phát triển Giáo dục Hà Nội",
+    "short_name": "Phát triển GD Hà Nội"
+  },
+  "FHS": {
+    "name": "Công ty Cổ phần Phát hành sách Thành phố Hồ Chí Minh - FAHASA",
+    "short_name": "Phát hành sách TP HCM - FAHASA"
+  },
+  "FOC": {
+    "name": "Công ty Cổ phần Dịch vụ Trực tuyến FPT",
+    "short_name": "FPT Online"
+  },
+  "HEV": {
+    "name": "Công ty Cổ phần Sách Đại học - Dạy nghề",
+    "short_name": "Sách Đại học - Dạy nghề"
+  },
+  "HTP": {
+    "name": "Công ty Cổ phần In Sách Giáo Khoa Hòa Phát",
+    "short_name": "In SGK Hòa Phát"
+  },
+  "IHK": {
+    "name": "Công ty Cổ phần In Hàng Không",
+    "short_name": "In Hàng Không"
+  },
+  "IN4": {
+    "name": "Công ty Cổ phần In số 4",
+    "short_name": "In số 4"
+  },
+  "IBD": {
+    "name": "Công ty Cổ phần In Tổng hợp Bình Dương",
+    "short_name": "In Tổng hợp Bình Dương"
+  },
+  "LBE": {
+    "name": "Công ty Cổ phần Sách và Thiết bị Trường học Long An",
+    "short_name": "Sách và Thiết bị Trường học Long An"
+  },
+  "NBE": {
+    "name": "Công ty Cổ phần Sách và Thiết bị Giáo dục Miền Bắc",
+    "short_name": "Sách và Thiết bị GD Miền Bắc"
+  },
+  "PNC": {
+    "name": "Công ty Cổ phần Văn hóa Phương Nam",
+    "short_name": "Văn hóa Phương Nam"
+  },
+  "RGC": {
+    "name": "Công ty Cổ phần Đầu tư PV-Inconess",
+    "short_name": "Đầu tư PV-Inconess"
+  },
+  "QST": {
+    "name": "Công ty Cổ phần Sách và Thiết bị trường học Quảng Ninh",
+    "short_name": "Sách Quảng Ninh"
+  },
+  "SAP": {
+    "name": "Công ty Cổ phần In Sách Giáo khoa TP.Hồ Chí Minh",
+    "short_name": "In Sách TP.HCM"
+  },
+  "VNB": {
+    "name": "Công ty Cổ phần Sách Việt Nam",
+    "short_name": "Sách Việt Nam"
+  },
+  "SED": {
+    "name": "Công ty Cổ phần Đầu tư và Phát triển Giáo dục Phương Nam",
+    "short_name": "Phát triển GD Phương Nam"
+  },
+  "SGD": {
+    "name": "Công ty Cổ phần Sách Giáo dục tại Thành phố Hồ Chí Minh",
+    "short_name": "Sách GD TP.HCM"
+  },
+  "SMN": {
+    "name": "Công ty Cổ phần Sách và thiết bị giáo dục Miền Nam",
+    "short_name": "Sách và thiết bị GD miền Nam"
+  },
+  "STC": {
+    "name": "Công ty Cổ phần Sách và Thiết bị trường học Thành phố Hồ Chí Minh",
+    "short_name": "Sách và Thiết bị trường học Tp Hồ Chí Minh"
+  },
+  "STH": {
+    "name": "Công ty Cổ phần Phát hành sách Thái Nguyên",
+    "short_name": "Phát hành sách Thái Nguyên"
+  },
+  "TPH": {
+    "name": "Công ty Cổ phần In Sách giáo khoa tại Thành phố Hà Nội",
+    "short_name": "In Sách giáo khoa TP.Hà Nội"
+  },
+  "VEF": {
+    "name": "Công ty Cổ phần Trung tâm Hội chợ Triển lãm Việt Nam",
+    "short_name": "Hội chợ Triển lãm Việt Nam"
+  },
+  "VNZ": {
+    "name": "Công ty Cổ phần VNG",
+    "short_name": "CTCP VNG"
+  },
+  "VNX": {
+    "name": "Công ty Cổ phần Quảng cáo và Hội chợ Thương mại Vinexad",
+    "short_name": "QC và Hội chợ Thương mại"
+  },
+  "VPR": {
+    "name": "Công ty Cổ phần VINAPRINT",
+    "short_name": "VINAPRINT"
+  },
+  "CAB": {
+    "name": "Công ty Cổ phần Tổng Công ty Truyền hình Cáp Việt Nam",
+    "short_name": "Truyền hình Cáp Việt Nam"
+  },
+  "EPH": {
+    "name": "Công ty Cổ phần Dịch vụ Xuất bản Giáo dục Hà Nội",
+    "short_name": "Xuất bản giáo dục Hà Nội"
+  },
+  "YEG": {
+    "name": "Công ty Cổ phần Tập đoàn Yeah1",
+    "short_name": "Tập đoàn Yeah1"
+  },
+  "DSD": {
+    "name": "Công ty cổ phần DHC Suối Đôi",
+    "short_name": "DHC Suối Đôi"
+  },
+  "ATS": {
+    "name": "Công ty Cổ phần Tập đoàn Dược phẩm Atesco",
+    "short_name": "Tập đoàn Dược phẩm Atesco"
+  },
+  "BCV": {
+    "name": "Công ty cổ phần Du lịch và Thương mại Bằng Giang Cao Bằng - Vimico",
+    "short_name": "Du lịch và Thương mại Bằng Giang Cao Bằng - Vimico"
+  },
+  "VTG": {
+    "name": "Công ty Cổ phần Du lịch tỉnh Bà Rịa - Vũng Tàu",
+    "short_name": "Du lịch tỉnh BR-VT"
+  },
+  "BTV": {
+    "name": "Công ty Cổ phần Dịch vụ Du lịch Bến Thành",
+    "short_name": "DV Du lịch Bến Thành"
+  },
+  "BLN": {
+    "name": "Công ty Cổ phần Vận tải và Dịch vụ Liên Ninh",
+    "short_name": "Xe buýt Liên Ninh"
+  },
+  "CTC": {
+    "name": "Công ty Cổ phần Tập đoàn Hoàng Kim Tây Nguyên",
+    "short_name": "Tập đoàn Hoàng Kim Tây Nguyên"
+  },
+  "DAH": {
+    "name": "Công ty Cổ phần Tập đoàn Khách sạn Đông Á",
+    "short_name": "Tập đoàn Khách sạn Đông Á"
+  },
+  "DLD": {
+    "name": "Công ty Cổ phần Du lịch Đắk Lắk",
+    "short_name": "Du lịch Đắk Lắk"
+  },
+  "DNT": {
+    "name": "Công ty Cổ phần Du lịch Đồng Nai",
+    "short_name": "Du lịch Đồng Nai"
+  },
+  "DSN": {
+    "name": "Công ty Cổ phần Công viên nước Đầm Sen",
+    "short_name": "Công viên nước Đầm Sen"
+  },
+  "DTI": {
+    "name": "Công ty Cổ phần Đầu tư Đức Trung",
+    "short_name": "Đầu tư Đức Trung"
+  },
+  "DXL": {
+    "name": "Công ty Cổ phần Du lịch và Xuất nhập khẩu Lạng Sơn",
+    "short_name": "Du lịch và Xuất nhập khẩu Lạng Sơn"
+  },
+  "GTT": {
+    "name": "Công ty Cổ phần Thuận Thảo",
+    "short_name": "Thuận Thảo Group"
+  },
+  "HES": {
+    "name": "Công ty Cổ phần Dịch vụ Giải trí Hà Nội",
+    "short_name": "Dịch vụ Giải trí Hà Nội"
+  },
+  "HGT": {
+    "name": "Công ty Cổ phần Du lịch Hương Giang",
+    "short_name": "Du lịch Hương Giang"
+  },
+  "HHG": {
+    "name": "Công ty Cổ phần Hoàng Hà",
+    "short_name": "Vận tải Hoàng Hà"
+  },
+  "HRT": {
+    "name": "Công ty Cổ phần Vận tải đường sắt Hà Nội",
+    "short_name": "Vận tải đường sắt Hà Nội"
+  },
+  "TSJ": {
+    "name": "Công ty Cổ phần Du lịch Dịch vụ Hà Nội",
+    "short_name": "Hanoi Toserco"
+  },
+  "HOT": {
+    "name": "Công ty Cổ phần Du lịch - Dịch vụ Hội An",
+    "short_name": "Du lịch - DV Hội An"
+  },
+  "KLF": {
+    "name": "Công ty Cổ phần Đầu tư Thương mại và Xuất nhập khẩu CFS",
+    "short_name": "KLF Global"
+  },
+  "MAS": {
+    "name": "Công ty cổ phần Dịch vụ Hàng Không Sân Bay Đà Nẵng",
+    "short_name": "Sân bay Đà Nẵng"
+  },
+  "MTC": {
+    "name": "Công ty Cổ phần Dịch vụ Du lịch Mỹ Trà",
+    "short_name": "Dịch Vụ Du Lịch Mỹ Trà"
+  },
+  "NWT": {
+    "name": "Công ty Cổ phần Vận tải Newway",
+    "short_name": "Vận tải Newway"
+  },
+  "ONW": {
+    "name": "Công ty Cổ phần Dịch vụ Một Thế giới",
+    "short_name": "Dịch vụ Một Thế giới"
+  },
+  "PDC": {
+    "name": "Công ty Cổ phần Du lịch Dầu khí Phương Đông",
+    "short_name": "Dầu khí Phương Đông"
+  },
+  "PGT": {
+    "name": "Công ty Cổ phần PGT Holdings",
+    "short_name": "PGT Holdings"
+  },
+  "EIN": {
+    "name": "Công ty Cổ phần Đầu tư - Thương Mại - Dịch vụ Điện lực",
+    "short_name": "Đầu tư - TM - DV Điện lực"
+  },
+  "DSP": {
+    "name": "Công ty Cổ phần Dịch vụ Du lịch Phú Thọ",
+    "short_name": "Dịch vụ Du lịch Phú Thọ"
+  },
+  "RIC": {
+    "name": "Công ty Cổ phần Quốc Tế Hoàng Gia",
+    "short_name": "Quốc tế Hoàng Gia"
+  },
+  "SCS": {
+    "name": "Công ty Cổ phần Dịch vụ Hàng hóa Sài Gòn",
+    "short_name": "DV Hàng hóa Sài Gòn"
+  },
+  "BSG": {
+    "name": "Công ty Cổ phần Xe khách Sài Gòn",
+    "short_name": "Xe khách Sài Gòn"
+  },
+  "SGH": {
+    "name": "Công ty Cổ phần Khách sạn Sài Gòn",
+    "short_name": "Khách sạn Sài Gòn"
+  },
+  "SRT": {
+    "name": "Công ty Cổ phần Vận tải Đường sắt Sài Gòn",
+    "short_name": "Vận tải Đường sắt Sài Gòn"
+  },
+  "TPS": {
+    "name": "Công ty Cổ phần Bến bãi vận tải Sài Gòn",
+    "short_name": "Bến bãi vận tải Sài Gòn"
+  },
+  "SHX": {
+    "name": "Công ty Cổ phần Sài Gòn Hỏa xa",
+    "short_name": "Sài Gòn Hỏa xa"
+  },
+  "SKG": {
+    "name": "Công ty Cổ phần Tàu Cao tốc Superdong - Kiên Giang",
+    "short_name": "Tàu Cao tốc Superdong"
+  },
+  "STT": {
+    "name": "Công ty Cổ phần Vận chuyển Sài Gòn Tourist",
+    "short_name": "Vận chuyển Sài Gòn Tourist"
+  },
+  "TCT": {
+    "name": "Công ty Cổ phần Cáp treo Núi Bà Tây Ninh",
+    "short_name": "Cáp treo Tây Ninh"
+  },
+  "TSD": {
+    "name": "Công ty Cổ phần Du lịch Trường Sơn Coecco",
+    "short_name": "Du lịch Trường Sơn Coecco"
+  },
+  "TTT": {
+    "name": "Công ty Cổ phần Du Lịch - Thương Mại Tây Ninh",
+    "short_name": "Du lịch - Thương Mại Tây Ninh"
+  },
+  "VTD": {
+    "name": "Công ty Cổ phần Vietourist Holdings",
+    "short_name": "Du lịch Vietourist"
+  },
+  "VTR": {
+    "name": "Công ty Cổ phần Du lịch và tiếp thị giao thông vận tải Việt Nam - Vietravel",
+    "short_name": "Du lịch Vietravel"
+  },
+  "VIR": {
+    "name": "Công ty Cổ phần Du lịch Quốc tế Vũng Tàu",
+    "short_name": "Du lịch Vũng Tàu"
+  },
+  "HVN": {
+    "name": "Tổng Công ty Hàng không Việt Nam - CTCP",
+    "short_name": "Vietnam Airlines"
+  },
+  "VNG": {
+    "name": "Công ty Cổ phần Du Lịch Thành Thành Công",
+    "short_name": "DL Thành Thành Công"
+  },
+  "VNS": {
+    "name": "Công ty Cổ phần Ánh Dương Việt Nam",
+    "short_name": "Ánh Dương Việt Nam"
+  },
+  "VTM": {
+    "name": "Công ty Cổ phần Vận tải và Đưa đón thợ mỏ - Vinacomin",
+    "short_name": "Đưa đón thợ mỏ - Vinacomin"
+  },
+  "DLT": {
+    "name": "Công ty Cổ phần Du lịch và Thương mại - Vinacomin",
+    "short_name": "Du lịch và TM - Vinacomin"
+  },
+  "AFX": {
+    "name": "Công ty Cổ phần Xuất Nhập khẩu Nông sản Thực phẩm An Giang",
+    "short_name": "Xuất Nhập khẩu Nông sản Thực phẩm An Giang"
+  },
+  "AGX": {
+    "name": "Công ty Cổ phần Thực phẩm Nông sản Xuất khẩu Sài Gòn",
+    "short_name": "Nông sản Xuất khẩu Sài Gòn"
+  },
+  "DHT": {
+    "name": "Công ty Cổ phần Dược phẩm Hà Tây",
+    "short_name": "Dược phẩm Hà Tây"
+  },
+  "FHN": {
+    "name": "Công ty Cổ phần Xuất nhập khẩu Lương thực - Thực phẩm Hà Nội",
+    "short_name": "XNK lương thực Hà Nội"
+  },
+  "TH1": {
+    "name": "Công ty Cổ phần Xuất nhập khẩu Tổng hợp I Việt Nam",
+    "short_name": "XNK Tổng hợp 1"
+  },
+  "ABS": {
+    "name": "Công ty Cổ phần Dịch vụ Nông nghiệp Bình Thuận",
+    "short_name": "DV Nông nghiệp Bình Thuận"
+  },
+  "BSC": {
+    "name": "Công ty Cổ phần Dịch vụ Bến Thành",
+    "short_name": "Dịch vụ Bến Thành"
+  },
+  "BTT": {
+    "name": "Công ty Cổ phần Thương mại - Dịch vụ Bến Thành",
+    "short_name": "TM - DV Bến Thành"
+  },
+  "CEN": {
+    "name": "Công ty Cổ phần CENCON Việt Nam",
+    "short_name": "CENCON Việt Nam"
+  },
+  "CMV": {
+    "name": "Công ty Cổ phần Thương nghiệp Cà Mau",
+    "short_name": "Thương nghiệp Cà Mau"
+  },
+  "COM": {
+    "name": "Công ty Cổ phần Vật tư Xăng dầu",
+    "short_name": "Vật tư Xăng dầu"
+  },
+  "CPH": {
+    "name": "Công ty Cổ phần Phục vụ Mai táng Hải Phòng",
+    "short_name": "PV mai táng Hải Phòng"
+  },
+  "DGW": {
+    "name": "Công ty Cổ phần Thế Giới Số",
+    "short_name": "Thế Giới Số"
+  },
+  "FRT": {
+    "name": "Công ty Cổ phần Bán lẻ Kỹ thuật số FPT",
+    "short_name": "Bán lẻ FPT"
+  },
+  "HTM": {
+    "name": "Tổng Công ty Thương mại Hà Nội – Công ty cổ phần",
+    "short_name": "Thương mại Hà Nội - Hapro"
+  },
+  "HFX": {
+    "name": "Công ty Cổ phần Sản xuất - Xuất nhập khẩu Thanh Hà",
+    "short_name": "XNK Thanh Hà"
+  },
+  "HTT": {
+    "name": "Công ty Cổ phần Thương mại Hà Tây",
+    "short_name": "Thương mại Hà Tây"
+  },
+  "KGM": {
+    "name": "Công ty Cổ phần Xuất nhập khẩu Kiên Giang",
+    "short_name": "XNK Kiên Giang"
+  },
+  "DKC": {
+    "name": "Công ty Cổ phần Chợ Lạng Sơn",
+    "short_name": "Chợ Lạng Sơn"
+  },
+  "LBC": {
+    "name": "Công ty Cổ phần Thương mại - Đầu tư Long Biên",
+    "short_name": "Thương mại - Đầu tư Long Biên"
+  },
+  "PET": {
+    "name": "Tổng Công ty Cổ phần Dịch vụ Tổng hợp Dầu khí",
+    "short_name": "PETROSETCO"
+  },
+  "PIT": {
+    "name": "Công ty Cổ phần Xuất nhập khẩu Petrolimex",
+    "short_name": "XNK PETROLIMEX"
+  },
+  "PNG": {
+    "name": "Công ty Cổ phần Thương Mại Phú Nhuận",
+    "short_name": "Thương Mại Phú Nhuận"
+  },
+  "PSD": {
+    "name": "Công ty Cổ phần Dịch vụ Phân phối Tổng hợp Dầu khí",
+    "short_name": "Phân phối Tổng hợp Dầu khí"
+  },
+  "SAS": {
+    "name": "Công ty Cổ phần Dịch vụ Hàng không Sân bay Tân Sơn Nhất",
+    "short_name": "DV Hàng không sân bay TSN"
+  },
+  "SBV": {
+    "name": "Công ty Cổ phần Siam Brothers Việt Nam",
+    "short_name": "Siam Brothers Việt Nam"
+  },
+  "AST": {
+    "name": "Công ty Cổ phần Dịch vụ Hàng không Taseco",
+    "short_name": "Dịch vụ Hàng không Taseco"
+  },
+  "THS": {
+    "name": "Công ty Cổ phần Thanh Hoa Sông Đà",
+    "short_name": "Thanh Hoa Sông Đà"
+  },
+  "TTH": {
+    "name": "Công ty Cổ phần Thương mại và Dịch vụ Tiến Thành",
+    "short_name": "TM và DV Tiến Thành"
+  },
+  "TOP": {
+    "name": "Công ty Cổ phần Phân phối Top One",
+    "short_name": "Phân phối Top One"
+  },
+  "TV6": {
+    "name": "Công ty Cổ phần Thương mại Đầu tư xây lắp điện Thịnh Vượng",
+    "short_name": "TM ĐT xây lắp điện Thịnh Vượng"
+  },
+  "TOS": {
+    "name": "Công ty Cổ phần Dịch vụ biển Tân Cảng",
+    "short_name": "Dịch vụ biển Tân Cảng"
+  },
+  "PEQ": {
+    "name": "Công ty Cổ phần Thiết bị xăng dầu Petrolimex",
+    "short_name": "Thiết bị xăng dầu Petrolimex"
+  },
+  "PTV": {
+    "name": "Công ty Cổ phần Thương mại Dầu khí",
+    "short_name": "Thương mại dầu khí"
+  },
+  "POS": {
+    "name": "Công ty Cổ phần Dịch vụ lắp đặt, vận hành và bảo dưỡng công trình dầu khí biển PTSC",
+    "short_name": "Bảo dưỡng công trình DK biển"
+  },
+  "PVB": {
+    "name": "Công ty Cổ phần Bọc ống Dầu khí Việt Nam",
+    "short_name": "Bọc ống Dầu khí Việt Nam"
+  },
+  "PVC": {
+    "name": "Tổng Công ty Hóa chất và Dịch vụ Dầu khí - Công ty Cổ phần",
+    "short_name": "Hóa chất và Dịch vụ Dầu khí"
+  },
+  "PVD": {
+    "name": "Tổng Công ty Cổ phần Khoan và Dịch vụ khoan Dầu khí",
+    "short_name": "Khoan Dầu khí PVDrilling"
+  },
+  "PVE": {
+    "name": "Tổng Công ty Tư vấn Thiết kế Dầu khí - Công ty Cổ phần",
+    "short_name": "Tư vấn Dầu khí"
+  },
+  "PVS": {
+    "name": "Tổng Công ty Cổ phần Dịch vụ Kỹ thuật Dầu khí Việt Nam",
+    "short_name": "DVKT Dầu khí PTSC"
+  },
+  "BSR": {
+    "name": "Công ty Cổ phần Lọc Hóa dầu Bình Sơn",
+    "short_name": "BSR"
+  },
+  "OIL": {
+    "name": "Tổng Công ty Dầu Việt Nam - Công ty Cổ phần",
+    "short_name": "PV Oil"
+  },
+  "AMV": {
+    "name": "Công ty Cổ phần Sản xuất Kinh doanh Dược và Trang thiết bị Y tế Việt Mỹ",
+    "short_name": "Dược-TB Y tế Việt Mỹ"
+  },
+  "TNH": {
+    "name": "Công ty Cổ phần Bệnh viện Quốc tế Thái Nguyên",
+    "short_name": "Bệnh viện Quốc tế Thái Nguyên"
+  },
+  "CVN": {
+    "name": "Công ty Cổ phần Vinam",
+    "short_name": "Vinam Group"
+  },
+  "DNM": {
+    "name": "Tổng Công ty Cổ phần Y tế Danameco",
+    "short_name": "Y tế Danameco"
+  },
+  "JVC": {
+    "name": "Công ty Cổ phần Đầu tư và Phát triển Y tế Việt Nhật",
+    "short_name": "Đầu tư và Phát triển Y tế Việt Nhật"
+  },
+  "MEF": {
+    "name": "Công ty Cổ phần MEINFA",
+    "short_name": "MEINFA"
+  },
+  "MRF": {
+    "name": "Công ty Cổ phần MERUFA",
+    "short_name": "Cao su y tế MERUFA"
+  },
+  "TTD": {
+    "name": "Công ty Cổ phần Bệnh viện Tim Tâm Đức",
+    "short_name": "Bệnh viện Tim Tâm Đức"
+  },
+  "DTH": {
+    "name": "Công ty Cổ phần Dược - Vật tư Y tế Thanh Hóa",
+    "short_name": "Vật tư Y tế Thanh Hóa"
+  },
+  "YTC": {
+    "name": "Công ty Cổ phần Xuất nhập khẩu Y tế Thành phố Hồ Chí Minh",
+    "short_name": "XNK Y tế TP.HCM"
+  },
+  "GPC": {
+    "name": "Công ty Cổ phần Tập đoàn Green+",
+    "short_name": "Tập đoàn Green+"
+  },
+  "AGP": {
+    "name": "Công ty Cổ phần Dược phẩm AGIMEXPHARM",
+    "short_name": "Dược phẩm AGIMEXPHARM"
+  },
+  "AMP": {
+    "name": "Công ty Cổ phần Armephaco",
+    "short_name": "Armephaco"
+  },
+  "APC": {
+    "name": "Công ty Cổ phần Chiếu xạ An Phú",
+    "short_name": "Chiếu xạ An Phú"
+  },
+  "BCP": {
+    "name": "Công ty Cổ phần Dược Enlie",
+    "short_name": "Dược Enlie"
+  },
+  "DBD": {
+    "name": "Công ty Cổ phần Dược - Trang thiết bị y tế Bình Định",
+    "short_name": "Dược - TB Y tế Bình Định"
+  },
+  "BIO": {
+    "name": "Công ty Cổ phần Vắc xin và Sinh phẩm Nha Trang",
+    "short_name": "Vắc xin và Sinh phẩm Nha Trang"
+  },
+  "TW3": {
+    "name": "Công ty Cổ phần Dược Trung Ương 3",
+    "short_name": "Dược TW3"
+  },
+  "CNC": {
+    "name": "Công ty Cổ phần Công nghệ cao Traphaco",
+    "short_name": "Công nghệ cao Traphaco"
+  },
+  "CDP": {
+    "name": "Công ty Cổ phần Dược phẩm Trung ương Codupha",
+    "short_name": "Dược phẩm TW Codupha"
+  },
+  "DP1": {
+    "name": "Công ty Cổ phần Dược phẩm Trung ương CPC1",
+    "short_name": "Dược phẩm Trung ương CPC1"
+  },
+  "DTP": {
+    "name": "Công ty Cổ phần Dược phẩm CPC1 Hà Nội",
+    "short_name": "Dược phẩm CPC1 Hà Nội"
+  },
+  "DAN": {
+    "name": "Công ty Cổ phần Dược Danapha",
+    "short_name": "Dược Danapha"
+  },
+  "DBM": {
+    "name": "Công ty Cổ phần Dược - Vật tư Y tế Đắk Lắk",
+    "short_name": "BAMEPHARM"
+  },
+  "DBT": {
+    "name": "Công ty Cổ phần Dược phẩm Bến Tre",
+    "short_name": "Dược phẩm Bến Tre"
+  },
+  "DCL": {
+    "name": "Công ty Cổ phần Dược phẩm Cửu Long",
+    "short_name": "Dược phẩm Cửu Long"
+  },
+  "DDN": {
+    "name": "Công ty Cổ phần Dược - Thiết bị y tế Đà Nẵng",
+    "short_name": "Dược - TB Y tế Đà Nẵng"
+  },
+  "DHG": {
+    "name": "Công ty Cổ phần Dược Hậu Giang",
+    "short_name": "Dược Hậu Giang"
+  },
+  "DMC": {
+    "name": "Công ty Cổ phần Xuất nhập khẩu Y tế DOMESCO",
+    "short_name": "Dược phẩm DOMESCO"
+  },
+  "DPP": {
+    "name": "Công ty Cổ phần Dược Đồng Nai",
+    "short_name": "Dược Đồng Nai"
+  },
+  "DP2": {
+    "name": "Công ty Cổ phần Dược phẩm Trung ương 2",
+    "short_name": "Dược phẩm TW 2"
+  },
+  "DP3": {
+    "name": "Công ty Cổ Phần Dược Phẩm Trung Ương 3",
+    "short_name": "Dược Phẩm TW3"
+  },
+  "HDP": {
+    "name": "Công ty Cổ phần Dược Hà Tĩnh",
+    "short_name": "Dược Hà Tĩnh"
+  },
+  "DHD": {
+    "name": "Công ty Cổ phần Dược Vật Tư Y Tế Hải Dương",
+    "short_name": "Dược Vật Tư Y Tế Hải Dương"
+  },
+  "DHN": {
+    "name": "Công ty Cổ phần Dược phẩm Hà Nội",
+    "short_name": "Dược Hà Nội"
+  },
+  "DPH": {
+    "name": "Công ty Cổ phần Dược phẩm Hải Phòng",
+    "short_name": "Dược phẩm Hải Phòng"
+  },
+  "IMP": {
+    "name": "Công ty Cổ phần Dược phẩm IMEXPHARM",
+    "short_name": "IMEXPHARM"
+  },
+  "LDP": {
+    "name": "Công ty Cổ phần Dược Lâm Đồng - Ladophar",
+    "short_name": "Dược Lâm Đồng - Ladophar"
+  },
+  "MED": {
+    "name": "Công ty Cổ phần Dược Trung ương Mediplantex",
+    "short_name": "Dược Mediplantex"
+  },
+  "MKP": {
+    "name": "Công ty Cổ phần Hóa - Dược phẩm Mekophar",
+    "short_name": "Dược phẩm Mekophar"
+  },
+  "MKV": {
+    "name": "Công ty Cổ phần Dược Thú Y Cai Lậy",
+    "short_name": "Dược Thú Y Cai Lậy"
+  },
+  "MTP": {
+    "name": "Công ty Cổ phần Dược Medipharco",
+    "short_name": "Dược Medipharco"
+  },
+  "NDP": {
+    "name": "Công ty Cổ phần Dược phẩm 2/9",
+    "short_name": "Dược phẩm 2/9"
+  },
+  "NTF": {
+    "name": "Công ty Cổ phần Dược - Vật tư y tế Nghệ An",
+    "short_name": "Dược Nghệ An"
+  },
+  "NDC": {
+    "name": "Công ty Cổ phần Nam Dược",
+    "short_name": "Dược phẩm Nam Dược"
+  },
+  "OPC": {
+    "name": "Công ty Cổ phần Dược Phẩm OPC",
+    "short_name": "Dược phẩm OPC"
+  },
+  "PBC": {
+    "name": "Công ty Cổ phần Dược Phẩm Trung ương 1 - Pharbaco",
+    "short_name": "Dược Phẩm TW 1- Pharbaco"
+  },
+  "PMC": {
+    "name": "Công ty Cổ phần Dược phẩm Dược liệu Pharmedic",
+    "short_name": "Pharmedic"
+  },
+  "PPP": {
+    "name": "Công ty Cổ phần Dược phẩm Phong Phú",
+    "short_name": "PP.Pharco"
+  },
+  "SPM": {
+    "name": "Công ty Cổ phần S.P.M",
+    "short_name": "S.P.M CORP"
+  },
+  "DTG": {
+    "name": "Công ty Cổ phần Dược phẩm Tipharco",
+    "short_name": "Dược phẩm Tipharco"
+  },
+  "TRA": {
+    "name": "Công ty Cổ phần Traphaco",
+    "short_name": "Traphaco"
+  },
+  "TVP": {
+    "name": "Công ty Cổ phần Dược phẩm TV.Pharm",
+    "short_name": "Dược phẩm TV.Pharm"
+  },
+  "UPH": {
+    "name": "Công ty Cổ phần Dược phẩm TW25",
+    "short_name": "Dược phẩm TW25"
+  },
+  "VDP": {
+    "name": "Công ty Cổ phần Dược phẩm Trung ương VIDIPHA",
+    "short_name": "Dược phẩm VIDIPHA"
+  },
+  "DVM": {
+    "name": "Công ty Cổ phần Dược liệu Việt Nam",
+    "short_name": "Dược liệu Việt Nam"
+  },
+  "VHE": {
+    "name": "Công ty Cổ phần Dược liệu và Thực phẩm Việt Nam",
+    "short_name": "Dược liệu và Thực phẩm VN"
+  },
+  "VMD": {
+    "name": "Công ty Cổ phần Y Dược phẩm Vimedimex",
+    "short_name": "Y Dược phẩm Vimedimex"
+  },
+  "DVN": {
+    "name": "Tổng Công ty Dược Việt Nam - CTCP",
+    "short_name": "Tổng Công ty Dược Việt Nam"
+  },
+  "CKV": {
+    "name": "Công ty Cổ phần CokyVina",
+    "short_name": "CokyVina"
+  },
+  "ELC": {
+    "name": "Công ty Cổ phần Công nghệ - Viễn thông ELCOM",
+    "short_name": "ELCOM"
+  },
+  "ITD": {
+    "name": "Công ty Cổ phần Công nghệ Tiên Phong",
+    "short_name": "Công nghệ Tiên Phong"
+  },
+  "KST": {
+    "name": "Công ty Cổ phần KASATI",
+    "short_name": "KASATI"
+  },
+  "LTC": {
+    "name": "Công ty Cổ phần Điện nhẹ Viễn Thông",
+    "short_name": "Điện nhẹ Viễn thông"
+  },
+  "ONE": {
+    "name": "Công ty Cổ phần Công nghệ ONE",
+    "short_name": "Truyền thông Số 1"
+  },
+  "PMJ": {
+    "name": "Công ty cổ phần Vật tư Bưu điện",
+    "short_name": "Vật tư Bưu điện"
+  },
+  "PMT": {
+    "name": "Công ty Cổ phần Viễn thông Telvina Việt Nam",
+    "short_name": "Telvina Việt Nam"
+  },
+  "POT": {
+    "name": "Công ty Cổ phần Thiết bị Bưu điện",
+    "short_name": "Thiết bị Bưu điện Postef"
+  },
+  "SAM": {
+    "name": "Công ty Cổ phần SAM Holdings",
+    "short_name": "SAM Holdings"
+  },
+  "SMT": {
+    "name": "Công ty Cổ phần SAMETEL",
+    "short_name": "SAMETEL"
+  },
+  "ST8": {
+    "name": "Công ty Cổ phần Đầu tư Phát triển ST8",
+    "short_name": "Đầu tư Phát triển ST8"
+  },
+  "VEC": {
+    "name": "Tổng Công ty Cổ phần Điện tử và Tin học Việt Nam",
+    "short_name": "Điện tử và Tin học VN"
+  },
+  "VIE": {
+    "name": "Công ty Cổ phần Công nghệ Viễn thông VI TE CO",
+    "short_name": "CN Viễn thông VI TE CO"
+  },
+  "VTC": {
+    "name": "Công ty Cổ phần Viễn Thông VTC",
+    "short_name": "Viễn thông VTC"
+  },
+  "VTE": {
+    "name": "Công ty Cổ phần VINACAP Kim Long",
+    "short_name": "VINACAP Kim Long"
+  },
+  "CMG": {
+    "name": "Công ty Cổ phần Tập đoàn Công nghệ CMC",
+    "short_name": "Tập đoàn Công nghệ CMC"
+  },
+  "CMT": {
+    "name": "Công ty Cổ phần Công nghệ mạng và Truyền thông",
+    "short_name": "CN mạng và Truyền thông"
+  },
+  "ICT": {
+    "name": "Công ty Cổ phần Viễn thông - Tin học Bưu điện",
+    "short_name": "Viễn thông - Tin học Bưu điện"
+  },
+  "HIG": {
+    "name": "Công ty Cổ phần Tập đoàn HIPT",
+    "short_name": "Tập đoàn HIPT"
+  },
+  "HPT": {
+    "name": "Công ty Cổ phần Dịch vụ Công nghệ Tin học HPT",
+    "short_name": "DV Công nghệ Tin học HPT"
+  },
+  "SBD": {
+    "name": "Công ty Cổ phần Công nghệ Sao Bắc Đẩu",
+    "short_name": "Công nghệ Sao Bắc Đẩu"
+  },
+  "SGT": {
+    "name": "Công ty Cổ phần Công nghệ Viễn thông Sài Gòn",
+    "short_name": "Sài Gòn Telecom"
+  },
+  "SRA": {
+    "name": "Công ty Cổ phần SARA Việt Nam",
+    "short_name": "SARA Việt Nam"
+  },
+  "SRB": {
+    "name": "Công ty Cổ phần Tập đoàn Sara",
+    "short_name": "SARA"
+  },
+  "TST": {
+    "name": "Công ty Cổ phần Dịch vụ Kỹ thuật Viễn thông",
+    "short_name": "Dịch vụ KT Viễn Thông"
+  },
+  "UNI": {
+    "name": "Công ty Cổ phần Đầu tư và Phát triển Sao Mai Việt",
+    "short_name": "Đầu tư và Phát triển Sao Mai Việt"
+  },
+  "VLA": {
+    "name": "Công ty Cổ phần Đầu tư và Phát triển Công nghệ Văn Lang",
+    "short_name": "PT Công nghệ Văn Lang"
+  },
+  "XDC": {
+    "name": "Công ty Cổ phần Xây dựng Công trình Tân Cảng",
+    "short_name": "Xây dựng Công trình Tân Cảng"
+  },
+  "GMH": {
+    "name": "Công ty Cổ phần Minh Hưng Quảng Trị",
+    "short_name": "Minh Hưng Quảng Trị"
+  },
+  "HMR": {
+    "name": "Công ty cổ phần Đá Hoàng Mai",
+    "short_name": "Đá Hoàng Mai"
+  },
+  "ACC": {
+    "name": "Công ty Cổ phần Đầu tư và Xây dựng Bình Dương ACC",
+    "short_name": "Đầu tư và XD Bình Dương ACC"
+  },
+  "ACE": {
+    "name": "Công ty Cổ phần Bê tông ly tâm An Giang",
+    "short_name": "Bê tông An Giang"
+  },
+  "ACS": {
+    "name": "Công ty Cổ phần Xây lắp Thương mại 2",
+    "short_name": "Xây lắp Thương mại 2"
+  },
+  "ADP": {
+    "name": "Công ty Cổ phần Sơn Á Đông",
+    "short_name": "Sơn Á Đông"
+  },
+  "ALV": {
+    "name": "Công ty Cổ phần Xây dựng ALVICO",
+    "short_name": "Xây dựng ALVICO"
+  },
+  "ATB": {
+    "name": "Công ty Cổ phần An Thịnh",
+    "short_name": "Công ty An Thịnh"
+  },
+  "B82": {
+    "name": "Công ty Cổ phần 482",
+    "short_name": "Công ty 482"
+  },
+  "VLB": {
+    "name": "Công ty Cổ phần Xây dựng và Sản xuất Vật liệu Xây dựng Biên Hòa",
+    "short_name": "VLXD Biên Hòa"
+  },
+  "BCC": {
+    "name": "Công ty Cổ phần Xi măng Bỉm Sơn",
+    "short_name": "Xi măng Bỉm Sơn"
+  },
+  "BCE": {
+    "name": "Công ty Cổ phần Xây dựng và Giao thông Bình Dương",
+    "short_name": "XD và GT Bình Dương"
+  },
+  "MVC": {
+    "name": "Công ty Cổ phần Vật liệu và Xây dựng Bình Dương",
+    "short_name": "Vật liệu và XD Bình Dương"
+  },
+  "BHC": {
+    "name": "Công ty Cổ phần Bê tông Biên Hòa",
+    "short_name": "Bê tông Biên Hòa"
+  },
+  "BMN": {
+    "name": "Công ty Cổ phần 715",
+    "short_name": "Công ty 715"
+  },
+  "BMP": {
+    "name": "Công ty Cổ phần Nhựa Bình Minh",
+    "short_name": "Nhựa Bình Minh"
+  },
+  "BOT": {
+    "name": "Công ty Cổ phần BOT Cầu Thái Hà",
+    "short_name": "BOT Cầu Thái Hà"
+  },
+  "BT6": {
+    "name": "Công ty Cổ phần BETON 6",
+    "short_name": "Bê tông 6"
+  },
+  "BTN": {
+    "name": "Công ty Cổ phần Đầu tư Bitco Bình Định",
+    "short_name": "Gạch Tuy Nen Bình Định"
+  },
+  "BTS": {
+    "name": "Công ty Cổ phần Xi măng VICEM Bút Sơn",
+    "short_name": "Xi măng Bút Sơn"
+  },
+  "BTD": {
+    "name": "Công ty Cổ phần Bê tông ly tâm Thủ Đức",
+    "short_name": "Bê tông ly tâm Thủ Đức"
+  },
+  "C69": {
+    "name": "Công ty Cổ phần Xây dựng 1369",
+    "short_name": "Xây dựng1369"
+  },
+  "C32": {
+    "name": "Công ty Cổ phần CIC39",
+    "short_name": "CIC39"
+  },
+  "C47": {
+    "name": "Công ty Cổ phần Xây dựng 47",
+    "short_name": "Xây dựng 47"
+  },
+  "TS3": {
+    "name": "Công ty Cổ phần Trường Sơn 532",
+    "short_name": "Trường Sơn 532"
+  },
+  "C92": {
+    "name": "Công ty Cổ phần Xây dựng và Đầu tư 492",
+    "short_name": "Xây dựng và Đầu tư 492"
+  },
+  "HFB": {
+    "name": "Công ty Cổ phần Công trình Cầu phà Thành phố Hồ Chí Minh",
+    "short_name": "Công trình Cầu phà TP HCM"
+  },
+  "CCM": {
+    "name": "Công ty Cổ phần Khoáng sản và Xi măng Cần Thơ",
+    "short_name": "Xi măng Cần Thơ"
+  },
+  "CDC": {
+    "name": "Công ty Cổ phần Chương Dương",
+    "short_name": "Chương Dương Corp"
+  },
+  "CDG": {
+    "name": "Công ty Cổ phần Cầu Đuống",
+    "short_name": "VLXD Cầu Đuống"
+  },
+  "CDO": {
+    "name": "Công ty Cổ phần Tư vấn Thiết kế và Phát triển Đô thị",
+    "short_name": "Tư vấn Thiết kế và PT Đô thị"
+  },
+  "CH5": {
+    "name": "Công ty Cổ phần Xây dựng số 5 Hà Nội",
+    "short_name": "Xây dựng số 5 Hà Nội"
+  },
+  "CHC": {
+    "name": "Công ty Cổ phần Cẩm Hà",
+    "short_name": "Nội thất Cẩm Hà"
+  },
+  "CI5": {
+    "name": "Công ty Cổ phần Đầu tư Xây dựng số 5",
+    "short_name": "Đầu tư Xây dựng số 5"
+  },
+  "CID": {
+    "name": "Công ty Cổ phần Xây dựng và Phát triển Cơ sở Hạ tầng",
+    "short_name": "Xây dựng và Phát triển Cơ sở Hạ tầng"
+  },
+  "CEG": {
+    "name": "Công ty Cổ phần Tập đoàn Xây dựng và Thiết bị Công nghiệp",
+    "short_name": "XD và Thiết bị Công nghiệp"
+  },
+  "C4G": {
+    "name": "Công ty Cổ phần Tập Đoàn Cienco4",
+    "short_name": "Tập Đoàn Cienco4"
+  },
+  "C12": {
+    "name": "Công ty Cổ phần Cầu 12",
+    "short_name": "Cầu 12"
+  },
+  "CIG": {
+    "name": "Công ty Cổ phần COMA 18",
+    "short_name": "Xây dựng COMA 18"
+  },
+  "CII": {
+    "name": "Công ty Cổ phần Đầu tư Hạ tầng Kỹ thuật Thành phố Hồ Chí Minh",
+    "short_name": "Hạ tầng Kỹ thuật TP.HCM"
+  },
+  "CIP": {
+    "name": "Công ty Cổ phần Xây lắp và Sản xuất Công nghiệp",
+    "short_name": "XL và SX công nghiệp"
+  },
+  "TVH": {
+    "name": "Công ty Cổ phần Tư vấn Xây dựng công trình Hàng hải",
+    "short_name": "Tư vấn XD công trình Hàng hải"
+  },
+  "CMI": {
+    "name": "Công ty Cổ phần CMISTONE Việt Nam",
+    "short_name": "CMISTONE Việt Nam"
+  },
+  "CMD": {
+    "name": "Công ty Cổ phần Vật liệu xây dựng và Trang trí nội thất TP Hồ Chí Minh",
+    "short_name": "VLXD và Nội thất TP.HCM"
+  },
+  "CMS": {
+    "name": "Công ty Cổ phần Tập đoàn CMH Việt Nam",
+    "short_name": "Tập đoàn CMH Việt Nam"
+  },
+  "CNT": {
+    "name": "Công ty Cổ phần Tập đoàn CNT",
+    "short_name": "Tập đoàn CNT"
+  },
+  "CC1": {
+    "name": "Tổng Công ty Xây dựng số 1 - CTCP",
+    "short_name": "TCT Xây dựng số 1"
+  },
+  "TCK": {
+    "name": "Tổng Công ty Cơ khí Xây dựng - CTCP",
+    "short_name": "COMA"
+  },
+  "ICN": {
+    "name": "Công ty Cổ phần Đầu tư Xây dựng Dầu khí IDICO",
+    "short_name": "XD Dầu Khí IDICO"
+  },
+  "CNN": {
+    "name": "Công ty Cổ phần Tư vấn Công nghệ, Thiết bị và Kiểm định Xây dựng - CONINCO",
+    "short_name": "Xây dựng Coninco"
+  },
+  "CRC": {
+    "name": "Công ty Cổ phần Create Capital Việt Nam",
+    "short_name": "Create Capital Việt Nam"
+  },
+  "CSC": {
+    "name": "Công ty Cổ phần Tập đoàn COTANA",
+    "short_name": "Tập đoàn COTANA"
+  },
+  "CT3": {
+    "name": "Công ty Cổ phần Đầu tư và Xây dựng công trình 3",
+    "short_name": "Xây dựng công trình 3"
+  },
+  "CT6": {
+    "name": "Công ty Cổ phần Công trình 6",
+    "short_name": "Công trình 6"
+  },
+  "CTA": {
+    "name": "Công ty Cổ phần Vinavico",
+    "short_name": "Xây dựng Vinavico"
+  },
+  "CTD": {
+    "name": "Công ty Cổ phần Xây dựng Coteccons",
+    "short_name": "Xây dựng Coteccons"
+  },
+  "GTS": {
+    "name": "Công ty Cổ phần Công trình Giao thông Sài Gòn",
+    "short_name": "Công trình Giao thông Sài Gòn"
+  },
+  "CTI": {
+    "name": "Công ty Cổ phần Đầu tư Phát triển Cường Thuận IDICO",
+    "short_name": "Cường Thuận IDICO"
+  },
+  "CTN": {
+    "name": "Công ty Cổ phần Xây dựng Công trình ngầm",
+    "short_name": "VINAVICO"
+  },
+  "CTR": {
+    "name": "Tổng Công ty Cổ phần Công trình Viettel",
+    "short_name": "Công trình Viettel"
+  },
+  "CTX": {
+    "name": "Tổng Công ty Cổ phần Đầu tư Xây dựng và Thương mại Việt Nam",
+    "short_name": "CONSTREXIM"
+  },
+  "CVT": {
+    "name": "Công ty Cổ phần CMC",
+    "short_name": "CMC JSC"
+  },
+  "CX8": {
+    "name": "Công ty Cổ phần Đầu tư và Xây lắp Constrexim số 8",
+    "short_name": "Constrexim số 8"
+  },
+  "CYC": {
+    "name": "Công ty Cổ phần Gạch men Chang Yih",
+    "short_name": "Gạch men Chang YIH"
+  },
+  "DAC": {
+    "name": "Công ty Cổ phần 382 Đông Anh",
+    "short_name": "CTCP 382 Đông Anh"
+  },
+  "DCR": {
+    "name": "Công ty Cổ phần Gạch men COSEVCO",
+    "short_name": "Gạch men COSEVCO"
+  },
+  "DPG": {
+    "name": "Công ty Cổ phần Tập đoàn Đạt Phương",
+    "short_name": "Tập đoàn Đạt Phương"
+  },
+  "DC2": {
+    "name": "Công ty Cổ phần Đầu tư Phát triển - Xây dựng (DIC) số 2",
+    "short_name": "DIC Số 2"
+  },
+  "DC4": {
+    "name": "Công ty Cổ phần Xây dựng DIC Holdings",
+    "short_name": "Xây dựng DIC Holdings"
+  },
+  "DCT": {
+    "name": "Công ty Cổ phần Tấm lợp Vật liệu Xây dựng Đồng Nai",
+    "short_name": "Tấm lợp VLXD Đồng Nai"
+  },
+  "DCF": {
+    "name": "Công ty Cổ phần Xây dựng và Thiết kế số 1",
+    "short_name": "XD và Thiết kế số 1"
+  },
+  "DFF": {
+    "name": "Công ty Cổ phần Tập đoàn Đua Fat",
+    "short_name": "Tập đoàn Đua Fat"
+  },
+  "DGT": {
+    "name": "Công ty Cổ phần Công trình Giao thông Đồng Nai",
+    "short_name": "Công trình GT Đồng Nai"
+  },
+  "DHA": {
+    "name": "Công ty Cổ phần Hóa An",
+    "short_name": "Hóa An"
+  },
+  "DIC": {
+    "name": "Công ty Cổ phần Đầu tư và Thương mại DIC",
+    "short_name": "ĐT và TM DIC"
+  },
+  "DC1": {
+    "name": "Công ty Cổ phần Đầu tư Phát triển Xây dựng số 1",
+    "short_name": "Phát triển Xây dựng số 1 (DIC1)"
+  },
+  "DID": {
+    "name": "Công ty Cổ phần DIC - Đồng Tiến",
+    "short_name": "DIC - Đồng Tiến"
+  },
+  "DIH": {
+    "name": "Công ty Cổ phần Đầu tư Phát triển Xây dựng - Hội An",
+    "short_name": "PT Xây dựng Hội An"
+  },
+  "DLR": {
+    "name": "Công ty Cổ phần Địa ốc Đà Lạt",
+    "short_name": "Địa ốc Đà Lạt"
+  },
+  "DND": {
+    "name": "Công ty Cổ phần Đầu tư Xây dựng và Vật liệu Đồng Nai",
+    "short_name": "XD và Vật liệu Đồng Nai"
+  },
+  "DNP": {
+    "name": "Công ty Cổ phần DNP Holding",
+    "short_name": "Nhựa Đồng Nai"
+  },
+  "CDR": {
+    "name": "Công ty Cổ phần Xây dựng Cao su Đồng Nai",
+    "short_name": "Xây dựng Cao su Đồng Nai"
+  },
+  "BDT": {
+    "name": "Công ty Cổ phần Xây lắp và Vật liệu xây dựng Đồng Tháp",
+    "short_name": "VLXD Đồng Tháp"
+  },
+  "DTC": {
+    "name": "Công ty Cổ phần Viglacera Đông Triều",
+    "short_name": "Viglacera Đông Triều"
+  },
+  "DVG": {
+    "name": "Công ty Cổ phần Tập đoàn Sơn Đại Việt",
+    "short_name": "Tập đoàn Sơn Đại Việt"
+  },
+  "DSG": {
+    "name": "Công ty Cổ phần Kính Đáp Cầu",
+    "short_name": "Kính Đáp Cầu"
+  },
+  "DVW": {
+    "name": "Công ty Cổ phần Dịch vụ và Xây dựng cấp nước Đồng Nai",
+    "short_name": "DV và XD cấp nước Đồng Nai"
+  },
+  "DXV": {
+    "name": "Công ty Cổ phần VICEM Vật liệu Xây dựng Đà Nẵng",
+    "short_name": "Vật liệu Xây dựng Đà Nẵng"
+  },
+  "E29": {
+    "name": "Công ty cổ phần Đầu tư Xây dựng và Kỹ thuật 29",
+    "short_name": "Đầu tư XD và Kỹ thuật 29"
+  },
+  "EVG": {
+    "name": "Công ty Cổ phần Tập đoàn Everland",
+    "short_name": "Tập đoàn Everland"
+  },
+  "EIC": {
+    "name": "Công ty Cổ phần EVN Quốc Tế",
+    "short_name": "EVN Quốc Tế"
+  },
+  "ROS": {
+    "name": "Công ty Cổ phần Xây dựng FLC FAROS",
+    "short_name": "Xây dựng FLC FAROS"
+  },
+  "FCM": {
+    "name": "Công ty Cổ phần Khoáng sản FECON",
+    "short_name": "Khoáng sản FECON"
+  },
+  "FCN": {
+    "name": "Công ty Cổ phần FECON",
+    "short_name": "FECON CORP"
+  },
+  "FIC": {
+    "name": "Tổng Công ty Vật liệu Xây dựng số 1 - Công ty Cổ phần",
+    "short_name": "VLXD số 1"
+  },
+  "GAB": {
+    "name": "Công ty Cổ phần Đầu tư Khai khoáng & Quản lý Tài sản FLC",
+    "short_name": "Đầu tư Khai khoáng và Quản lý Tài sản FLC"
+  },
+  "GMX": {
+    "name": "Công ty Cổ phần Gạch ngói Gốm xây dựng Mỹ Xuân",
+    "short_name": "Gạch ngói Mỹ Xuân"
+  },
+  "H11": {
+    "name": "Công ty Cổ phần Xây dựng HUD101",
+    "short_name": "Xây dựng HUD101"
+  },
+  "HC1": {
+    "name": "Công ty Cổ phần Xây dựng số 1 Hà Nội",
+    "short_name": "Xây dựng số 1 Hà Nội"
+  },
+  "HC3": {
+    "name": "Công ty Cổ phần Xây dựng số 3 Hải Phòng",
+    "short_name": "Xây dựng số 3 Hải Phòng"
+  },
+  "HID": {
+    "name": "Công ty Cổ phần Halcom Vietnam",
+    "short_name": "Halcom Vietnam"
+  },
+  "HAM": {
+    "name": "Công ty Cổ phần Vật tư Hậu Giang",
+    "short_name": "Vật tư Hậu Giang"
+  },
+  "HHV": {
+    "name": "Công ty Cổ phần Đầu tư Hạ tầng Giao thông Đèo Cả",
+    "short_name": "Đầu tư Hạ tầng Giao thông Đèo Cả"
+  },
+  "HAN": {
+    "name": "Tổng Công ty Xây dựng Hà Nội - CTCP",
+    "short_name": "Xây dựng Hà Nội"
+  },
+  "HAS": {
+    "name": "Công ty Cổ phần Hacisco",
+    "short_name": "Hacisco"
+  },
+  "GH3": {
+    "name": "Công ty Cổ phần Công trình giao thông Hà Nội",
+    "short_name": "Công trình giao thông Hà Nội"
+  },
+  "HBC": {
+    "name": "Công ty Cổ phần Tập đoàn Xây dựng Hòa Bình",
+    "short_name": "Tập đoàn Xây dựng Hòa Bình"
+  },
+  "HCC": {
+    "name": "Công ty Cổ phần Bê tông Hòa Cầm - Intimex",
+    "short_name": "Bê tông Hòa Cầm"
+  },
+  "HCI": {
+    "name": "Công ty Cổ phần Đầu tư - Xây dựng Hà Nội",
+    "short_name": "Đầu tư - XD Hà Nội"
+  },
+  "HDA": {
+    "name": "Công ty Cổ phần Hãng sơn Đông Á",
+    "short_name": "Hãng sơn Đông Á"
+  },
+  "HEJ": {
+    "name": "Tổng Công ty Tư vấn Xây dựng Thủy Lợi Việt Nam - CTCP",
+    "short_name": "Tư vấn Xây dựng Thủy Lợi VN"
+  },
+  "HLY": {
+    "name": "Công ty Cổ phần Gốm Xây Dựng Yên Hưng",
+    "short_name": "Gốm Xây Dựng Yên Hưng"
+  },
+  "HMS": {
+    "name": "Công ty Cổ phần Xây dựng Bảo tàng Hồ Chí Minh",
+    "short_name": "XD Bảo tàng Hồ Chí Minh"
+  },
+  "HOM": {
+    "name": "Công ty Cổ phần Xi măng VICEM Hoàng Mai",
+    "short_name": "Xi măng VICEM Hoàng Mai"
+  },
+  "HPP": {
+    "name": "Công ty Cổ phần Sơn Hải Phòng",
+    "short_name": "Sơn Hải Phòng"
+  },
+  "HSP": {
+    "name": "Công ty Cổ phần Sơn Tổng hợp Hà Nội",
+    "short_name": "Sơn Tổng hợp Hà Nội"
+  },
+  "HT1": {
+    "name": "Công ty Cổ phần Xi măng VICEM Hà Tiên",
+    "short_name": "VICEM Hà Tiên"
+  },
+  "HTI": {
+    "name": "Công ty Cổ phần Đầu tư Phát triển Hạ tầng IDICO",
+    "short_name": "PT Hạ tầng IDICO"
+  },
+  "HU1": {
+    "name": "Công ty Cổ phần Đầu tư và Xây dựng HUD1",
+    "short_name": "Xây dựng HUD1"
+  },
+  "HU3": {
+    "name": "Công ty Cổ phần Đầu tư và Xây dựng HUD3",
+    "short_name": "Xây dựng HUD3"
+  },
+  "HU4": {
+    "name": "Công ty Cổ phần Đầu tư và Xây dựng HUD4",
+    "short_name": "Đầu tư và Xây dựng HUD4"
+  },
+  "HUT": {
+    "name": "Công ty Cổ phần Tasco",
+    "short_name": "HUD - Tasco"
+  },
+  "HVH": {
+    "name": "Công ty Cổ phần Đầu tư và Công nghệ HVC",
+    "short_name": "Đầu tư và Công nghệ HVC"
+  },
+  "HVX": {
+    "name": "Công ty Cổ phần Xi măng Vicem Hải Vân",
+    "short_name": "Xi măng Vicem Hải Vân"
+  },
+  "L40": {
+    "name": "Công ty Cổ phần Đầu tư và Xây dựng 40",
+    "short_name": "Đầu tư và Xây dựng 40"
+  },
+  "ICC": {
+    "name": "Công ty Cổ phần Xây dựng công nghiệp",
+    "short_name": "Xây dựng công nghiệp"
+  },
+  "ICG": {
+    "name": "Công ty Cổ phần Xây dựng Sông Hồng",
+    "short_name": "Xây dựng Sông Hồng"
+  },
+  "ICI": {
+    "name": "Công ty Cổ phần Đầu tư và Xây dựng Công nghiệp",
+    "short_name": "Đầu tư và XD Công nghiệp"
+  },
+  "CC4": {
+    "name": "Công ty Cổ phần Đầu tư và Xây dựng số 4",
+    "short_name": "ĐT và XD số 4"
+  },
+  "INC": {
+    "name": "Công ty Cổ phần Tư vấn Đầu tư IDICO",
+    "short_name": "Tư vấn Đầu tư IDICO"
+  },
+  "KCE": {
+    "name": "Công ty Cổ phần Bê tông Ly tâm Điện lực Khánh Hòa",
+    "short_name": "Bê tông Ly tâm ĐL Khánh Hòa"
+  },
+  "KDM": {
+    "name": "Công ty Cổ phần Tập đoàn GCL",
+    "short_name": "Tập đoàn GCL"
+  },
+  "KHL": {
+    "name": "Công ty Cổ phần Khoáng sản và Vật liệu Xây dựng Hưng Long",
+    "short_name": "VLXD Hưng Long"
+  },
+  "GKM": {
+    "name": "Công ty Cổ phần Khang Minh Group",
+    "short_name": "Khang Minh Group"
+  },
+  "KPF": {
+    "name": "Công ty Cổ phần Đầu tư Tài sản KOJI",
+    "short_name": "Đầu tư Tài sản KOJI"
+  },
+  "KTT": {
+    "name": "Công ty Cổ phần Tập đoàn Đầu tư KTT",
+    "short_name": "Tập đoàn Đầu tư KTT"
+  },
+  "L14": {
+    "name": "Công ty Cổ phần Licogi 14",
+    "short_name": "Licogi 14"
+  },
+  "L18": {
+    "name": "Công ty Cổ phần Đầu tư và Xây dựng số 18",
+    "short_name": "LICOGI - 18"
+  },
+  "L45": {
+    "name": "Công ty Cổ phần Lilama 45.1",
+    "short_name": "Lilama 45.1"
+  },
+  "LBM": {
+    "name": "Công ty Cổ phần Khoáng sản và Vật liệu xây dựng Lâm Đồng",
+    "short_name": "Khoáng sản Lâm Đồng"
+  },
+  "LCC": {
+    "name": "Công ty Cổ phần Xi măng Hồng Phong",
+    "short_name": "Xi măng Hồng Phong"
+  },
+  "LCD": {
+    "name": "Công ty Cổ phần Lắp máy - Thí nghiệm cơ điện",
+    "short_name": "Thí nghiệm cơ điện"
+  },
+  "LCG": {
+    "name": "Công ty Cổ phần Lizen",
+    "short_name": "LIZEN"
+  },
+  "LCS": {
+    "name": "Công ty Cổ phần Licogi 16.6",
+    "short_name": "Licogi 16.6"
+  },
+  "LGC": {
+    "name": "Công ty Cổ phần Đầu tư Cầu đường CII",
+    "short_name": "Đầu tư Cầu đường CII"
+  },
+  "LHC": {
+    "name": "Công ty Cổ phần Đầu tư và Xây dựng Thủy lợi Lâm Đồng",
+    "short_name": "XD Thủy lợi Lâm Đồng"
+  },
+  "LIC": {
+    "name": "Tổng Công ty LICOGI - Công ty Cổ phần",
+    "short_name": "LICOGI"
+  },
+  "L12": {
+    "name": "Công ty Cổ phần Licogi 12",
+    "short_name": "LICOGI 12"
+  },
+  "LG9": {
+    "name": "Công ty Cổ phần Cơ giới và Xây lắp số 9",
+    "short_name": "Cơ giới và XL số 9 (Licogi 9)"
+  },
+  "LIG": {
+    "name": "Công ty Cổ phần Licogi 13",
+    "short_name": "Licogi 13"
+  },
+  "LAI": {
+    "name": "Công ty Cổ phần Đầu tư Xây dựng Long An IDICO",
+    "short_name": "XD Long An IDICO"
+  },
+  "LM3": {
+    "name": "Công ty Cổ phần Lilama 3",
+    "short_name": "Lilama 3"
+  },
+  "LM8": {
+    "name": "Công ty Cổ phần Lilama 18",
+    "short_name": "LILAMA 18"
+  },
+  "LUT": {
+    "name": "Công ty Cổ phần Đầu tư Xây dựng Lương Tài",
+    "short_name": "Đầu tư Xây dựng Lương Tài"
+  },
+  "MCC": {
+    "name": "Công ty Cổ phần Gạch ngói cao cấp",
+    "short_name": "Gạch ngói cao cấp"
+  },
+  "MCG": {
+    "name": "Công ty Cổ phần Năng lượng và Bất động sản MCG",
+    "short_name": "Năng lượng và Bất động sản MCG"
+  },
+  "MCO": {
+    "name": "Công ty Cổ phần Đầu tư và Xây dựng BDC Việt Nam",
+    "short_name": "BDC Việt Nam"
+  },
+  "MDG": {
+    "name": "Công ty Cổ phần Miền Đông",
+    "short_name": "Xây dựng Miền Đông"
+  },
+  "MEC": {
+    "name": "Công ty Cổ phần Cơ khí - Lắp máy Sông Đà",
+    "short_name": "Lắp máy Sông Đà"
+  },
+  "MES": {
+    "name": "Công ty Cổ phần Cơ điện Công trình",
+    "short_name": "Cơ điện Công trình"
+  },
+  "MST": {
+    "name": "Công ty Cổ phần Đầu tư MST",
+    "short_name": "Đầu tư MST"
+  },
+  "NAC": {
+    "name": "Công ty Cổ phần Tư vấn Xây dựng Tổng hợp",
+    "short_name": "Tư vấn xây dựng Tổng hợp"
+  },
+  "NAV": {
+    "name": "Công ty Cổ phần Nam Việt",
+    "short_name": "Tấm lợp và gỗ Nam Việt"
+  },
+  "NDX": {
+    "name": "Công ty Cổ phần Xây lắp Phát triển Nhà Đà Nẵng",
+    "short_name": "Phát triển Nhà Đà Nẵng"
+  },
+  "NED": {
+    "name": "Công ty Cổ phần Đầu tư và Phát triển Điện Tây Bắc",
+    "short_name": "Phát triển Điện Tây Bắc"
+  },
+  "NHA": {
+    "name": "Tổng Công ty Đầu tư Phát triển Nhà và Đô thị Nam Hà Nội",
+    "short_name": "PT Nhà và Đô thị Nam HN"
+  },
+  "VCE": {
+    "name": "Công ty Cổ phần Xây lắp Môi trường",
+    "short_name": "Xây lắp Môi trường"
+  },
+  "NHC": {
+    "name": "Công ty Cổ phần Gạch ngói Nhị Hiệp",
+    "short_name": "Gạch ngói Nhị Hiệp"
+  },
+  "NNC": {
+    "name": "Công ty Cổ phần Đá Núi Nhỏ",
+    "short_name": "Đá Núi Nhỏ"
+  },
+  "NTP": {
+    "name": "Công ty Cổ phần Nhựa Thiếu niên Tiền Phong",
+    "short_name": "Nhựa Tiền Phong"
+  },
+  "NXT": {
+    "name": "Công ty Cổ phần Sản xuất và Cung ứng vật liệu xây dựng Kon Tum",
+    "short_name": "SX và Cung ứng VLXD Kon Tum"
+  },
+  "PC1": {
+    "name": "Công ty Cổ phần Tập đoàn PC1",
+    "short_name": "Tập đoàn PC1"
+  },
+  "PCC": {
+    "name": "Công ty Cổ phần Tập đoàn Xây lắp 1 - Petrolimex",
+    "short_name": "Xây lắp 1- Petrolimex"
+  },
+  "PCM": {
+    "name": "Công ty Cổ phần Vật liệu Xây dựng Bưu điện",
+    "short_name": "VLXD Bưu điện"
+  },
+  "PDB": {
+    "name": "Công ty Cổ phần Tập đoàn Đầu tư DIN Capital",
+    "short_name": "DIN Capital"
+  },
+  "PEN": {
+    "name": "Công ty Cổ phần Xây lắp III Petrolimex",
+    "short_name": "Xây lắp III Petrolimex"
+  },
+  "PFL": {
+    "name": "Công ty Cổ phần Dầu khí Đông Đô",
+    "short_name": "Dầu khí Đông Đô"
+  },
+  "PHC": {
+    "name": "Công ty Cổ phần Xây dựng Phục Hưng Holdings",
+    "short_name": "Phuc Hung Holdings"
+  },
+  "PHH": {
+    "name": "Công ty Cổ phần Hồng Hà Việt Nam",
+    "short_name": "Hồng Hà Việt Nam"
+  },
+  "PID": {
+    "name": "Công ty Cổ phần Trang trí nội thất Dầu khí",
+    "short_name": "Trang trí nội thất Dầu khí"
+  },
+  "PLE": {
+    "name": "Công ty Cổ phần Tư vấn Xây dựng Petrolimex",
+    "short_name": "Tư vấn Xây dựng Petrolimex"
+  },
+  "PNT": {
+    "name": "Công ty Cổ phần Kỹ thuật Xây dựng Phú Nhuận",
+    "short_name": "Kỹ thuật XD Phú Nhuận"
+  },
+  "PSB": {
+    "name": "Công ty Cổ phần Đầu tư Dầu khí Sao Mai Bến Đình",
+    "short_name": "Sao Mai Bến Đình"
+  },
+  "PSG": {
+    "name": "Công ty Cổ phần Đầu tư và Xây lắp Dầu khí Sài Gòn",
+    "short_name": "XL Dầu khí Sài Gòn"
+  },
+  "PTC": {
+    "name": "Công ty Cổ phần Đầu tư ICAPITAL",
+    "short_name": "Đầu tư ICAPITAL"
+  },
+  "PTE": {
+    "name": "Công ty Cổ phần Xi măng Phú Thọ",
+    "short_name": "Xi măng Phú Thọ"
+  },
+  "PTO": {
+    "name": "Công ty Cổ phần Dịch vụ - Xây dựng Công trình Bưu điện",
+    "short_name": "Xây dựng Công trình Bưu điện"
+  },
+  "PTD": {
+    "name": "Công ty Cổ phần Thiết kế - Xây dựng - Thương mại Phúc Thịnh",
+    "short_name": "Thiết kế-XD-TM Phúc Thịnh"
+  },
+  "DTD": {
+    "name": "Công ty Cổ phần Đầu tư Phát triển Thành Đạt",
+    "short_name": "Đầu tư Phát triển Thành Đạt"
+  },
+  "PVA": {
+    "name": "Công ty Cổ phần Tổng Công ty Xây lắp Dầu khí Nghệ An",
+    "short_name": "Xây dựng dầu khí Nghệ An"
+  },
+  "PVH": {
+    "name": "Công ty Cổ phần Xây lắp Dầu khí Thanh Hóa",
+    "short_name": "Xây lắp Dầu khí Thanh Hóa"
+  },
+  "PVY": {
+    "name": "Công ty Cổ phần Chế tạo Giàn khoan Dầu khí",
+    "short_name": "Chế tạo Giàn khoan Dầu khí"
+  },
+  "PVV": {
+    "name": "Công ty Cổ phần Vinaconex 39",
+    "short_name": "Vinaconex 39"
+  },
+  "PVX": {
+    "name": "Tổng Công ty Cổ phần Xây lắp Dầu khí Việt Nam",
+    "short_name": "Xây lắp Dầu khí Việt Nam"
+  },
+  "PX1": {
+    "name": "Công ty Cổ phần Xi măng Sông Lam 2",
+    "short_name": "Xi măng Sông Lam 2"
+  },
+  "PXI": {
+    "name": "Công ty Cổ phần Xây dựng Công nghiệp và Dân dụng Dầu khí",
+    "short_name": "XL CN và dân dụng Dầu khí"
+  },
+  "PXM": {
+    "name": "Công ty Cổ phần Xây lắp Dầu khí Miền Trung",
+    "short_name": "Xây lắp Dầu khí Miền Trung"
+  },
+  "PXS": {
+    "name": "Công ty Cổ phần Kết cấu Kim loại và Lắp máy Dầu khí",
+    "short_name": "Lắp máy Dầu khí"
+  },
+  "PXT": {
+    "name": "Công ty Cổ phần Xây lắp Đường ống Bể chứa Dầu khí",
+    "short_name": "Xây lắp Đường ống Dầu khí"
+  },
+  "QCC": {
+    "name": "Công ty Cổ phần Đầu tư Xây dựng và Phát triển Hạ tầng Viễn Thông",
+    "short_name": "Đầu tư Xây dựng và Phát triển Hạ tầng Viễn Thông"
+  },
+  "QNC": {
+    "name": "Công ty Cổ phần Xi măng và Xây dựng Quảng Ninh",
+    "short_name": "Xi măng Quảng Ninh"
+  },
+  "QNT": {
+    "name": "Công ty Cổ phần Tư vấn và Đầu tư Phát triển Quảng Nam",
+    "short_name": "Tư vấn và Đầu tư Phát triển Quảng Nam"
+  },
+  "QTC": {
+    "name": "Công ty Cổ phần Công trình Giao thông Vận tải Quảng Nam",
+    "short_name": "GTVT Quảng Nam"
+  },
+  "RCC": {
+    "name": "Công ty Cổ phần Tổng Công ty Công trình Đường sắt",
+    "short_name": "Công trình Đường sắt"
+  },
+  "RCD": {
+    "name": "Công ty Cổ phần Xây dựng - Địa ốc Cao su",
+    "short_name": "XD - Địa ốc Cao su"
+  },
+  "S12": {
+    "name": "Công ty Cổ phần Sông Đà 12",
+    "short_name": "Sông Đà 12"
+  },
+  "S27": {
+    "name": "Công ty Cổ phần Sông Đà 27",
+    "short_name": "Sông Đà 27"
+  },
+  "S55": {
+    "name": "Công ty Cổ phần Sông Đà 505",
+    "short_name": "Sông Đà 505"
+  },
+  "S72": {
+    "name": "Công ty Cổ phần Sông Đà 7.02",
+    "short_name": "Sông Đà 7.02"
+  },
+  "S74": {
+    "name": "Công ty Cổ phần Sông Đà 7.04",
+    "short_name": "Sông Đà 7.04"
+  },
+  "S96": {
+    "name": "Công ty Cổ phần Sông Đà 9.06",
+    "short_name": "Sông Đà 9.06"
+  },
+  "S99": {
+    "name": "Công ty Cổ phần SCI",
+    "short_name": "Sông Đà 9.09 (SCI)"
+  },
+  "SBM": {
+    "name": "Công ty Cổ phần Đầu tư phát triển Bắc Minh",
+    "short_name": "Đầu tư PT Bắc Minh"
+  },
+  "SC5": {
+    "name": "Công ty Cổ phần Xây dựng số 5",
+    "short_name": "Xây dựng Số 5"
+  },
+  "SCC": {
+    "name": "Công ty Cổ phần Thương mại Đầu tư SHB",
+    "short_name": "Thương mại Đầu tư SHB"
+  },
+  "SCG": {
+    "name": "Công ty Cổ phần Tập đoàn Xây dựng SCG",
+    "short_name": "Xây dựng SCG"
+  },
+  "SCI": {
+    "name": "Công ty Cổ phần SCI E&C",
+    "short_name": "SCI E&C"
+  },
+  "SCJ": {
+    "name": "Công ty Cổ phần Xi măng Sài Sơn",
+    "short_name": "Xi măng Sài Sơn"
+  },
+  "SCL": {
+    "name": "Công ty Cổ phần Sông Đà Cao Cường",
+    "short_name": "Sông Đà Cao Cường"
+  },
+  "SD1": {
+    "name": "Công ty Cổ phần Sông Đà 1",
+    "short_name": "Sông Đà 1"
+  },
+  "SD2": {
+    "name": "Công ty Cổ phần Sông Đà 2",
+    "short_name": "Sông Đà 2"
+  },
+  "SD3": {
+    "name": "Công ty Cổ phần Sông Đà 3",
+    "short_name": "Sông Đà 3"
+  },
+  "SD4": {
+    "name": "Công ty Cổ phần Sông Đà 4",
+    "short_name": "Sông Đà 4"
+  },
+  "SD5": {
+    "name": "Công ty Cổ phần Sông Đà 5",
+    "short_name": "Sông Đà 5"
+  },
+  "SD6": {
+    "name": "Công ty Cổ phần Sông Đà 6",
+    "short_name": "Sông Đà 6"
+  },
+  "SD7": {
+    "name": "Công ty Cổ phần Sông Đà 7",
+    "short_name": "Sông Đà 7"
+  },
+  "SD8": {
+    "name": "Công ty Cổ phần Sông Đà 8",
+    "short_name": "Sông Đà 8"
+  },
+  "SD9": {
+    "name": "Công ty Cổ phần Sông Đà 9",
+    "short_name": "Sông Đà 9"
+  },
+  "SDB": {
+    "name": "Công ty Cổ phần Sông Đà 207",
+    "short_name": "Sông Đà 207"
+  },
+  "SDD": {
+    "name": "Công ty Cổ phần Đầu tư và Xây lắp Sông Đà",
+    "short_name": "Xây lắp Sông Đà"
+  },
+  "SDJ": {
+    "name": "Công ty Cổ phần Sông Đà 25",
+    "short_name": "Sông Đà 25"
+  },
+  "SDN": {
+    "name": "Công ty Cổ phần Sơn Đồng Nai",
+    "short_name": "Sơn Đồng Nai"
+  },
+  "SDP": {
+    "name": "Công ty Cổ phần SDP",
+    "short_name": "Công ty Cổ phần SDP"
+  },
+  "XLV": {
+    "name": "Công ty Cổ phần Xây lắp và Dịch vụ Sông Đà",
+    "short_name": "XL và DV Sông Đà"
+  },
+  "SDT": {
+    "name": "Công ty Cổ phần Sông Đà 10",
+    "short_name": "Sông Đà 10"
+  },
+  "SDU": {
+    "name": "Công ty Cổ phần Đầu tư Xây dựng và Phát triển Đô thị Sông Đà",
+    "short_name": "Đô thị Sông Đà"
+  },
+  "SDX": {
+    "name": "Công ty Cổ phần Phòng cháy chữa cháy và Đầu tư Xây dựng Sông Đà",
+    "short_name": "PCCC và Đầu tư XD Sông Đà"
+  },
+  "SDY": {
+    "name": "Công ty Cổ phần Xi măng Sông Đà Yaly",
+    "short_name": "Xi măng Sông Đà Yaly"
+  },
+  "SHG": {
+    "name": "Tổng Công ty Cổ phần Sông Hồng",
+    "short_name": "Tổng Công ty Sông Hồng"
+  },
+  "SJC": {
+    "name": "Công ty Cổ phần Sông Đà 1.01",
+    "short_name": "Sông Đà 1.01"
+  },
+  "SJE": {
+    "name": "Công ty Cổ phần Sông Đà 11",
+    "short_name": "Sông Đà 11"
+  },
+  "SJM": {
+    "name": "Công ty Cổ phần Sông Đà 19",
+    "short_name": "Sông Đà 19"
+  },
+  "SIG": {
+    "name": "Công ty Cổ phần Đầu tư và Thương mại Sông Đà",
+    "short_name": "Đầu tư và Thương mại Sông Đà"
+  },
+  "SNZ": {
+    "name": "Tổng Công ty Cổ phần Phát triển Khu Công nghiệp",
+    "short_name": "SONADEZI"
+  },
+  "SJG": {
+    "name": "Tổng Công ty Sông Đà",
+    "short_name": "Tổng Công ty Sông Đà"
+  },
+  "SVN": {
+    "name": "Công ty Cổ phần Tập đoàn Vexilla Việt Nam",
+    "short_name": "Tập đoàn Vexilla Việt Nam"
+  },
+  "TA3": {
+    "name": "Công ty cổ phần Đầu tư và Xây lắp Thành An 386",
+    "short_name": "ĐT và Xây lắp Thành An 386"
+  },
+  "TA6": {
+    "name": "Công ty Cổ phần Đầu tư và Xây lắp Thành An 665",
+    "short_name": "Đầu tư và Xây lắp Thành An 665"
+  },
+  "TA9": {
+    "name": "Công ty Cổ phần Xây lắp Thành An 96",
+    "short_name": "Xây lắp Thành An 96"
+  },
+  "TBT": {
+    "name": "Công ty Cổ phần Xây dựng Công trình Giao thông Bến Tre",
+    "short_name": "XD Công trình GT Bến Tre"
+  },
+  "TBX": {
+    "name": "Công ty Cổ phần Xi măng Thái Bình",
+    "short_name": "Xi măng Thái Bình"
+  },
+  "TCR": {
+    "name": "Công ty Cổ phần Công nghiệp Gốm sứ TAICERA",
+    "short_name": "Gốm sứ TAICERA"
+  },
+  "G36": {
+    "name": "Tổng Công ty 36 - Công ty Cổ phần",
+    "short_name": "Tổng Công ty 36"
+  },
+  "TED": {
+    "name": "Tổng Công ty Tư vấn Thiết kế Giao thông Vận tải - CTCP",
+    "short_name": "Thiết kế GTVT"
+  },
+  "TEL": {
+    "name": "Công ty Cổ phần Phát triển công trình viễn thông",
+    "short_name": "Phát triển công trình viễn thông"
+  },
+  "TGG": {
+    "name": "Công ty Cổ phần The Golden Group",
+    "short_name": "The Golden Group"
+  },
+  "THG": {
+    "name": "Công ty Cổ phần Đầu tư và Xây dựng Tiền Giang",
+    "short_name": "XD Tiền Giang"
+  },
+  "TKC": {
+    "name": "Công ty Cổ phần Xây dựng và Kinh doanh Địa ốc Tân Kỷ",
+    "short_name": "Địa ốc Tân Kỷ"
+  },
+  "TL4": {
+    "name": "Tổng Công ty Xây dựng Thủy lợi 4 - Công ty Cổ phần",
+    "short_name": "XD Thủy lợi 4"
+  },
+  "TTL": {
+    "name": "Tổng Công ty Thăng Long - Công ty Cổ phần",
+    "short_name": "TCT Thăng Long"
+  },
+  "TLT": {
+    "name": "Công ty Cổ phần Viglacera Thăng Long",
+    "short_name": "Viglacera Thăng long"
+  },
+  "TMX": {
+    "name": "Công ty Cổ phần VICEM Thương mại Xi măng",
+    "short_name": "Thương mại Xi măng"
+  },
+  "BAX": {
+    "name": "Công ty Cổ phần Thống Nhất",
+    "short_name": "Công ty Thống Nhất"
+  },
+  "TNM": {
+    "name": "Công ty Cổ phần Xuất nhập khẩu và Xây dựng Công trình",
+    "short_name": "XNK và XD Công trình"
+  },
+  "TCD": {
+    "name": "Công ty Cổ phần Đầu tư Phát triển Công nghiệp và Vận tải",
+    "short_name": "ĐT Phát triển CN và Vận tải"
+  },
+  "TDF": {
+    "name": "Công ty Cổ phần Trung Đô",
+    "short_name": "Xây dựng Trung Đô"
+  },
+  "TTB": {
+    "name": "Công ty Cổ phần Tập đoàn Tiến Bộ",
+    "short_name": "Tập đoàn Tiến Bộ"
+  },
+  "TTC": {
+    "name": "Công ty Cổ phần Gạch men Thanh Thanh",
+    "short_name": "Gạch men Thanh Thanh"
+  },
+  "HUB": {
+    "name": "Công ty Cổ phần Xây lắp Thừa Thiên Huế",
+    "short_name": "Xây lắp Huế"
+  },
+  "TRT": {
+    "name": "Công ty Cổ phần RedstarCera",
+    "short_name": "CTCP RedstarCera"
+  },
+  "TTZ": {
+    "name": "Công ty Cổ phần Đầu tư Xây dựng và Công nghệ Tiến Trung",
+    "short_name": "Xây dựng Tiến Trung"
+  },
+  "GND": {
+    "name": "Công ty Cổ phần Gạch ngói Đồng Nai",
+    "short_name": "Gạch ngói Đồng Nai"
+  },
+  "TV3": {
+    "name": "Công ty Cổ phần Tư vấn Xây dựng Điện 3",
+    "short_name": "Tư vấn XD điện 3"
+  },
+  "TVA": {
+    "name": "Công ty cổ phần Sứ Viglacera Thanh Trì",
+    "short_name": "Sứ Viglacera Thanh Trì"
+  },
+  "TVG": {
+    "name": "Công ty Cổ phần Tư vấn Đầu tư và Xây dựng Giao thông Vận tải",
+    "short_name": "XD Giao thông Vận tải"
+  },
+  "TXM": {
+    "name": "Công ty Cổ phần VICEM Thạch cao Xi Măng",
+    "short_name": "Thạch cao Xi măng"
+  },
+  "UDC": {
+    "name": "Công ty Cổ phần Xây dựng và Phát triển đô thị Tỉnh Bà Rịa - Vũng Tàu",
+    "short_name": "Xây dựng và Phát triển đô thị Bà Rịa - Vũng Tàu"
+  },
+  "UDJ": {
+    "name": "Công ty Cổ phần Phát triển Đô thị",
+    "short_name": "Becamex UDJ"
+  },
+  "UIC": {
+    "name": "Công ty Cổ phần Đầu tư Phát triển Nhà và Đô thị IDICO",
+    "short_name": "Phát triển Nhà và Đô thị IDICO"
+  },
+  "UMC": {
+    "name": "Công ty Cổ phần Công trình đô thị Nam Định",
+    "short_name": "Công trình đô thị Nam Định"
+  },
+  "USC": {
+    "name": "Công ty Cổ phần Khảo sát và Xây dựng - USCO",
+    "short_name": "Khảo sát và Xây dựng - USCO"
+  },
+  "V12": {
+    "name": "Công ty Cổ phần Xây dựng số 12",
+    "short_name": "VINACONEX 12"
+  },
+  "V15": {
+    "name": "Công ty Cổ phần Xây dựng số 15",
+    "short_name": "Vinaconex 15"
+  },
+  "VC1": {
+    "name": "Công ty Cổ phần Xây dựng số 1",
+    "short_name": "Xây dựng số 1"
+  },
+  "VC2": {
+    "name": "Công ty Cổ phần Đầu tư và Xây dựng VINA2",
+    "short_name": "Đầu tư và Xây dựng VINA2"
+  },
+  "VC5": {
+    "name": "Công ty Cổ phần xây dựng số 5",
+    "short_name": "Xây dựng Số 5"
+  },
+  "VC6": {
+    "name": "Công ty cổ phần Xây dựng và Đầu tư Visicons",
+    "short_name": "Visicons"
+  },
+  "VC7": {
+    "name": "Công ty Cổ phần Tập đoàn BGI",
+    "short_name": "BGI Group"
+  },
+  "VC9": {
+    "name": "Công ty Cổ phần Xây dựng số 9 - VC9",
+    "short_name": "Xây dựng số 9"
+  },
+  "VCC": {
+    "name": "Công ty Cổ phần Vinaconex 25",
+    "short_name": "Vinaconex 25"
+  },
+  "CCV": {
+    "name": "Công ty Cổ phần Tư vấn Xây dựng Công nghiệp và Đô thị Việt Nam",
+    "short_name": "XD CN và đô thị Việt Nam"
+  },
+  "VCG": {
+    "name": "Tổng Công ty Cổ phần Xuất nhập khẩu và Xây dựng Việt Nam",
+    "short_name": "VINACONEX"
+  },
+  "VIH": {
+    "name": "Công ty Cổ phần Viglacera Hà Nội",
+    "short_name": "Viglacera Hà Nội"
+  },
+  "VCS": {
+    "name": "Công ty Cổ phần VICOSTONE",
+    "short_name": "VICOSTONE"
+  },
+  "VCX": {
+    "name": "Công ty Cổ phần Xi măng Yên Bình",
+    "short_name": "Xi măng Yên Bình"
+  },
+  "VE1": {
+    "name": "Công ty Cổ phần Xây dựng điện VNECO 1",
+    "short_name": "VNECO 1"
+  },
+  "VE2": {
+    "name": "Công ty Cổ phần Xây dựng Điện VNECO 2",
+    "short_name": "Xây dựng Điện VNECO 2"
+  },
+  "VE3": {
+    "name": "Công ty Cổ phần Xây dựng điện VNECO 3",
+    "short_name": "Xây dựng điện VNECO 3"
+  },
+  "VE4": {
+    "name": "Công ty Cổ phần Xây dựng điện VNECO4",
+    "short_name": "Xây dựng điện VNECO4"
+  },
+  "VE8": {
+    "name": "Công ty Cổ phần Xây dựng Điện Vneco 8",
+    "short_name": "Xây dựng Điện Vneco 8"
+  },
+  "VE9": {
+    "name": "Công ty Cổ phần Đầu tư và Xây dựng VNECO 9",
+    "short_name": "VNECO 9"
+  },
+  "VGC": {
+    "name": "Tổng Công ty Viglacera - Công ty Cổ phần",
+    "short_name": "Tổng Công ty Viglacera"
+  },
+  "VHH": {
+    "name": "Công ty Cổ phần Đầu tư Kinh doanh nhà Thành Đạt",
+    "short_name": "Kinh doanh nhà Thành Đạt"
+  },
+  "VHL": {
+    "name": "Công ty Cổ phần Viglacera Hạ Long",
+    "short_name": "Viglacera Hạ Long"
+  },
+  "MBG": {
+    "name": "Công ty Cổ phần Tập đoàn MBG",
+    "short_name": "Tập đoàn MBG"
+  },
+  "VVN": {
+    "name": "Tổng Công ty Cổ phần Xây dựng Công nghiệp Việt Nam",
+    "short_name": "XD Công nghiệp Việt Nam"
+  },
+  "VIT": {
+    "name": "Công ty Cổ phần Viglacera Tiên Sơn",
+    "short_name": "Viglacera Tiên Sơn"
+  },
+  "VIW": {
+    "name": "Tổng công ty Đầu tư Nước và Môi trường Việt Nam - Công ty Cổ phần",
+    "short_name": "Đầu tư nước và môi trường VN - Viwaseen"
+  },
+  "VMC": {
+    "name": "Công ty Cổ phần VIMECO",
+    "short_name": "VIMECO"
+  },
+  "CGV": {
+    "name": "Công ty Cổ phần Vinaceglass",
+    "short_name": "Vinaceglass JSC"
+  },
+  "VNE": {
+    "name": "Tổng Công ty Cổ phần Xây dựng điện Việt Nam",
+    "short_name": "Xây dựng điện Việt Nam"
+  },
+  "E12": {
+    "name": "Công ty Cổ phần Xây Dựng Điện VNECO 12",
+    "short_name": "XD Điện VNECO 12"
+  },
+  "VPC": {
+    "name": "Công ty Cổ phần Đầu tư và Phát triển Năng lượng Việt Nam",
+    "short_name": "V- Power"
+  },
+  "VSI": {
+    "name": "Công ty Cổ phần Đầu tư và Xây dựng Cấp thoát nước",
+    "short_name": "Đầu tư và Xây dựng Cấp thoát nước"
+  },
+  "VTA": {
+    "name": "Công ty Cổ phần VITALY",
+    "short_name": "Gạch men VITALY"
+  },
+  "VTS": {
+    "name": "Công ty Cổ phần Gạch Ngói Từ Sơn",
+    "short_name": "Gạch Ngói Từ Sơn"
+  },
+  "VTV": {
+    "name": "Công ty Cổ phần Năng lượng và Môi trường VICEM",
+    "short_name": "Năng lượng và Môi trường VICEM"
+  },
+  "CLH": {
+    "name": "Công ty Cổ phần Xi măng La Hiên VVMI",
+    "short_name": "Xi măng La Hiên"
+  },
+  "VW3": {
+    "name": "Công ty Cổ phần VIWASEEN3",
+    "short_name": "VIWASEEN.3"
+  },
+  "VXB": {
+    "name": "Công ty Cổ phần Vật liệu xây dựng Bến Tre",
+    "short_name": "VLXD Bến Tre"
+  },
+  "X77": {
+    "name": "Công ty Cổ phần Thành An 77",
+    "short_name": "Thành An 77"
+  },
+  "XMC": {
+    "name": "Công ty cổ phần Đầu tư và Xây dựng Xuân Mai",
+    "short_name": "Bê tông Xuân Mai"
+  },
+  "XMD": {
+    "name": "Công ty Cổ phần Xuân Mai - Đạo Tú",
+    "short_name": "Xuân Mai - Đạo Tú"
+  },
+  "CQT": {
+    "name": "Công ty Cổ phần Xi măng Quán Triều VVMI",
+    "short_name": "Xi măng Quán Triều VVMI"
+  },
+  "YBC": {
+    "name": "Công ty Cổ phần Xi măng và Khoáng sản Yên Bái",
+    "short_name": "Xi măng và Khoáng sản Yên Bái"
+  },
+  "AME": {
+    "name": "Công ty cổ phần Alphanam E&C",
+    "short_name": "Cơ điện Alphanam"
+  },
+  "BTH": {
+    "name": "Công ty Cổ phần Chế tạo Biến thế và Vật liệu Điện Hà Nội",
+    "short_name": "Biến thế và Vật liệu Điện Hà Nội"
+  },
+  "CAV": {
+    "name": "Công ty Cổ phần Dây cáp điện Việt Nam",
+    "short_name": "Dây cáp điện Việt Nam"
+  },
+  "CJC": {
+    "name": "Công ty Cổ phần Cơ điện Miền Trung",
+    "short_name": "Cơ điện Miền Trung"
+  },
+  "DHP": {
+    "name": "Công ty Cổ phần Điện cơ Hải Phòng",
+    "short_name": "Điện cơ Hải Phòng"
+  },
+  "EME": {
+    "name": "Công ty Cổ phần Điện Cơ",
+    "short_name": "Điện Cơ"
+  },
+  "EMG": {
+    "name": "Công ty Cổ phần Thiết bị Phụ tùng Cơ điện",
+    "short_name": "Thiết bị phụ tùng cơ điện"
+  },
+  "GEX": {
+    "name": "Công ty Cổ phần Tập đoàn Gelex",
+    "short_name": "Tập đoàn Gelex"
+  },
+  "GEE": {
+    "name": "Công ty Cổ phần Điện lực Gelex",
+    "short_name": "Thiết bị điện GELEX"
+  },
+  "PHN": {
+    "name": "Công ty Cổ phần Pin Hà Nội",
+    "short_name": "Pin Hà Nội"
+  },
+  "HEM": {
+    "name": "Công ty Cổ phần Chế tạo Điện cơ Hà Nội",
+    "short_name": "Chế tạo điện cơ Hà Nội"
+  },
+  "HLS": {
+    "name": "Công ty Cổ phần Sứ kỹ thuật Hoàng Liên Sơn",
+    "short_name": "Sứ Hoàng Liên Sơn"
+  },
+  "NAG": {
+    "name": "Công ty Cổ phần Tập đoàn Nagakawa",
+    "short_name": "Tập đoàn Nagakawa"
+  },
+  "PAC": {
+    "name": "Công ty Cổ phần Pin Ắc quy Miền Nam",
+    "short_name": "Pin Ắc quy Miền Nam"
+  },
+  "TBD": {
+    "name": "Tổng công ty Thiết bị điện Đông Anh - Công ty Cổ phần",
+    "short_name": "Thiết bị điện Đông Anh"
+  },
+  "TGP": {
+    "name": "Công ty Cổ phần Trường Phú",
+    "short_name": "Cáp Trường Phú"
+  },
+  "TIE": {
+    "name": "Công ty Cổ phần TIE",
+    "short_name": "Điện tử TIE"
+  },
+  "TSB": {
+    "name": "Công ty Cổ phần Ắc quy Tia Sáng",
+    "short_name": "Ắc quy Tia Sáng"
+  },
+  "TYA": {
+    "name": "Công ty Cổ phần Dây và Cáp điện Taya Việt Nam",
+    "short_name": "Dây và Cáp điện Taya"
+  },
+  "VBH": {
+    "name": "Công ty Cổ phần Điện tử Bình Hòa",
+    "short_name": "Điện tử Bình Hòa"
+  },
+  "KIP": {
+    "name": "Công ty Cổ phần K.I.P Việt Nam",
+    "short_name": "K.I.P Việt Nam"
+  },
+  "VTB": {
+    "name": "Công ty Cổ phần Viettronics Tân Bình",
+    "short_name": "Viettronics Tân Bình"
+  },
+  "VTH": {
+    "name": "Công ty Cổ phần Dây cáp điện Việt Thái",
+    "short_name": "Dây cáp điện Việt Thái"
+  },
+  "ACV": {
+    "name": "Tổng Công ty Cảng Hàng không Việt Nam - CTCP",
+    "short_name": "Cảng Hàng không VN"
+  },
+  "CAG": {
+    "name": "Công ty Cổ phần Cảng An Giang",
+    "short_name": "Cảng An Giang"
+  },
+  "ASG": {
+    "name": "Công ty Cổ phần Tập đoàn ASG",
+    "short_name": "Tập đoàn ASG"
+  },
+  "HNB": {
+    "name": "Công ty Cổ phần Bến xe Hà Nội",
+    "short_name": "Bến xe Hà Nội"
+  },
+  "CCT": {
+    "name": "Công ty Cổ phần Cảng Cần Thơ",
+    "short_name": "Cảng Cần Thơ"
+  },
+  "VSM": {
+    "name": "Công ty Cổ phần Container Miền Trung",
+    "short_name": "Container Miền Trung"
+  },
+  "CCR": {
+    "name": "Công ty Cổ phần Cảng Cam Ranh",
+    "short_name": "Cảng Cam Ranh"
+  },
+  "CLL": {
+    "name": "Công ty Cổ phần Cảng Cát Lái",
+    "short_name": "Cảng Cát Lái"
+  },
+  "CMP": {
+    "name": "Công ty Cổ phần Cảng Chân Mây",
+    "short_name": "Cảng Chân Mây"
+  },
+  "CPI": {
+    "name": "Công ty Cổ phần Đầu tư Cảng Cái Lân",
+    "short_name": "Đầu tư Cảng Cái Lân"
+  },
+  "CIA": {
+    "name": "Công ty Cổ Phần Dịch Vụ Sân Bay Quốc Tế Cam Ranh",
+    "short_name": "DV Sân Bay Cam Ranh"
+  },
+  "SGP": {
+    "name": "Công ty Cổ phần Cảng Sài Gòn",
+    "short_name": "Cảng Sài Gòn"
+  },
+  "DDM": {
+    "name": "Công ty Cổ phần Hàng hải Đông Đô",
+    "short_name": "Hàng hải Đông Đô"
+  },
+  "DL1": {
+    "name": "Công ty Cổ phần Tập đoàn Alpha Seven",
+    "short_name": "Tập đoàn Alpha 7"
+  },
+  "DNL": {
+    "name": "Công ty Cổ phần Logistics Cảng Đà Nẵng",
+    "short_name": "Logistics Cảng Đà Nẵng"
+  },
+  "CDN": {
+    "name": "Công ty Cổ phần Cảng Đà Nẵng",
+    "short_name": "Cảng Đà Nẵng"
+  },
+  "DOP": {
+    "name": "Công ty Cổ phần Vận tải Xăng dầu Đồng Tháp",
+    "short_name": "Vận tải XD Đồng Tháp"
+  },
+  "DSV": {
+    "name": "Công ty Cổ phần Đường sắt Vĩnh Phú",
+    "short_name": "Đường sắt Vĩnh Phú"
+  },
+  "DVP": {
+    "name": "Công ty Cổ phần Đầu tư và Phát triển Cảng Đình Vũ",
+    "short_name": "ĐT và PT Cảng Đình Vũ"
+  },
+  "DXP": {
+    "name": "Công ty Cổ phần Cảng Đoạn Xá",
+    "short_name": "Cảng Đoạn Xá"
+  },
+  "EMS": {
+    "name": "Tổng Công ty Chuyển phát nhanh Bưu điện - Công ty Cổ phần",
+    "short_name": "Chuyển phát nhanh Bưu điện"
+  },
+  "GMD": {
+    "name": "Công ty Cổ phần Gemadept",
+    "short_name": "Gemadept"
+  },
+  "GIC": {
+    "name": "Công ty Cổ phần Đầu tư Dịch vụ và Phát triển Xanh",
+    "short_name": "ĐT Dịch vụ và PT Xanh"
+  },
+  "GSP": {
+    "name": "Công ty Cổ phần Vận tải Sản phẩm Khí Quốc tế",
+    "short_name": "Vận tải Sản phẩm Khí Quốc tế"
+  },
+  "DDH": {
+    "name": "Công ty Cổ phần Đảm bảo giao thông đường thủy Hải Phòng",
+    "short_name": "Đảm bảo GTĐT Hải Phòng"
+  },
+  "HAH": {
+    "name": "Công ty Cổ phần Vận tải và Xếp dỡ Hải An",
+    "short_name": "Vận tải và Xếp dỡ Hải An"
+  },
+  "HCT": {
+    "name": "Công ty Cổ phần Thương mại - Dịch vụ - Vận tải Xi măng Hải Phòng",
+    "short_name": "Thương mại - Dịch vụ - Vận tải Xi măng Hải Phòng"
+  },
+  "HHN": {
+    "name": "Công ty Cổ phần Vận tải và Dịch vụ Hàng hóa Hà Nội",
+    "short_name": "Vận tải và DV Hàng hóa Hà Nội"
+  },
+  "HHR": {
+    "name": "Công ty Cổ phần Đường sắt Hà Hải",
+    "short_name": "Đường sắt Hà Hải"
+  },
+  "HLR": {
+    "name": "Công ty Cổ phần Đường sắt Hà Lạng",
+    "short_name": "Đường sắt Hà Lạng"
+  },
+  "HMH": {
+    "name": "Công ty Cổ phần Hải Minh",
+    "short_name": "Tập đoàn Hải Minh"
+  },
+  "CCP": {
+    "name": "Công ty Cổ phần Cảng Cửa Cấm Hải Phòng",
+    "short_name": "Cảng Cửa Cấm"
+  },
+  "TUG": {
+    "name": "Công ty Cổ phần Lai dắt và Vận tải Cảng Hải Phòng",
+    "short_name": "Lai dắt và VT cảng Hải Phòng"
+  },
+  "HTV": {
+    "name": "Công ty Cổ phần Logistics Vicem",
+    "short_name": "Logistics Vicem"
+  },
+  "ILB": {
+    "name": "Công ty Cổ phần ICD Tân Cảng - Long Bình",
+    "short_name": "ICD Tân Cảng Long Bình"
+  },
+  "ISG": {
+    "name": "Công ty Cổ phần Vận tải biển và Hợp tác lao động Quốc Tế",
+    "short_name": "Vận tải biển và Hợp tác LĐ Quốc Tế"
+  },
+  "IST": {
+    "name": "Công ty Cổ phần ICD Tân Cảng Sóng Thần",
+    "short_name": "ICD Tân Cảng Sóng Thần"
+  },
+  "MHC": {
+    "name": "Công ty Cổ phần MHC",
+    "short_name": "CTCP MHC"
+  },
+  "NAP": {
+    "name": "Công ty Cổ phần Cảng Nghệ Tĩnh",
+    "short_name": "Cảng Nghệ Tĩnh"
+  },
+  "NAS": {
+    "name": "Công ty Cổ phần Dịch vụ Hàng không Sân bay Nội Bài",
+    "short_name": "DV Hàng không SB Nội Bài"
+  },
+  "NCT": {
+    "name": "Công ty Cổ phần Dịch vụ Hàng hóa Nội Bài",
+    "short_name": "DV Hàng hóa Nội Bài"
+  },
+  "NOS": {
+    "name": "Công ty Cổ phần Vận tải Biển và Thương mại Phương Đông",
+    "short_name": "Vận tải Biển và Thương mại Phương Đông"
+  },
+  "PAP": {
+    "name": "Công ty Cổ phần Dầu khí đầu tư khai thác Cảng Phước An",
+    "short_name": "Cảng Phước An"
+  },
+  "PCT": {
+    "name": "Công ty Cổ phần Vận tải Khí và Hóa chất Việt Nam",
+    "short_name": "Vận tải Khí và Hóa chất Việt Nam"
+  },
+  "PDN": {
+    "name": "Công ty Cổ phần Cảng Đồng Nai",
+    "short_name": "Cảng Đồng Nai"
+  },
+  "PDV": {
+    "name": "Công ty Cổ phần Vận tải và Tiếp vận Phương Đông Việt",
+    "short_name": "Vận tải Phương Đông Việt"
+  },
+  "PHP": {
+    "name": "Công ty Cổ phần Cảng Hải Phòng",
+    "short_name": "Cảng Hải Phòng"
+  },
+  "PJT": {
+    "name": "Công ty Cổ phần Vận tải Xăng dầu đường thủy Petrolimex",
+    "short_name": "Vận tải thủy PETROLIMEX"
+  },
+  "PLO": {
+    "name": "Công ty Cổ phần Kho vận Petec",
+    "short_name": "Kho vận Petec"
+  },
+  "PNP": {
+    "name": "Công ty Cổ phần Tân Cảng – Phú Hữu",
+    "short_name": "Tân Cảng - Phú Hữu"
+  },
+  "PRC": {
+    "name": "Công ty Cổ phần Logistics Portserco",
+    "short_name": "Vận tải Portserco"
+  },
+  "PSC": {
+    "name": "Công ty Cổ phần Vận tải và Dịch vụ Petrolimex Sài Gòn",
+    "short_name": "Vận tải Petrolimex SG"
+  },
+  "PSP": {
+    "name": "Công ty Cổ phần Cảng Dịch vụ Dầu khí Đình Vũ",
+    "short_name": "DV Dầu Khí Đình Vũ"
+  },
+  "PTS": {
+    "name": "Công ty Cổ phần Vận tải và Dịch vụ Petrolimex Hải Phòng",
+    "short_name": "Vận tải Petrolimex HP"
+  },
+  "PSN": {
+    "name": "Công ty Cổ phần Dịch vụ Kỹ thuật PTSC Thanh Hóa",
+    "short_name": "PTSC Thanh Hóa"
+  },
+  "PTX": {
+    "name": "Công ty Cổ phần Vận tải và Dịch vụ Petrolimex Nghệ Tĩnh",
+    "short_name": "VT Petrolimex Nghệ Tĩnh"
+  },
+  "PTT": {
+    "name": "Công ty Cổ phần Vận tải Dầu khí Đông Dương",
+    "short_name": "Vận tải Dầu khí Đông Dương"
+  },
+  "PVT": {
+    "name": "Tổng Công ty Cổ phần Vận tải Dầu khí",
+    "short_name": "Vận tải Dầu khí PVTrans"
+  },
+  "PVP": {
+    "name": "Công ty Cổ phần Vận tải Dầu khí Thái Bình Dương",
+    "short_name": "Vận tải Dầu khí Thái Bình Dương"
+  },
+  "QSP": {
+    "name": "Công ty Cổ phần Tân cảng Quy Nhơn",
+    "short_name": "Tân cảng Quy Nhơn"
+  },
+  "PQN": {
+    "name": "Công ty Cổ phần Dịch vụ Dầu khí Quảng Ngãi PTSC",
+    "short_name": "DV Dầu khí Quảng Ngãi PTSC"
+  },
+  "RAT": {
+    "name": "Công ty Cổ phần Vận tải và Thương mại Đường sắt",
+    "short_name": "VT và TM Đường sắt"
+  },
+  "DS3": {
+    "name": "Công ty Cổ phần DS3",
+    "short_name": "Quản lý Đường sông số 3"
+  },
+  "SGN": {
+    "name": "Công ty Cổ phần Phục vụ mặt đất Sài Gòn",
+    "short_name": "Phục vụ mặt đất Sài Gòn"
+  },
+  "SAC": {
+    "name": "Công ty Cổ phần Xếp dỡ và Dịch vụ cảng Sài Gòn",
+    "short_name": "Dịch vụ cảng Sài Gòn"
+  },
+  "SFI": {
+    "name": "Công ty Cổ phần Đại lý Vận tải SAFI",
+    "short_name": "Vận tải SAFI"
+  },
+  "SGS": {
+    "name": "Công ty Cổ phần Vận tải biển Sài Gòn",
+    "short_name": "Vận tải biển Sài Gòn"
+  },
+  "SHC": {
+    "name": "Công ty Cổ phần Hàng hải Sài Gòn",
+    "short_name": "Hàng hải Sài Gòn"
+  },
+  "TSG": {
+    "name": "Công ty Cổ phần Thông tin Tín hiệu Đường sắt Sài Gòn",
+    "short_name": "TTTH Đường sắt Sài Gòn"
+  },
+  "SSG": {
+    "name": "Công ty Cổ phần Vận tải Biển Hải Âu",
+    "short_name": "Vận tải Biển Hải Âu"
+  },
+  "STG": {
+    "name": "Công ty Cổ phần Kho Vận Miền Nam",
+    "short_name": "Kho Vận Miền Nam"
+  },
+  "STS": {
+    "name": "Công ty Cổ phần Dịch vụ vận tải Sài Gòn",
+    "short_name": "Dịch vụ vận tải Sài Gòn"
+  },
+  "SWC": {
+    "name": "Tổng Công ty Cổ phần Đường Sông Miền Nam",
+    "short_name": "Đường Sông Miền Nam"
+  },
+  "TBH": {
+    "name": "Công ty Cổ phần Tổng Bách Hóa",
+    "short_name": "Tổng Bách Hóa"
+  },
+  "TCL": {
+    "name": "Công ty Cổ phần Đại lý Giao nhận Vận tải Xếp dỡ Tân Cảng",
+    "short_name": "Tan Cang Logistics"
+  },
+  "TCO": {
+    "name": "Công ty Cổ phần Vận tải Đa phương thức Duyên Hải",
+    "short_name": "Vận tải Duyên Hải"
+  },
+  "TCW": {
+    "name": "Công ty Cổ phần Kho Vận Tân Cảng",
+    "short_name": "Kho Vận Tân Cảng"
+  },
+  "TJC": {
+    "name": "Công ty Cổ phần Dịch vụ Vận tải và Thương mại",
+    "short_name": "Dịch vụ Vận tải và Thương mại"
+  },
+  "TMS": {
+    "name": "Công ty Cổ phần Transimex",
+    "short_name": "Transimex"
+  },
+  "TNP": {
+    "name": "Công ty Cổ phần Cảng Thị Nại",
+    "short_name": "Cảng Thị Nại"
+  },
+  "TOT": {
+    "name": "Công ty Cổ phần Transimex Logistics",
+    "short_name": "Vận tải Transimex"
+  },
+  "TR1": {
+    "name": "Công ty Cổ phần Vận Tải 1 Traco",
+    "short_name": "Vận Tải 1 Traco"
+  },
+  "TRS": {
+    "name": "Công ty Cổ phần Vận tải và Dịch vụ Hàng Hải",
+    "short_name": "Vận tải và Dịch vụ Hàng Hải"
+  },
+  "VFC": {
+    "name": "Công ty Cổ phần VINAFCO",
+    "short_name": "Vận tải biển VINAFCO"
+  },
+  "VFR": {
+    "name": "Công ty Cổ phần Vận tải và Thuê tàu",
+    "short_name": "Vận tải Vietfracht"
+  },
+  "VGP": {
+    "name": "Công ty Cổ phần Cảng Rau Quả",
+    "short_name": "Cảng Rau Quả"
+  },
+  "VIN": {
+    "name": "Công ty Cổ phần Giao nhận Kho vận Ngoại thương Việt Nam",
+    "short_name": "Kho vận ngoại thương VN"
+  },
+  "VMT": {
+    "name": "Công ty Cổ phần Giao nhận Vận tải Miền Trung",
+    "short_name": "Giao nhận Vận tải Miền Trung"
+  },
+  "VIP": {
+    "name": "Công ty Cổ phần Vận tải Xăng dầu VIPCO",
+    "short_name": "Vận tải Xăng dầu VIPCO"
+  },
+  "VGR": {
+    "name": "Công ty Cổ phần Cảng xanh VIP",
+    "short_name": "Cảng xanh VIP"
+  },
+  "VMS": {
+    "name": "Công ty Cổ phần Phát triển Hàng Hải",
+    "short_name": "Phát triển Hàng Hải"
+  },
+  "VNA": {
+    "name": "Công ty Cổ phần Vận tải biển Vinaship",
+    "short_name": "Vận tải biển Vinaship"
+  },
+  "VNF": {
+    "name": "Công ty Cổ phần Vinafreight",
+    "short_name": "VINAFREIGHT"
+  },
+  "VNL": {
+    "name": "Công ty Cổ phần Logistics Vinalink",
+    "short_name": "Logistics Vinalink"
+  },
+  "MVN": {
+    "name": "Tổng Công ty Hàng hải Việt Nam - CTCP",
+    "short_name": "TCT Hàng hải Việt Nam"
+  },
+  "VLG": {
+    "name": "Công ty Cổ phần VIMC Logistics",
+    "short_name": "VIMC Logistics"
+  },
+  "VNT": {
+    "name": "Công ty Cổ phần Giao nhận Vận tải Ngoại Thương",
+    "short_name": "Vận tải ngoại thương"
+  },
+  "VOS": {
+    "name": "Công ty Cổ phần Vận tải Biển Việt Nam",
+    "short_name": "Vận tải Biển Việt Nam"
+  },
+  "VSA": {
+    "name": "Công ty Cổ phần Đại lý Hàng hải Việt Nam",
+    "short_name": "Đại lý Hàng hải VN"
+  },
+  "VPA": {
+    "name": "Công ty Cổ phần Vận tải Hóa dầu VP",
+    "short_name": "Vận tải Hóa dầu VP"
+  },
+  "VSC": {
+    "name": "Công ty Cổ phần Container Việt Nam",
+    "short_name": "VICONSHIP"
+  },
+  "VSE": {
+    "name": "Công ty Cổ phần Dịch vụ Đường cao tốc Việt Nam",
+    "short_name": "DV Đường cao tốc Việt Nam"
+  },
+  "VSG": {
+    "name": "Công ty Cổ phần Container Phía Nam",
+    "short_name": "Container Phía Nam"
+  },
+  "VST": {
+    "name": "Công ty Cổ phần Vận tải và Thuê Tàu biển Việt Nam",
+    "short_name": "Vận tải và Thuê Tàu biển Việt Nam"
+  },
+  "VTO": {
+    "name": "Công ty Cổ phần Vận tải Xăng dầu VITACO",
+    "short_name": "VITACO"
+  },
+  "VTP": {
+    "name": "Tổng Công ty Cổ phần Bưu chính Viettel",
+    "short_name": "Bưu chính Viettel"
+  },
+  "VTX": {
+    "name": "Công ty Cổ phần Vận tải Đa phương thức VIETRANSTIMEX",
+    "short_name": "Vận tải Đa phương thức"
+  },
+  "WCS": {
+    "name": "Công ty Cổ phần Bến xe Miền Tây",
+    "short_name": "Bến xe Miền Tây"
+  },
+  "WTC": {
+    "name": "Công ty Cổ phần Vận tải thủy - Vinacomin",
+    "short_name": "Vận tải thủy Vinacomin"
+  },
+  "CAR": {
+    "name": "Công ty cổ phần Tập đoàn Giáo dục Trí Việt",
+    "short_name": "Tập đoàn Giáo dục Trí Việt"
+  },
+  "LPT": {
+    "name": "Công ty Cổ phần Thương mại và Sản xuất Lập Phương Thành",
+    "short_name": "TM và SX Lập Phương Thành"
+  },
+  "ABR": {
+    "name": "Công ty Cổ phần Đầu tư Nhãn Hiệu Việt",
+    "short_name": "Đầu tư Nhãn Hiệu Việt"
+  },
+  "AGE": {
+    "name": "Công ty Cổ phần Môi trường Đô thị An Giang",
+    "short_name": "Môi trường Đô thị An Giang"
+  },
+  "ARM": {
+    "name": "Công ty Cổ phần Xuất nhập khẩu Hàng không",
+    "short_name": "XNK Hàng không"
+  },
+  "DTB": {
+    "name": "Công ty Cổ phần Công trình Đô thị Bảo Lộc",
+    "short_name": "Công trình Đô thị Bảo Lộc"
+  },
+  "BMD": {
+    "name": "Công ty Cổ phần Môi trường và Dịch vụ Đô thị Bình Thuận",
+    "short_name": "Môi trường và DV Đô thị Bình Thuận"
+  },
+  "MBN": {
+    "name": "Công ty Cổ phần Môi trường và Công trình đô thị Bắc Ninh",
+    "short_name": "Môi trường và Công trình ĐT Bắc Ninh"
+  },
+  "BRS": {
+    "name": "Công ty Cổ phần Dịch vụ Đô thị Bà Rịa",
+    "short_name": "Dịch vụ Đô thị Bà Rịa"
+  },
+  "BTU": {
+    "name": "Công ty Cổ phần Công trình Đô thị Bến Tre",
+    "short_name": "Công trình Đô thị Bến Tre"
+  },
+  "CDH": {
+    "name": "Công ty Cổ phần Công trình Công cộng và Dịch vụ Du lịch Hải Phòng",
+    "short_name": "CTCC và DV Du lịch Hải Phòng"
+  },
+  "CFM": {
+    "name": "Công ty Cổ phần Đầu tư CFM",
+    "short_name": "Đầu tư CFM"
+  },
+  "UDL": {
+    "name": "Công ty Cổ phần Đô thị và Môi trường Đắk Lắk",
+    "short_name": "Đô thị và Môi trường Đắk Lắk"
+  },
+  "DNE": {
+    "name": "Công ty Cổ phần Môi trường Đô thị Đà Nẵng",
+    "short_name": "Môi trường Đô thị Đà Nẵng"
+  },
+  "DUS": {
+    "name": "Công ty Cổ phần Dịch vụ Đô thị Đà Lạt",
+    "short_name": "Dịch vụ Đô thị Đà Lạt"
+  },
+  "MCD": {
+    "name": "Công ty Cổ phần Môi trường và Công trình Đô thị Đông Hà",
+    "short_name": "Môi trường và Đô thị Đông Hà"
+  },
+  "MTV": {
+    "name": "Công ty Cổ phần Dịch vụ Môi trường và Công trình Đô thị Vũng Tàu",
+    "short_name": "Công trình đô thị Vũng Tàu"
+  },
+  "HEC": {
+    "name": "Công ty Cổ phần Tư vấn xây dựng Thủy Lợi II",
+    "short_name": "Tư vấn XD Thủy Lợi II (HEC II)"
+  },
+  "HEP": {
+    "name": "Công ty Cổ phần Môi trường và Công trình đô thị Huế",
+    "short_name": "Môi trường và Công trình đô thị Huế"
+  },
+  "HSA": {
+    "name": "Công ty Cổ phần HESTIA",
+    "short_name": "HESTIA"
+  },
+  "ILC": {
+    "name": "Công ty Cổ phần Hợp tác lao động với nước ngoài",
+    "short_name": "Hợp tác lao động với nước ngoài"
+  },
+  "IPA": {
+    "name": "Công ty Cổ phần Tập đoàn Đầu tư I.P.A",
+    "short_name": "Tập đoàn Đầu tư I.P.A"
+  },
+  "AMS": {
+    "name": "Công ty Cổ phần Cơ khí Xây dựng AMECC",
+    "short_name": "Cơ khí Xây dựng AMECC (Xây dựng LISEMCO 2)"
+  },
+  "MDA": {
+    "name": "Công ty Cổ phần Môi trường Đô thị Đông Anh",
+    "short_name": "Môi trường Đô thị Đông Anh"
+  },
+  "MLC": {
+    "name": "Công ty Cổ phần Môi trường Đô thị Tỉnh Lào Cai",
+    "short_name": "Môi trường Đô thị Tỉnh Lào Cai"
+  },
+  "MPY": {
+    "name": "Công ty Cổ phần Môi trường đô thị Phú Yên",
+    "short_name": "Môi trường đô thị Phú Yên"
+  },
+  "MQB": {
+    "name": "Công ty Cổ phần Môi trường và Phát triển đô thị Quảng Bình",
+    "short_name": "Môi trường và PT đô thị Quảng Bình"
+  },
+  "MTH": {
+    "name": "Công ty Cổ phần Môi trường Đô thị Hà Đông",
+    "short_name": "Môi trường Đô thị Hà Đông"
+  },
+  "MTL": {
+    "name": "Công ty Cổ phần Dịch vụ Môi trường Đô thị Từ Liêm",
+    "short_name": "Môi trường Đô thị Từ Liêm"
+  },
+  "NAU": {
+    "name": "Công ty Cổ phần Môi trường và Công trình Đô thị Nghệ An",
+    "short_name": "Công trình Đô thị Nghệ An"
+  },
+  "MND": {
+    "name": "Công ty Cổ phần Môi trường Nam Định",
+    "short_name": "Môi trường Nam Định"
+  },
+  "NUE": {
+    "name": "Công ty Cổ phần Môi trường Đô thị Nha Trang",
+    "short_name": "Môi trường Đô thị Nha Trang"
+  },
+  "PPE": {
+    "name": "Công ty Cổ phần Tư vấn Đầu tư PP Enterprise",
+    "short_name": "PVPower Engineering"
+  },
+  "PPS": {
+    "name": "Công ty Cổ phần Dịch vụ Kỹ thuật Điện lực Dầu khí Việt Nam",
+    "short_name": "DVKT Điện lực Dầu khí"
+  },
+  "PVM": {
+    "name": "Công ty Cổ phần Máy - Thiết bị Dầu khí",
+    "short_name": "Thiết bị dầu khí (PV MACHINO)"
+  },
+  "MQN": {
+    "name": "Công ty Cổ phần Môi trường đô thị Quảng Ngãi",
+    "short_name": "Môi trường đô thị Quảng Ngãi"
+  },
+  "QNU": {
+    "name": "Công ty Cổ phần Môi trường Đô thị Quảng Nam",
+    "short_name": "Môi trường Đô thị Quảng Nam"
+  },
+  "SDA": {
+    "name": "Công ty Cổ phần SIMCO Sông Đà",
+    "short_name": "XKLĐ Sông Đà"
+  },
+  "SDC": {
+    "name": "Công ty Cổ phần Tư vấn Sông Đà",
+    "short_name": "Tư vấn Sông Đà"
+  },
+  "SDV": {
+    "name": "Công ty Cổ phần Dịch vụ Sonadezi",
+    "short_name": "Dịch vụ Sonadezi"
+  },
+  "SFN": {
+    "name": "Công ty Cổ phần Dệt lưới Sài Gòn",
+    "short_name": "Dệt lưới Sài Gòn"
+  },
+  "SZE": {
+    "name": "Công ty Cổ phần Môi trường Sonadezi",
+    "short_name": "Môi trường Sonadezi"
+  },
+  "MTB": {
+    "name": "Công ty Cổ phần Môi trường và Công trình đô thị tỉnh Thái Bình",
+    "short_name": "Công trình đô thị tỉnh Thái Bình"
+  },
+  "THU": {
+    "name": "Công ty Cổ phần Môi trường và Công trình đô thị Thanh Hóa",
+    "short_name": "Môi trường và CTĐT Thanh Hóa"
+  },
+  "TV1": {
+    "name": "Công ty Cổ phần Tư vấn Xây dựng Điện 1",
+    "short_name": "Tư vấn XD Điện 1"
+  },
+  "TV2": {
+    "name": "Công ty Cổ phần Tư vấn Xây dựng Điện 2",
+    "short_name": "Tư vấn XD Điện 2"
+  },
+  "TV4": {
+    "name": "Công ty Cổ phần Tư vấn Xây dựng Điện 4",
+    "short_name": "Tư vấn XD Điện 4"
+  },
+  "UCT": {
+    "name": "Công ty Cổ phần Đô thị Cần Thơ",
+    "short_name": "Đô thị Cần Thơ"
+  },
+  "USD": {
+    "name": "Công ty Cổ phần Công trình Đô thị Sóc Trăng",
+    "short_name": "Công trình Đô thị Sóc Trăng"
+  },
+  "VCM": {
+    "name": "Công ty Cổ phần Nhân lực và Thương mại Vinaconex",
+    "short_name": "Nhân lực và Thương mại Vinaconex"
+  },
+  "VCT": {
+    "name": "Công ty Cổ phần Tư vấn Xây dựng Vinaconex",
+    "short_name": "Tư vấn XD Vinaconex"
+  },
+  "TVM": {
+    "name": "Công ty Cổ phần Tư vấn đầu tư Mỏ và công nghiệp - Vinacomin",
+    "short_name": "Tư vấn đầu tư Mỏ"
+  },
+  "VLP": {
+    "name": "Công ty Cổ phần Công trình Công cộng Vĩnh Long",
+    "short_name": "Công trình Công cộng Vĩnh Long"
+  },
+  "MTS": {
+    "name": "Công ty Cổ phần Vật tư - TKV",
+    "short_name": "Vật tư - TKV"
+  },
+  "VNC": {
+    "name": "Công ty Cổ phần Tập đoàn Vinacontrol",
+    "short_name": "VINACONTROL"
+  },
+  "VQC": {
+    "name": "Công ty Cổ phần Giám định Vinaconmin",
+    "short_name": "Giám định Vinaconmin"
+  },
+  "VTK": {
+    "name": "Công ty Cổ phần Tư vấn và Dịch vụ Viettel",
+    "short_name": "Tư vấn thiết kế Viettel"
+  },
+  "APH": {
+    "name": "Công ty Cổ phần Tập đoàn An Phát Holdings",
+    "short_name": "Tập đoàn An Phát Holdings"
+  },
+  "BAL": {
+    "name": "Công ty Cổ phần Bao bì Bia - Rượu - Nước giải khát",
+    "short_name": "Bao bì Balpac"
+  },
+  "BBH": {
+    "name": "Công ty Cổ phần Bao bì Hoàng Thạch",
+    "short_name": "Bao bì Hoàng Thạch"
+  },
+  "BBS": {
+    "name": "Công ty Cổ phần VICEM Bao bì Bút Sơn",
+    "short_name": "Bao bì Xi măng Bút Sơn"
+  },
+  "BPC": {
+    "name": "Công ty Cổ phần Vicem Bao bì Bỉm Sơn",
+    "short_name": "Bao bì Bỉm Sơn"
+  },
+  "BTG": {
+    "name": "Công ty Cổ phần Bao bì Tiền Giang",
+    "short_name": "Bao bì Tiền Giang"
+  },
+  "BXH": {
+    "name": "Công ty Cổ phần VICEM Bao bì Hải Phòng",
+    "short_name": "Bao bì Xi măng HP"
+  },
+  "DPC": {
+    "name": "Công ty Cổ phần Nhựa Đà Nẵng",
+    "short_name": "Nhựa Đà Nẵng"
+  },
+  "HBD": {
+    "name": "Công ty Cổ phần Bao bì PP Bình Dương",
+    "short_name": "Bao bì PP Bình Dương"
+  },
+  "HDO": {
+    "name": "Công ty Cổ phần Hưng Đạo Container",
+    "short_name": "Hưng Đạo Container"
+  },
+  "HPB": {
+    "name": "Công ty Cổ phần Bao bì PP",
+    "short_name": "Bao bì PP"
+  },
+  "INN": {
+    "name": "Công ty Cổ phần Bao bì và In Nông nghiệp",
+    "short_name": "Bao bì và In Nông Nghiệp"
+  },
+  "ILS": {
+    "name": "Công ty Cổ phần Đầu tư Thương mại và Dịch vụ Quốc tế",
+    "short_name": "TM và Dịch vụ Quốc tế"
+  },
+  "MCP": {
+    "name": "Công ty Cổ phần In và Bao bì Mỹ Châu",
+    "short_name": "In và Bao bì Mỹ Châu"
+  },
+  "NHP": {
+    "name": "Công ty Cổ phần Sản xuất Xuất nhập khẩu NHP",
+    "short_name": "Sản xuất XNK NHP"
+  },
+  "PBP": {
+    "name": "Công ty Cổ phần Bao bì Dầu khí Việt Nam",
+    "short_name": "Bao bì Dầu khí VN"
+  },
+  "PMP": {
+    "name": "Công ty Cổ phần Bao bì Đạm Phú Mỹ",
+    "short_name": "Bao bì Đạm Phú Mỹ"
+  },
+  "PBT": {
+    "name": "Công ty Cổ Phần Nhà và Thương mại Dầu khí",
+    "short_name": "PV Building"
+  },
+  "QHD": {
+    "name": "Công ty Cổ phần Que hàn điện Việt Đức",
+    "short_name": "Que hàn Việt Đức"
+  },
+  "SDG": {
+    "name": "Công ty Cổ phần Sadico Cần Thơ",
+    "short_name": "Sadico Cần Thơ"
+  },
+  "STP": {
+    "name": "Công ty Cổ phần Công nghiệp Thương mại Sông Đà",
+    "short_name": "CN Thương Mại Sông Đà"
+  },
+  "SVG": {
+    "name": "Công ty Cổ phần Hơi kỹ nghệ Que hàn",
+    "short_name": "Hơi kỹ nghệ Que hàn"
+  },
+  "SVI": {
+    "name": "Công ty Cổ phần Bao bì Biên Hòa",
+    "short_name": "Bao bì Biên Hòa"
+  },
+  "TKA": {
+    "name": "Công ty Cổ phần Bao bì Tân Khánh An",
+    "short_name": "Bao bì Tân Khánh An"
+  },
+  "TB8": {
+    "name": "Công ty Cổ phần Sản xuất và Kinh doanh Vật tư Thiết bị - VVMI",
+    "short_name": "SX và KD Vật tư Thiết bị - VVMI"
+  },
+  "TDP": {
+    "name": "Công ty Cổ phần Thuận Đức",
+    "short_name": "Công ty Thuận Đức"
+  },
+  "TPP": {
+    "name": "Công ty Cổ phần Tân Phú Việt Nam",
+    "short_name": "Nhựa Tân Phú VN"
+  },
+  "TTP": {
+    "name": "Công ty Cổ phần Bao bì Nhựa Tân Tiến",
+    "short_name": "Bao bì nhựa Tân Tiến"
+  },
+  "VBC": {
+    "name": "Công ty Cổ phần Nhựa, Bao bì Vinh",
+    "short_name": "Nhựa - Bao bì Vinh"
+  },
+  "VHG": {
+    "name": "Công ty Cổ phần Đầu tư và Phát triển Việt Trung Nam",
+    "short_name": "Công ty Cổ phần Đầu tư và Phát triển Việt Trung Nam"
+  },
+  "NO1": {
+    "name": "Công ty Cổ phần Tâp đoàn 911",
+    "short_name": "Tâp đoàn 911"
+  },
+  "CKA": {
+    "name": "Công ty Cổ phần Cơ khí An Giang",
+    "short_name": "Cơ khí An Giang"
+  },
+  "APL": {
+    "name": "Công ty Cổ phần Cơ khí và Thiết bị áp lực - VVMI",
+    "short_name": "Cơ khí và Thiết bị áp lực - VVMI"
+  },
+  "CE1": {
+    "name": "Công ty Cổ phần Xây dựng và Thiết bị Công nghiệp CIE1",
+    "short_name": "Thiết bị Công nghiệp CIE1"
+  },
+  "CKD": {
+    "name": "Công ty Cổ phần Cơ khí Đông Anh Licogi",
+    "short_name": "Đông Anh Licogi"
+  },
+  "CMK": {
+    "name": "Công ty Cổ phần Cơ khí Mạo Khê - Vinacomin",
+    "short_name": "Cơ khí Mạo Khê - Vinacomin"
+  },
+  "CTB": {
+    "name": "Công ty Cổ phần Chế tạo Bơm Hải Dương",
+    "short_name": "Bơm Hải Dương"
+  },
+  "CTT": {
+    "name": "Công ty Cổ phần Chế tạo máy Vinacomin",
+    "short_name": "Chế tạo máy Vinacomin"
+  },
+  "DAS": {
+    "name": "Công ty Cổ phần Máy - Thiết bị Dầu khí Đà Nẵng",
+    "short_name": "Thiết bị Dầu khí Đà Nẵng"
+  },
+  "DZM": {
+    "name": "Công ty Cổ phần Cơ điện Dzĩ An",
+    "short_name": "Cơ điện Dzĩ An"
+  },
+  "FSO": {
+    "name": "Công ty Cổ phần Cơ khí đóng tàu thủy sản Việt Nam",
+    "short_name": "Đóng tàu thủy sản VN"
+  },
+  "FBC": {
+    "name": "Công ty Cổ phần Cơ khí Phổ Yên",
+    "short_name": "Cơ khí Phổ Yên"
+  },
+  "FT1": {
+    "name": "Công ty Cổ phần Phụ tùng máy số 1",
+    "short_name": "Phụ tùng máy số 1"
+  },
+  "GMA": {
+    "name": "Công ty Cổ phần G-Automobile",
+    "short_name": "Enteco Việt Nam"
+  },
+  "IME": {
+    "name": "Công ty Cổ phần Cơ khí và Xây lắp Công nghiệp",
+    "short_name": "Xây lắp Công nghiệp"
+  },
+  "ITS": {
+    "name": "Công ty Cổ phần Đầu tư, Thương mại và Dịch vụ - Vinacomin",
+    "short_name": "Thương mại và DV - Vinacomin"
+  },
+  "L10": {
+    "name": "Công ty Cổ phần Lilama 10",
+    "short_name": "LILAMA 10"
+  },
+  "L35": {
+    "name": "Công ty Cổ phần Cơ khí Lắp máy Lilama",
+    "short_name": "Cơ khí Lilama"
+  },
+  "L43": {
+    "name": "Công ty Cổ phần Lilama 45.3",
+    "short_name": "LILAMA 45.3"
+  },
+  "L44": {
+    "name": "Công ty Cổ phần Lilama 45.4",
+    "short_name": "LILAMA 45.4"
+  },
+  "L61": {
+    "name": "Công ty Cổ phần Lilama 69-1",
+    "short_name": "LILAMA 69-1"
+  },
+  "L62": {
+    "name": "Công ty Cổ phần Lilama 69 - 2",
+    "short_name": "LILAMA 69.2"
+  },
+  "L63": {
+    "name": "Công ty Cổ phần Lilama 69-3",
+    "short_name": "Lilama 69-3"
+  },
+  "LMI": {
+    "name": "Công ty Cổ phần Đầu tư Xây dựng Lắp máy IDICO",
+    "short_name": "Lắp máy IDICO"
+  },
+  "LQN": {
+    "name": "Công ty Cổ phần Licogi Quảng Ngãi",
+    "short_name": "Licogi Quảng Ngãi"
+  },
+  "LLM": {
+    "name": "Tổng Công ty lắp máy Việt Nam - Công ty Cổ phần",
+    "short_name": "LILAMA"
+  },
+  "LM7": {
+    "name": "Công ty Cổ phần Lilama 7",
+    "short_name": "LILAMA 7"
+  },
+  "LO5": {
+    "name": "Công ty Cổ phần Lilama 5",
+    "short_name": "LILAMA 5"
+  },
+  "MAC": {
+    "name": "Công ty Cổ phần Cung ứng và Dịch vụ Kỹ thuật Hàng Hải",
+    "short_name": "Cung ứng và Dịch vụ Kỹ thuật Hàng Hải"
+  },
+  "MIE": {
+    "name": "Tổng Công ty Máy và Thiết bị Công nghiệp - CTCP",
+    "short_name": "Máy và Thiết bị Công nghiệp"
+  },
+  "PEC": {
+    "name": "Công ty Cổ phần Cơ khí Điện lực",
+    "short_name": "Cơ khí Điện lực"
+  },
+  "PMS": {
+    "name": "Công ty Cổ phần Cơ khí Xăng dầu",
+    "short_name": "Cơ khí xăng dầu"
+  },
+  "REE": {
+    "name": "Công ty Cổ phần Cơ điện Lạnh",
+    "short_name": "Cơ Điện Lạnh REE"
+  },
+  "SAL": {
+    "name": "Công ty Cổ phần Trục vớt Cứu hộ Việt Nam",
+    "short_name": "Trục vớt Cứu hộ Việt Nam"
+  },
+  "SCO": {
+    "name": "Công ty Cổ phần Công nghiệp Thủy sản",
+    "short_name": "Công nghiệp Thủy Sản"
+  },
+  "SCY": {
+    "name": "Công ty Cổ phần Đóng tàu Sông Cấm",
+    "short_name": "Đóng tàu Sông Cấm"
+  },
+  "SDK": {
+    "name": "Công ty Cổ phần Cơ khí Luyện Kim",
+    "short_name": "Cơ khí Luyện Kim"
+  },
+  "SRF": {
+    "name": "Công ty Cổ phần Searefico",
+    "short_name": "SEAREFICO"
+  },
+  "UEM": {
+    "name": "Công ty Cổ phần Cơ điện Uông Bí - Vinacomin",
+    "short_name": "Cơ điện Uông Bí - Vinacomin"
+  },
+  "VEA": {
+    "name": "Tổng Công ty Máy động lực và Máy nông nghiệp Việt Nam - CTCP",
+    "short_name": "Máy động lực và Máy NN"
+  },
+  "VES": {
+    "name": "Công ty Cổ phần Đầu tư và Xây dựng Điện MÊ CA VNECO",
+    "short_name": "MÊ CA VNECO"
+  }
+}

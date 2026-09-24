@@ -75,6 +75,10 @@ def format_detail_message(res: dict) -> str:
     """
     sym    = res['symbol']
     ex     = res['exchange']
+    comp   = config.get_company_info(sym)
+    comp_name = comp.get('name') or comp.get('short_name') or ''
+    title_sym = f"*{sym}: {comp_name}*" if comp_name else f"*{sym}*"
+
     price  = res['price_vnd']
     chg    = res['change_pct']
     score  = res['trend_score']
@@ -99,7 +103,7 @@ def format_detail_message(res: dict) -> str:
 
     # Header
     msg = (
-        f"📊 *{sym}* — `{ex}` | Điểm: `{score}/6`\n"
+        f"📊 {title_sym} — `{ex}` | Điểm: `{score}/6`\n"
         f"━━━━━━━━━━━━━━━━━━━\n"
         f"⏰ _{time_s}_\n"
         f"💰 Giá: `{price}` {chg_icon} `{_pct_str(chg)}`\n\n"
@@ -323,7 +327,6 @@ def process_updates(updates: list, run_scan_fn=None) -> int:
             target = text_upper
 
         if target and 2 <= len(target) <= 5 and target.isalpha():
-            send_message(chat_id, f"🔍 Đang phân tích mã *{target}*...")
             try:
                 res = analyze_single_symbol(target)
                 if res:

@@ -132,6 +132,9 @@ def save_alerted_stocks_today(alerted: Set[str]):
 # 2. FORMAT TIN NHẮN THEO CHUẨN PINE SCRIPT
 # ─────────────────────────────────────────────────────────────
 
+from config import get_company_info
+
+
 def _pct(v: float) -> str:
     return f"+{v:.1f}%" if v >= 0 else f"{v:.1f}%"
 
@@ -143,6 +146,10 @@ def fmt_buy_alert(res: dict) -> str:
     """
     sym        = res['symbol']
     ex         = res['exchange']
+    comp       = get_company_info(sym)
+    comp_name  = comp.get('name') or comp.get('short_name') or ''
+    title_sym  = f"*{sym}: {comp_name}*" if comp_name else f"*{sym}*"
+
     price      = res['price_vnd']
     chg        = res['change_pct']
     chg_str    = _pct(chg)
@@ -160,11 +167,11 @@ def fmt_buy_alert(res: dict) -> str:
     tp2_pct    = _pct(res.get('tp2_pct', 0.0))
 
     if is_diamond:
-        badge_header = f"💎 [TÍN HIỆU MUA MẠNH] *{sym}* — `{ex}`"
+        badge_header = f"💎 [TÍN HIỆU MUA MẠNH] {title_sym} — `{ex}`"
         sub_title    = "✨ *HỢP LƯU TỐI ƯU (XÁC SUẤT CAO NHẤT)*"
         nw_item      = "✅ Đáy Nadaraya-Watson (hội tụ trong 7 nến vừa qua)"
     else:
-        badge_header = f"🟢 [TÍN HIỆU MUA] *{sym}* — `{ex}`"
+        badge_header = f"🟢 [TÍN HIỆU MUA] {title_sym} — `{ex}`"
         sub_title    = "📈 *CHỈ BÁO XÁC NHẬN ĐIỂM MUA*"
         nw_item      = f"✅ Biên độ Nadaraya-Watson: `{nw_zone}`"
 
@@ -195,6 +202,10 @@ def fmt_detail(res: dict) -> str:
     """
     sym     = res['symbol']
     ex      = res['exchange']
+    comp    = get_company_info(sym)
+    comp_name = comp.get('name') or comp.get('short_name') or ''
+    title_sym = f"*{sym}: {comp_name}*" if comp_name else f"*{sym}*"
+
     price   = res['price_vnd']
     chg     = res['change_pct']
     chg_i   = "🟢" if chg >= 0 else "🔴"
@@ -258,7 +269,7 @@ def fmt_detail(res: dict) -> str:
             status_tag = " 🏆 *(Đã đạt mục tiêu TP1)*"
 
     msg = (
-        f"📊 *{sym}* — `{ex}`\n"
+        f"📊 {title_sym} — `{ex}`\n"
         f"━━━━━━━━━━━━━━━━━━━\n"
         f"⏰ _{t}_\n"
         f"💰 Giá hiện tại: `{price}` {chg_i} `{chg_str}`{status_tag}\n\n"
@@ -395,7 +406,6 @@ def process_updates(updates: list) -> int:
             target = text_up
 
         if target:
-            gdnl_bot.send_message(chat_id, f"🔍 Đang phân tích mã *{target}*...")
             try:
                 res = dtpro_screener.analyze_single(target)
                 if res:
