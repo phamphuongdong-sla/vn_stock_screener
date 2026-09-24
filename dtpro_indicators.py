@@ -210,6 +210,7 @@ def track_positions_and_signals(
     cua_so_lookback: int = 7,
     rr1: float = 1.0,
     rr2: float = 2.0,
+    vni_trend_map: dict = None,
 ) -> Dict:
     """
     Mô phỏng 100% logic Pine Script DÒNG TIỀN & XU HƯỚNG PRO:
@@ -228,6 +229,7 @@ def track_positions_and_signals(
     nw_u  = nw_upper.values
     nw_l  = nw_lower.values
     atr_v = atr_series.values
+    t_arr = df['time'].values if 'time' in df.columns else np.zeros(len(close), dtype=int)
     n = len(close)
 
     # 1. Tính isVungDayNW và isVungDinhNW trên từng nến
@@ -254,6 +256,7 @@ def track_positions_and_signals(
     last_nw_high_bar = -9999
 
     buy_trades = []
+    sell_trades = []
 
     for i in range(1, n):
         if is_day_nw[i]:
@@ -278,6 +281,7 @@ def track_positions_and_signals(
             tp2_p = close[i] + r * rr2
             last_trigger_bar = i
             last_trigger_type = "BUY_DIAMOND" if is_diamond else "BUY_STANDARD"
+            vni_up = vni_trend_map.get(t_arr[i], True) if vni_trend_map else True
             buy_trades.append({
                 'bar': i,
                 'is_diamond': is_diamond,
@@ -285,6 +289,8 @@ def track_positions_and_signals(
                 'sl': sl_p,
                 'tp1': tp1_p,
                 'tp2': tp2_p,
+                'vni_up': vni_up,
+                'time': t_arr[i],
             })
 
         elif sell_trigger:
@@ -298,6 +304,10 @@ def track_positions_and_signals(
             tp2_p = close[i] - r * rr2
             last_trigger_bar = i
             last_trigger_type = "SELL_DIAMOND" if is_diamond else "SELL_STANDARD"
+            sell_trades.append({
+                'bar': i,
+                'is_diamond': is_diamond
+            })
 
     # Trạng thái nến hiện tại (phiên hôm nay)
     curr_buy_trigger  = (dirs[-1] == 1 and dirs[-2] == -1) if n >= 2 else False
@@ -378,61 +388,65 @@ def track_positions_and_signals(
         win_tp2 = (first_tp2 is not None) and (first_sl is None or first_tp2 < first_sl)
         hit_sl_first = (first_sl is not None) and (first_tp1 is None or first_sl < first_tp1)
 
-        # Tính % PnL thực tế cho lệnh này
-        if win_tp2:
-            trade_pnl = (b_tp2 - b_entry) / b_entry * 100.0
-        elif win_tp1:
-            trade_pnl = (b_tp1 - b_entry) / b_entry * 100.0
-        elif hit_sl_first:
-            trade_pnl = (b_sl - b_entry) / b_entry * 100.0
-        else:
-            exit_bar = n - 1
+        # Tính VN-Index win/loss
+        b_vni_up = bt.get('vni_up', True)
+        trend_end_bar = n - 1
+        if vni_trend_map:
             for j in range(b_bar + 1, n):
-                if dirs[j] == -1 and dirs[j-1] == 1:
-                    exit_bar = j
+                cur_vni_up = vni_trend_map.get(t_arr[j])
+                if cur_vni_up is not None and cur_vni_up != b_vni_up:
+                    trend_end_bar = j
                     break
-            trade_pnl = (close[exit_bar] - b_entry) / b_entry * 100.0
+        
+        gia_cuoi = close[trend_end_bar]
+        if b_vni_up:
+            vni_trend_win = gia_cuoi > b_entry
+        else:
+            vni_trend_win = gia_cuoi < b_entry
 
         buy_stats_list.append({
             'is_diamond': b_dia,
-            'win_tp1': win_tp1,
-            'win_tp2': win_tp2,
-            'hit_sl_first': hit_sl_first,
-            'trade_pnl': trade_pnl,
+            'vni_up': b_vni_up,
+            'vni_trend_win': vni_trend_win,
+            'gia_dau': b_entry,
+            'gia_cuoi': gia_cuoi,
         })
 
+    # Tổng hợp các tín hiệu
     tot_buys = len(buy_stats_list)
     dia_list = [t for t in buy_stats_list if t['is_diamond']]
     std_list = [t for t in buy_stats_list if not t['is_diamond']]
+    
+    n_buy_diamond = len(dia_list)
+    n_buy = len(std_list)
+    
+    tot_signals = tot_buys + len(sell_trades)
+    buy_ratio = round(tot_buys / tot_signals * 100.0, 2) if tot_signals else 0.0
 
-    tot_wins = sum(1 for t in buy_stats_list if t['win_tp1'])
-    dia_wins = sum(1 for t in dia_list if t['win_tp1'])
-    std_wins = sum(1 for t in std_list if t['win_tp1'])
-
-    dia_wins_list = [t for t in dia_list if t['win_tp1']]
-    std_wins_list = [t for t in std_list if t['win_tp1']]
-    tot_wins_list = [t for t in buy_stats_list if t['win_tp1']]
-
-    dia_avg_pnl = round(sum(t['trade_pnl'] for t in dia_wins_list) / len(dia_wins_list), 1) if dia_wins_list else 0.0
-    std_avg_pnl = round(sum(t['trade_pnl'] for t in std_wins_list) / len(std_wins_list), 1) if std_wins_list else 0.0
-    tot_avg_pnl = round(sum(t['trade_pnl'] for t in tot_wins_list) / len(tot_wins_list), 1) if tot_wins_list else 0.0
-
+    vni_up_list = [t for t in buy_stats_list if t['vni_up']]
+    vni_dn_list = [t for t in buy_stats_list if not t['vni_up']]
+    
+    vni_up_wins = sum(1 for t in vni_up_list if t['vni_trend_win'])
+    vni_dn_wins = sum(1 for t in vni_dn_list if t['vni_trend_win'])
+    tot_wins = sum(1 for t in buy_stats_list if t['vni_trend_win'])
+    
     buy_stats = {
+        'n_buy': n_buy,
+        'n_buy_diamond': n_buy_diamond,
         'total_buys': tot_buys,
-        'total_wins': tot_wins,
-        'winrate_pct': round(tot_wins / tot_buys * 100.0, 1) if tot_buys > 0 else 0.0,
-        'total_avg_pnl': tot_avg_pnl,
-        'diamond_cnt': len(dia_list),
-        'diamond_wins': dia_wins,
-        'diamond_winrate': round(dia_wins / len(dia_list) * 100.0, 1) if dia_list else 0.0,
-        'diamond_avg_pnl': dia_avg_pnl,
-        'standard_cnt': len(std_list),
-        'standard_wins': std_wins,
-        'standard_winrate': round(std_wins / len(std_list) * 100.0, 1) if std_list else 0.0,
-        'standard_avg_pnl': std_avg_pnl,
-        'tp1_rate': round(tot_wins / tot_buys * 100.0, 1) if tot_buys > 0 else 0.0,
-        'tp2_rate': round(sum(1 for t in buy_stats_list if t['win_tp2']) / tot_buys * 100.0, 1) if tot_buys > 0 else 0.0,
-        'sl_rate': round(sum(1 for t in buy_stats_list if t['hit_sl_first']) / tot_buys * 100.0, 1) if tot_buys > 0 else 0.0,
+        'total_signals': tot_signals,
+        'buy_ratio': buy_ratio,
+        
+        'vni_up_cnt': len(vni_up_list),
+        'vni_up_wins': vni_up_wins,
+        'vni_up_winrate': round(vni_up_wins / len(vni_up_list) * 100.0, 2) if vni_up_list else 0.0,
+        
+        'vni_dn_cnt': len(vni_dn_list),
+        'vni_dn_wins': vni_dn_wins,
+        'vni_dn_winrate': round(vni_dn_wins / len(vni_dn_list) * 100.0, 2) if vni_dn_list else 0.0,
+        
+        'tot_wins': tot_wins,
+        'tot_winrate': round(tot_wins / tot_buys * 100.0, 2) if tot_buys else 0.0,
     }
 
     return {
@@ -465,6 +479,7 @@ def track_positions_and_signals(
         'bars_since_nw_high': bars_since_nw_high,
         'had_nw_low':         curr_had_nw_low,
         'had_nw_high':        curr_had_nw_high,
+        'last_vni_up':        buy_trades[-1]['vni_up'] if buy_trades else True,
         'buy_stats':          buy_stats,
     }
 
@@ -494,6 +509,7 @@ def analyze_dtpro(
     cua_so_lookback: int   = 7,
     rr1:             float = 1.0,
     rr2:             float = 2.0,
+    vni_trend_map:   dict  = None,
 ) -> Optional[Dict]:
     """
     Phân tích đầy đủ 1 mã theo chỉ báo DÒNG TIỀN & XU HƯỚNG PRO.
@@ -539,7 +555,8 @@ def analyze_dtpro(
     # 5. Khóa trạng thái tín hiệu và vị thế
     state = track_positions_and_signals(
         df, direction, nw_upper_s, nw_lower_s, atr_s,
-        cua_so_lookback=cua_so_lookback, rr1=rr1, rr2=rr2
+        cua_so_lookback=cua_so_lookback, rr1=rr1, rr2=rr2,
+        vni_trend_map=vni_trend_map
     )
 
     # Giá hiện tại
@@ -631,5 +648,6 @@ def analyze_dtpro(
         'updated_time':       datetime.now().strftime("%H:%M %d/%m/%Y"),
         'nw_bars_used':       actual_win,
         'buy_stats':          state.get('buy_stats', {}),
+        'last_vni_up':        state.get('last_vni_up', True),
     }
 

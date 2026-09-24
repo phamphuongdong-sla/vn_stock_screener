@@ -73,6 +73,7 @@ def analyze_one(item: dict, exchange: str) -> Optional[Dict]:
         nw_win=config.DTPRO_NW_WIN,
         cua_so_lookback=config.DTPRO_LOOKBACK,
         rr1=config.DTPRO_RR1, rr2=config.DTPRO_RR2,
+        vni_trend_map=get_vnindex_trend_map(config.DTPRO_HISTORY_DAYS),
     )
     if res:
         res['vni'] = get_vnindex_status()
@@ -81,6 +82,43 @@ def analyze_one(item: dict, exchange: str) -> Optional[Dict]:
 
 _vni_cache = None
 _vni_cache_time = 0
+
+_vni_hist_map = {}
+_vni_hist_time = 0
+
+def get_vnindex_trend_map(days: int = 1000) -> dict:
+    """Lấy lịch sử xu hướng VNINDEX map theo timestamp."""
+    global _vni_hist_map, _vni_hist_time
+    now = time.time()
+    if _vni_hist_map and (now - _vni_hist_time < 300):
+        return _vni_hist_map
+
+    try:
+        from screener import get_session
+        s = get_session()
+        now_ts = int(now)
+        from_ts = now_ts - days * 86400
+        u = f"https://services.entrade.com.vn/chart-api/v2/ohlcs/index?from={from_ts}&to={now_ts}&symbol=VNINDEX&resolution=1D"
+        r = s.get(u, timeout=(2.0, 4.0))
+        if r.status_code == 200:
+            d = r.json()
+            if 'c' in d and len(d['c']) > 20:
+                df_vni = pd.DataFrame({
+                    'time': d['t'],
+                    'open': d['o'],
+                    'high': d['h'],
+                    'low': d['l'],
+                    'close': d['c'],
+                    'volume': d['v']
+                })
+                from dtpro_indicators import calc_supertrend
+                st_dir, _ = calc_supertrend(df_vni, st_len=config.DTPRO_ST_LEN, atr_mult=config.DTPRO_ST_MULT, atr_len=config.DTPRO_ATR_LEN)
+                is_up = st_dir == 1
+                _vni_hist_map = {d['t'][i]: bool(is_up.iloc[i]) for i in range(len(d['t']))}
+                _vni_hist_time = now
+    except Exception:
+        pass
+    return _vni_hist_map
 
 def get_vnindex_status() -> dict:
     """Lấy trạng thái xu hướng của VN-INDEX thời gian thực (kèm cache 5 phút)."""
@@ -93,28 +131,53 @@ def get_vnindex_status() -> dict:
         from screener import get_session
         s = get_session()
         now_ts = int(now)
-        from_ts = now_ts - 200 * 86400
+        from_ts = now_ts - 400 * 86400
         u = f"https://services.entrade.com.vn/chart-api/v2/ohlcs/index?from={from_ts}&to={now_ts}&symbol=VNINDEX&resolution=1D"
         r = s.get(u, timeout=(2.0, 4.0))
         if r.status_code == 200:
             d = r.json()
-            c_series = pd.Series(d['c'])
-            ma20 = float(c_series.rolling(20).mean().iloc[-1])
-            cur_p = float(c_series.iloc[-1])
-            prev_p = float(c_series.iloc[-2]) if len(c_series) > 1 else cur_p
-            chg = (cur_p - prev_p) / prev_p * 100
-            is_up = cur_p >= ma20
-            
-            _vni_cache = {
-                'price': cur_p,
-                'chg_pct': chg,
-                'ma20': ma20,
-                'is_uptrend': is_up,
-                'label': "TĂNG 🟢 (Thuận xu hướng)" if is_up else "GIẢM 🔴 (Ngược xu hướng)",
-                'status_str': "TĂNG 🟢" if is_up else "GIẢM 🔴",
-            }
-            _vni_cache_time = now
-            return _vni_cache
+            if 'c' in d and len(d['c']) > 20:
+                df_vni = pd.DataFrame({
+                    'time': d['t'],
+                    'open': d['o'],
+                    'high': d['h'],
+                    'low': d['l'],
+                    'close': d['c'],
+                    'volume': d['v']
+                })
+                from dtpro_indicators import calc_supertrend
+                st_dir, _ = calc_supertrend(df_vni, st_len=config.DTPRO_ST_LEN, atr_mult=config.DTPRO_ST_MULT, atr_len=config.DTPRO_ATR_LEN)
+                dir_val = int(st_dir.iloc[-1])
+                c_series = df_vni['close']
+                ma20 = float(c_series.rolling(20).mean().iloc[-1])
+                cur_p = float(c_series.iloc[-1])
+                prev_p = float(c_series.iloc[-2]) if len(c_series) > 1 else cur_p
+                chg = (cur_p - prev_p) / prev_p * 100
+
+                diff_pct = (cur_p - ma20) / ma20 * 100.0
+                if abs(diff_pct) <= 0.2:
+                    state = "NGANG"
+                    state_str = "⚪ NGANG"
+                elif cur_p > ma20:
+                    state = "TĂNG"
+                    state_str = "🟢 TĂNG"
+                else:
+                    state = "GIẢM"
+                    state_str = "🔴 GIẢM"
+
+                _vni_cache = {
+                    'price': cur_p,
+                    'chg_pct': chg,
+                    'ma20': ma20,
+                    'st_dir': dir_val,
+                    'state': state,
+                    'state_str': state_str,
+                    'is_uptrend': (state == "TĂNG"),
+                    'label': state_str,
+                    'status_str': state_str,
+                }
+                _vni_cache_time = now
+                return _vni_cache
     except Exception:
         pass
 
@@ -122,8 +185,9 @@ def get_vnindex_status() -> dict:
         return _vni_cache
 
     return {
-        'price': 0.0, 'chg_pct': 0.0, 'ma20': 0.0, 'is_uptrend': True,
-        'label': "TĂNG 🟢 (Thuận xu hướng)", 'status_str': "TĂNG 🟢",
+        'price': 0.0, 'chg_pct': 0.0, 'ma20': 0.0, 'st_dir': 1,
+        'state': "TĂNG", 'state_str': "🟢 TĂNG", 'is_uptrend': True,
+        'label': "🟢 TĂNG", 'status_str': "🟢 TĂNG",
     }
 
 
@@ -149,6 +213,7 @@ def analyze_single(symbol: str) -> Optional[Dict]:
         nw_win=config.DTPRO_NW_WIN,
         cua_so_lookback=config.DTPRO_LOOKBACK,
         rr1=config.DTPRO_RR1, rr2=config.DTPRO_RR2,
+        vni_trend_map=get_vnindex_trend_map(config.DTPRO_HISTORY_DAYS),
     )
     if res:
         res['vni'] = get_vnindex_status()
