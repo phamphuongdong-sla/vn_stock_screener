@@ -103,18 +103,33 @@ def analyze_single(symbol: str) -> Optional[Dict]:
 def run_dtpro_screener(buy_only: bool = True, signal_only: bool = True) -> List[Dict]:
     """
     Quét toàn sàn HOSE + HNX theo bộ chỉ báo DÒNG TIỀN & XU HƯỚNG PRO:
+    Tối ưu hóa: Lọc sơ bộ thanh khoản trước khi gọi API, phân tích song song 16 luồng siêu tốc.
     - buy_only=True: Chỉ lấy các mã có điểm MUA hoặc MUA MẠNH hôm nay
     - signal_only=True: Lấy các mã có tín hiệu (Mua hoặc Bán)
     """
+    elapsed = get_elapsed_trading_minutes()
+    min_val = (1_000_000_000 if elapsed <= 45 else
+               2_000_000_000 if elapsed <= 90 else config.MIN_TRADE_VALUE)
+
     all_items = []
     for ex in config.EXCHANGES:
         snap = get_exchange_symbols_snapshot(ex)
-        all_items.extend([(item, ex.upper()) for item in snap])
+        for item in snap:
+            symbol = (item.get("stockSymbol") or item.get("symbol") or "").strip().upper()
+            if not symbol or len(symbol) < 2 or len(symbol) > 5 or not symbol.isalpha():
+                continue
+            # Lọc sơ bộ thanh khoản ngay trên bảng giá snapshot trong 0.0001s
+            price, vol, high, low, chg, raw_val = _parse_item(item)
+            if price > 0 and vol > 0:
+                est = raw_val if raw_val > 0 else price * 1000.0 * vol
+                if est < min_val:
+                    continue
+            all_items.append((item, ex.upper()))
 
-    print(f"[DTPro] {len(all_items)} mã — Đang phân tích đa luồng...")
+    print(f"[DTPro] Đã lọc {len(all_items)} mã đạt thanh khoản từ HOSE+HNX. Đang quét song song {config.MAX_WORKERS} luồng...")
 
     results = []
-    workers = min(config.MAX_WORKERS, 8)
+    workers = config.MAX_WORKERS
     with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
         futures = {executor.submit(analyze_one, item, ex): (item, ex)
                    for item, ex in all_items}

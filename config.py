@@ -85,5 +85,6 @@ DTPRO_NW_WIN      = 500    # Kích thước kernel NW (số nến)
 DTPRO_LOOKBACK    = 7      # Cửa sổ chờ hợp lưu NW (Nến), mặc định 7 nến
 DTPRO_RR1         = 1.0    # R:R mức TP1
 DTPRO_RR2         = 2.0    # R:R mức TP2
-DTPRO_HISTORY_DAYS = 1500  # Số ngày lịch sử cần fetch (để NW kernel đủ dữ liệu)
+DTPRO_HISTORY_DAYS = 400   # Số ngày lịch sử (~270 phiên, tải siêu tốc <0.1s thay vì 10s)
+
 

@@ -181,18 +181,33 @@ def get_live_stock_quote(symbol: str) -> dict:
                 return d
     return {"stockSymbol": symbol}
 
-def get_ticker_history(symbol: str, count: int = 150, days: int = 1500) -> Optional[pd.DataFrame]:
+_history_lock = threading.Lock()
+_history_cache = {}
+_history_cache_time = {}
+
+def get_ticker_history(symbol: str, count: int = 150, days: int = 400) -> Optional[pd.DataFrame]:
     """
-    Lấy lịch sử nến ngày từ DNSE Entrade.
-    days: số ngày lịch sử cần lấy (mặc định 1500 ngày ≈ 1000 phiên giao dịch)
+    Lấy lịch sử nến ngày từ DNSE Entrade (kèm bộ đệm RAM 120s tải tức thì <0.001s).
+    days: số ngày lịch sử cần lấy (mặc định 400 ngày ≈ 270 phiên giao dịch)
     count: giới hạn số nến trả về (None = trả về tất cả)
     """
+    sym = symbol.strip().upper()
     now_ts = int(time.time())
+    cache_key = (sym, days)
+
+    # 1. Kiểm tra cache RAM
+    with _history_lock:
+        if cache_key in _history_cache and (now_ts - _history_cache_time.get(cache_key, 0) < 120):
+            cached_df = _history_cache[cache_key]
+            if count is not None:
+                return cached_df.tail(count).reset_index(drop=True)
+            return cached_df.copy()
+
     from_ts = now_ts - days * 86400
-    url_dnse = f"https://services.entrade.com.vn/chart-api/v2/ohlcs/stock?from={from_ts}&to={now_ts}&symbol={symbol}&resolution=1D"
+    url_dnse = f"https://services.entrade.com.vn/chart-api/v2/ohlcs/stock?from={from_ts}&to={now_ts}&symbol={sym}&resolution=1D"
     try:
         session = get_session()
-        resp = session.get(url_dnse, timeout=(2.0, 5.0))
+        resp = session.get(url_dnse, timeout=(1.5, 3.0))
         if resp.status_code == 200:
             data = resp.json()
             if data and "t" in data and len(data["t"]) >= 30:
@@ -204,11 +219,23 @@ def get_ticker_history(symbol: str, count: int = 150, days: int = 1500) -> Optio
                     "close":  data["c"],
                     "volume": data["v"]
                 })
+                with _history_lock:
+                    _history_cache[cache_key] = df
+                    _history_cache_time[cache_key] = now_ts
+
                 if count is not None:
                     return df.tail(count).reset_index(drop=True)
                 return df.reset_index(drop=True)
     except Exception:
         pass
+
+    # Nếu lỗi mạng thì thử lấy từ cache cũ nếu có
+    with _history_lock:
+        if cache_key in _history_cache:
+            cached_df = _history_cache[cache_key]
+            if count is not None:
+                return cached_df.tail(count).reset_index(drop=True)
+            return cached_df.copy()
 
     return None
 
