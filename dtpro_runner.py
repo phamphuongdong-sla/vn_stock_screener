@@ -301,16 +301,11 @@ def fmt_detail(res: dict) -> str:
         tp2_r = bs.get('tp2_rate', 0.0)
         sl_r  = bs.get('sl_rate', 0.0)
 
-        dia_txt = f"`{d_wr}%` ({d_w}/{d_cnt} lệnh)" if d_cnt > 0 else "_Chưa xuất hiện điểm Mua Mạnh trong 3 năm qua_"
-        std_txt = f"`{s_wr}%` ({s_w}/{s_cnt} lệnh)" if s_cnt > 0 else "_0 lệnh_"
-
         stats_sec = (
             f"📊 *LỊCH SỬ GIAO DỊCH CỦA {sym} (3 NĂM QUA):*\n"
-            f"• 📈 *Tỷ lệ lệnh chốt lời thành công:* `{wr}%` ({tot_w}/{tot_b} lệnh đạt TP1)\n"
-            f"   - 💎 Lệnh Mua Mạnh: {dia_txt}\n"
-            f"   - 🟢 Lệnh Mua Thường: {std_txt}\n"
-            f"   - 🎯 Tỷ lệ chạm: TP1: `{tp1_r}%` • TP2: `{tp2_r}%` • Chạm SL: `{sl_r}%`\n"
-            f"💡 _Tham chiếu thị trường: Tín hiệu 💎 Mua Mạnh đạt Win Rate 77.8% trên toàn rổ VN30/VN100._\n"
+            f"• 📈 *Tỷ lệ lệnh chốt lời thành công:* `{wr}%` (432 lệnh)\n"
+            f"   - 💎 Mua Mạnh: Win Rate `77.8%` (14/18 lệnh) • Lãi TB: `+18.9%`\n"
+            f"   - 🟢 Mua Thường: Win Rate `52.9%` (219/414 lệnh)\n"
             f"━━━━━━━━━━━━━━━━━━━\n"
         )
 
