@@ -24,7 +24,8 @@ from indicators import calculate_all_indicators, calc_risk_levels
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-    "Accept": "application/json, text/plain, */*"
+    "Accept": "application/json, text/plain, */*",
+    "Connection": "close"
 }
 
 def normalize_price_k(val) -> float:
@@ -139,14 +140,14 @@ def get_exchange_symbols_snapshot(exchange: str) -> List[Dict]:
     now = time.time()
     ex = exchange.lower()
     with _snapshot_lock:
-        if ex in _snapshot_cache and (now - _snapshot_cache_time.get(ex, 0) < 20):
+        if ex in _snapshot_cache and (now - _snapshot_cache_time.get(ex, 0) < 60):
             return _snapshot_cache[ex]
 
     url = f"https://iboard-query.ssi.com.vn/stock/exchange/{ex}"
     session = get_session()
     for attempt in range(2):
         try:
-            resp = session.get(url, timeout=15)
+            resp = session.get(url, timeout=(1.5, 3.5))
             if resp.status_code == 200:
                 data = resp.json()
                 if isinstance(data, dict) and "data" in data:
@@ -162,8 +163,8 @@ def get_exchange_symbols_snapshot(exchange: str) -> List[Dict]:
                     return res_list
         except Exception as e:
             if attempt == 1:
-                print(f"[Cảnh báo] Lỗi tải dữ liệu sàn {exchange}: {e}")
-            time.sleep(0.5)
+                pass
+            time.sleep(0.2)
 
     with _snapshot_lock:
         return _snapshot_cache.get(ex, [])

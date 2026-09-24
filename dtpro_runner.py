@@ -216,6 +216,7 @@ def fmt_detail(res: dict) -> str:
     tp2_pct = _pct(res.get('tp2_pct', 0.0))
 
     pos_name = res.get('pos_name', '')
+    action_type = "MUA" if res.get('active_pos') == 1 else ("BÁN" if res.get('active_pos') == -1 else "THAM KHẢO")
     if "MẠNH" in pos_name:
         badge = "💎"
     elif "MUA" in pos_name:
@@ -225,35 +226,66 @@ def fmt_detail(res: dict) -> str:
     else:
         badge = "⚪️"
 
+    bars_ago = res.get('bars_since_trigger', 0)
+    if bars_ago == 0:
+        time_tag = "Phiên hôm nay"
+    elif bars_ago < 999:
+        time_tag = f"Cách đây {bars_ago} phiên"
+    else:
+        time_tag = "Lệnh gần nhất"
+
+    # Trạng thái vị thế và rủi ro
+    cur_p = res.get('price', 0.0)
+    sl_val = res.get('sl', 0.0)
+    tp1_val = res.get('tp1', 0.0)
+    tp2_val = res.get('tp2', 0.0)
+    pos_dir = res.get('active_pos', 0)
+
+    status_tag = ""
+    if pos_dir == 1:
+        if cur_p <= sl_val:
+            status_tag = " ⚠️ *(Đã chạm vùng Cắt lỗ)*"
+        elif cur_p >= tp2_val:
+            status_tag = " 🚀 *(Đã đạt mục tiêu TP2)*"
+        elif cur_p >= tp1_val:
+            status_tag = " 🏆 *(Đã đạt mục tiêu TP1)*"
+    elif pos_dir == -1:
+        if cur_p >= sl_val:
+            status_tag = " ⚠️ *(Đã chạm vùng Cắt lỗ)*"
+        elif cur_p <= tp2_val:
+            status_tag = " 🚀 *(Đã đạt mục tiêu TP2)*"
+        elif cur_p <= tp1_val:
+            status_tag = " 🏆 *(Đã đạt mục tiêu TP1)*"
+
     msg = (
         f"📊 *{sym}* — `{ex}`\n"
         f"━━━━━━━━━━━━━━━━━━━\n"
         f"⏰ _{t}_\n"
-        f"💰 Giá hiện tại: `{price}` {chg_i} `{chg_str}`\n\n"
-        f"🖥 *BẢNG ĐIỀU KHIỂN (MINI-HUD):*\n"
+        f"💰 Giá hiện tại: `{price}` {chg_i} `{chg_str}`{status_tag}\n\n"
+        f"🖥 *TỔNG QUAN:*\n"
         f"• *XU HƯỚNG:* {trend}\n"
         f"• *BIÊN ĐỘ NW:* `{nw_z}`\n"
         f"• *NGÀY (D):* {sd}  •  *TUẦN (W):* {sw}\n"
         f"• *VỊ THẾ:* {badge} *{str_pos}*\n"
         f"• *KHỐI LƯỢNG:* `{vr:.1f}x` MA20\n\n"
-        f"🎯 *KẾ HOẠCH GIAO DỊCH ({pos_name if pos_name != 'ĐANG QUAN SÁT' else 'THAM KHẢO'}):*\n"
-        f"• 🎯 *Giá vào:* `{entry_p}`\n"
-        f"• 🛑 *Cắt lỗ:*  `{sl}` ({sl_pct})\n"
+        f"🎯 *TÍN HIỆU GIAO DỊCH GẦN NHẤT ({action_type}):*\n"
+        f"• 🎯 *Giá vào (Lệnh gần nhất):* `{entry_p}` ({time_tag})\n"
+        f"• 🛑 *Cắt lỗ (SL):*  `{sl}` ({sl_pct})\n"
         f"• 🏆 *TP1:*     `{tp1}` ({tp1_pct}) — _(1.0R)_\n"
         f"• 🚀 *TP2:*     `{tp2}` ({tp2_pct}) — _(2.0R)_\n"
         f"━━━━━━━━━━━━━━━━━━━\n"
     )
 
     if res.get('buy_diamond'):
-        msg += "💎 *ĐIỂM MUA MẠNH HÔM NAY:* _Hợp lưu Đáy NW trong 7 nến + SuperTrend Đảo Chiều TĂNG!_\n"
+        msg += "💎 *TÍN HIỆU MUA MẠNH HÔM NAY:* _Hợp lưu Đáy NW trong 7 nến + SuperTrend Đảo Chiều TĂNG!_\n"
     elif res.get('buy_standard'):
-        msg += "🟢 *ĐIỂM MUA CHUẨN HÔM NAY:* _SuperTrend Đảo Chiều TĂNG!_\n"
+        msg += "🟢 *TÍN HIỆU MUA CHUẨN HÔM NAY:* _SuperTrend Đảo Chiều TĂNG!_\n"
     elif res.get('sell_diamond'):
-        msg += "🔥 *ĐIỂM BÁN MẠNH HÔM NAY:* _Hợp lưu Đỉnh NW trong 7 nến + SuperTrend Đảo Chiều GIẢM!_\n"
+        msg += "🔥 *TÍN HIỆU BÁN MẠNH HÔM NAY:* _Hợp lưu Đỉnh NW trong 7 nến + SuperTrend Đảo Chiều GIẢM!_\n"
     elif res.get('sell_standard'):
-        msg += "🔴 *ĐIỂM BÁN CHUẨN HÔM NAY:* _SuperTrend Đảo Chiều GIẢM!_\n"
+        msg += "🔴 *TÍN HIỆU BÁN CHUẨN HÔM NAY:* _SuperTrend Đảo Chiều GIẢM!_\n"
     else:
-        msg += "👉 _Chưa có điểm đảo chiều mới hôm nay. Gõ mã khác để tra cứu!_\n"
+        msg += "👉 _Chưa có điểm mua mới hôm nay. Gõ mã khác để tra cứu!_\n"
 
     return msg
 
