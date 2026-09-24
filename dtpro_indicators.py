@@ -378,11 +378,27 @@ def track_positions_and_signals(
         win_tp2 = (first_tp2 is not None) and (first_sl is None or first_tp2 < first_sl)
         hit_sl_first = (first_sl is not None) and (first_tp1 is None or first_sl < first_tp1)
 
+        # Tính % PnL thực tế cho lệnh này
+        if win_tp2:
+            trade_pnl = (b_tp2 - b_entry) / b_entry * 100.0
+        elif win_tp1:
+            trade_pnl = (b_tp1 - b_entry) / b_entry * 100.0
+        elif hit_sl_first:
+            trade_pnl = (b_sl - b_entry) / b_entry * 100.0
+        else:
+            exit_bar = n - 1
+            for j in range(b_bar + 1, n):
+                if dirs[j] == -1 and dirs[j-1] == 1:
+                    exit_bar = j
+                    break
+            trade_pnl = (close[exit_bar] - b_entry) / b_entry * 100.0
+
         buy_stats_list.append({
             'is_diamond': b_dia,
             'win_tp1': win_tp1,
             'win_tp2': win_tp2,
             'hit_sl_first': hit_sl_first,
+            'trade_pnl': trade_pnl,
         })
 
     tot_buys = len(buy_stats_list)
@@ -393,16 +409,27 @@ def track_positions_and_signals(
     dia_wins = sum(1 for t in dia_list if t['win_tp1'])
     std_wins = sum(1 for t in std_list if t['win_tp1'])
 
+    dia_wins_list = [t for t in dia_list if t['win_tp1']]
+    std_wins_list = [t for t in std_list if t['win_tp1']]
+    tot_wins_list = [t for t in buy_stats_list if t['win_tp1']]
+
+    dia_avg_pnl = round(sum(t['trade_pnl'] for t in dia_wins_list) / len(dia_wins_list), 1) if dia_wins_list else 0.0
+    std_avg_pnl = round(sum(t['trade_pnl'] for t in std_wins_list) / len(std_wins_list), 1) if std_wins_list else 0.0
+    tot_avg_pnl = round(sum(t['trade_pnl'] for t in tot_wins_list) / len(tot_wins_list), 1) if tot_wins_list else 0.0
+
     buy_stats = {
         'total_buys': tot_buys,
         'total_wins': tot_wins,
         'winrate_pct': round(tot_wins / tot_buys * 100.0, 1) if tot_buys > 0 else 0.0,
+        'total_avg_pnl': tot_avg_pnl,
         'diamond_cnt': len(dia_list),
         'diamond_wins': dia_wins,
         'diamond_winrate': round(dia_wins / len(dia_list) * 100.0, 1) if dia_list else 0.0,
+        'diamond_avg_pnl': dia_avg_pnl,
         'standard_cnt': len(std_list),
         'standard_wins': std_wins,
         'standard_winrate': round(std_wins / len(std_list) * 100.0, 1) if std_list else 0.0,
+        'standard_avg_pnl': std_avg_pnl,
         'tp1_rate': round(tot_wins / tot_buys * 100.0, 1) if tot_buys > 0 else 0.0,
         'tp2_rate': round(sum(1 for t in buy_stats_list if t['win_tp2']) / tot_buys * 100.0, 1) if tot_buys > 0 else 0.0,
         'sl_rate': round(sum(1 for t in buy_stats_list if t['hit_sl_first']) / tot_buys * 100.0, 1) if tot_buys > 0 else 0.0,

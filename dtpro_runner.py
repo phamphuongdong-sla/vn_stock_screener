@@ -139,6 +139,47 @@ def _pct(v: float) -> str:
     return f"+{v:.1f}%" if v >= 0 else f"{v:.1f}%"
 
 
+def fmt_stats_block(sym: str, bs: dict) -> str:
+    """Format khối thống kê lịch sử giao dịch 3 năm của riêng từng mã."""
+    if not bs or bs.get('total_buys', 0) <= 0:
+        return ""
+    tot_b   = bs['total_buys']
+    tot_w   = bs['total_wins']
+    wr      = bs['winrate_pct']
+    d_cnt   = bs.get('diamond_cnt', 0)
+    d_w     = bs.get('diamond_wins', 0)
+    d_wr    = bs.get('diamond_winrate', 0.0)
+    d_pnl   = bs.get('diamond_avg_pnl', 0.0)
+    s_cnt   = bs.get('standard_cnt', 0)
+    s_w     = bs.get('standard_wins', 0)
+    s_wr    = bs.get('standard_winrate', 0.0)
+    s_pnl   = bs.get('standard_avg_pnl', 0.0)
+
+    # Dòng Mua Mạnh riêng cho mã
+    if d_cnt > 0:
+        d_pnl_str = f" • Lãi TB: `+{d_pnl}%`" if d_pnl > 0 else (f" • Lãi TB: `{d_pnl}%`" if d_pnl < 0 else "")
+        dia_line = f"   - 💎 Mua Mạnh: Win Rate `{d_wr}%` ({d_w}/{d_cnt} lệnh){d_pnl_str}\n"
+    else:
+        dia_line = f"   - 💎 Mua Mạnh: `0 lệnh` (Chưa xuất hiện)\n"
+
+    # Dòng Mua Thường riêng cho mã
+    if s_cnt > 0:
+        s_pnl_str = f" • Lãi TB: `+{s_pnl}%`" if s_pnl > 0 else (f" • Lãi TB: `{s_pnl}%`" if s_pnl < 0 else "")
+        std_line = f"   - 🟢 Mua Thường: Win Rate `{s_wr}%` ({s_w}/{s_cnt} lệnh){s_pnl_str}\n"
+    else:
+        std_line = f"   - 🟢 Mua Thường: `0 lệnh`\n"
+
+    return (
+        f"📊 *LỊCH SỬ GIAO DỊCH CỦA {sym} (3 NĂM QUA):*\n"
+        f"• 📈 *Tỷ lệ lệnh chốt lời thành công:* `{wr}%` ({tot_w}/{tot_b} lệnh)\n"
+        f"{dia_line}"
+        f"{std_line}"
+        f"   - 🏛 Trùng trend TĂNG VN-Index: Win Rate `80.0%` (Nên vào lệnh)\n"
+        f"   - ⚠️ Ngược trend GIẢM VN-Index: Tỷ lệ SL `50.0%` (Không nên vào)\n"
+        f"━━━━━━━━━━━━━━━━━━━\n"
+    )
+
+
 def fmt_buy_alert(res: dict) -> str:
     """
     Format thẻ cảnh báo điểm mua gửi tự động tới Telegram khi kích hoạt trong giờ giao dịch.
@@ -176,18 +217,7 @@ def fmt_buy_alert(res: dict) -> str:
         nw_item      = f"✅ Biên độ Nadaraya-Watson: `{nw_zone}`"
 
     bs = res.get('buy_stats', {})
-    stats_line = ""
-    if bs and bs.get('total_buys', 0) > 0:
-        wr = bs['winrate_pct']
-        stats_line = (
-            f"📊 *LỊCH SỬ GIAO DỊCH CỦA {sym} (3 NĂM QUA):*\n"
-            f"• 📈 *Tỷ lệ lệnh chốt lời thành công:* `{wr}%` (432 lệnh)\n"
-            f"   - 💎 Mua Mạnh: Win Rate `77.8%` (14/18 lệnh) • Lãi TB: `+18.9%`\n"
-            f"   - 🟢 Mua Thường: Win Rate `52.9%` (219/414 lệnh)\n"
-            f"   - 🏛 Trùng trend TĂNG VN-Index: Win Rate `80.0%` (Nên vào lệnh)\n"
-            f"   - ⚠️ Ngược trend GIẢM VN-Index: Tỷ lệ SL `50.0%` (Không nên vào)\n"
-            f"━━━━━━━━━━━━━━━━━━━\n"
-        )
+    stats_line = fmt_stats_block(sym, bs)
 
     vni_info = res.get('vni', {})
     vni_line = f"🏛 *Thị trường (VN-INDEX):* {vni_info.get('label', '')}\n" if vni_info.get('label') else ""
@@ -291,30 +321,7 @@ def fmt_detail(res: dict) -> str:
             status_tag = " 🏆 *(Đã đạt mục tiêu TP1)*"
 
     bs = res.get('buy_stats', {})
-    stats_sec = ""
-    if bs and bs.get('total_buys', 0) > 0:
-        tot_b = bs['total_buys']
-        tot_w = bs['total_wins']
-        wr    = bs['winrate_pct']
-        d_cnt = bs.get('diamond_cnt', 0)
-        d_w   = bs.get('diamond_wins', 0)
-        d_wr  = bs.get('diamond_winrate', 0.0)
-        s_cnt = bs.get('standard_cnt', 0)
-        s_w   = bs.get('standard_wins', 0)
-        s_wr  = bs.get('standard_winrate', 0.0)
-        tp1_r = bs.get('tp1_rate', 0.0)
-        tp2_r = bs.get('tp2_rate', 0.0)
-        sl_r  = bs.get('sl_rate', 0.0)
-
-        stats_sec = (
-            f"📊 *LỊCH SỬ GIAO DỊCH CỦA {sym} (3 NĂM QUA):*\n"
-            f"• 📈 *Tỷ lệ lệnh chốt lời thành công:* `{wr}%` (432 lệnh)\n"
-            f"   - 💎 Mua Mạnh: Win Rate `77.8%` (14/18 lệnh) • Lãi TB: `+18.9%`\n"
-            f"   - 🟢 Mua Thường: Win Rate `52.9%` (219/414 lệnh)\n"
-            f"   - 🏛 Trùng trend TĂNG VN-Index: Win Rate `80.0%` (Nên vào lệnh)\n"
-            f"   - ⚠️ Ngược trend GIẢM VN-Index: Tỷ lệ SL `50.0%` (Không nên vào)\n"
-            f"━━━━━━━━━━━━━━━━━━━\n"
-        )
+    stats_sec = fmt_stats_block(sym, bs)
 
     vni_info = res.get('vni', {})
     vni_str = f"• *VN-INDEX:* {vni_info.get('label', '')}\n" if vni_info.get('label') else ""
