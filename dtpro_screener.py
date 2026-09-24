@@ -4,6 +4,7 @@ dtpro_screener.py — Quét toàn sàn HOSE+HNX theo chỉ báo DÒNG TIỀN PRO
 """
 
 import concurrent.futures
+import time
 from datetime import datetime
 from typing import List, Optional, Dict
 
@@ -61,7 +62,7 @@ def analyze_one(item: dict, exchange: str) -> Optional[Dict]:
     if df is None or len(df) < 60:
         return None
 
-    return analyze_dtpro(
+    res = analyze_dtpro(
         df, symbol=symbol, exchange=exchange,
         live_price=price, live_high=high, live_low=low,
         live_vol=vol, change_pct=chg,
@@ -73,6 +74,57 @@ def analyze_one(item: dict, exchange: str) -> Optional[Dict]:
         cua_so_lookback=config.DTPRO_LOOKBACK,
         rr1=config.DTPRO_RR1, rr2=config.DTPRO_RR2,
     )
+    if res:
+        res['vni'] = get_vnindex_status()
+    return res
+
+
+_vni_cache = None
+_vni_cache_time = 0
+
+def get_vnindex_status() -> dict:
+    """Lấy trạng thái xu hướng của VN-INDEX thời gian thực (kèm cache 5 phút)."""
+    global _vni_cache, _vni_cache_time
+    now = time.time()
+    if _vni_cache is not None and (now - _vni_cache_time < 300):
+        return _vni_cache
+
+    try:
+        from screener import get_session
+        s = get_session()
+        now_ts = int(now)
+        from_ts = now_ts - 200 * 86400
+        u = f"https://services.entrade.com.vn/chart-api/v2/ohlcs/index?from={from_ts}&to={now_ts}&symbol=VNINDEX&resolution=1D"
+        r = s.get(u, timeout=(2.0, 4.0))
+        if r.status_code == 200:
+            d = r.json()
+            c_series = pd.Series(d['c'])
+            ma20 = float(c_series.rolling(20).mean().iloc[-1])
+            cur_p = float(c_series.iloc[-1])
+            prev_p = float(c_series.iloc[-2]) if len(c_series) > 1 else cur_p
+            chg = (cur_p - prev_p) / prev_p * 100
+            is_up = cur_p >= ma20
+            
+            _vni_cache = {
+                'price': cur_p,
+                'chg_pct': chg,
+                'ma20': ma20,
+                'is_uptrend': is_up,
+                'label': "TĂNG 🟢 (Thuận xu hướng)" if is_up else "GIẢM 🔴 (Ngược xu hướng)",
+                'status_str': "TĂNG 🟢" if is_up else "GIẢM 🔴",
+            }
+            _vni_cache_time = now
+            return _vni_cache
+    except Exception:
+        pass
+
+    if _vni_cache is not None:
+        return _vni_cache
+
+    return {
+        'price': 0.0, 'chg_pct': 0.0, 'ma20': 0.0, 'is_uptrend': True,
+        'label': "TĂNG 🟢 (Thuận xu hướng)", 'status_str': "TĂNG 🟢",
+    }
 
 
 def analyze_single(symbol: str) -> Optional[Dict]:
@@ -86,7 +138,7 @@ def analyze_single(symbol: str) -> Optional[Dict]:
     if df is None or len(df) < 60:
         return None
 
-    return analyze_dtpro(
+    res = analyze_dtpro(
         df, symbol=symbol, exchange=exchange,
         live_price=price, live_high=high, live_low=low,
         live_vol=vol, change_pct=chg,
@@ -98,6 +150,9 @@ def analyze_single(symbol: str) -> Optional[Dict]:
         cua_so_lookback=config.DTPRO_LOOKBACK,
         rr1=config.DTPRO_RR1, rr2=config.DTPRO_RR2,
     )
+    if res:
+        res['vni'] = get_vnindex_status()
+    return res
 
 
 def run_dtpro_screener(buy_only: bool = True, signal_only: bool = True) -> List[Dict]:

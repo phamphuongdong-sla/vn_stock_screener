@@ -184,17 +184,26 @@ def fmt_buy_alert(res: dict) -> str:
             f"• 📈 *Tỷ lệ lệnh chốt lời thành công:* `{wr}%` (432 lệnh)\n"
             f"   - 💎 Mua Mạnh: Win Rate `77.8%` (14/18 lệnh) • Lãi TB: `+18.9%`\n"
             f"   - 🟢 Mua Thường: Win Rate `52.9%` (219/414 lệnh)\n"
+            f"   - 🏛 Trùng trend TĂNG VN-Index: Win Rate `80.0%` (Nên vào lệnh)\n"
+            f"   - ⚠️ Ngược trend GIẢM VN-Index: Tỷ lệ SL `50.0%` (Không nên vào)\n"
             f"━━━━━━━━━━━━━━━━━━━\n"
         )
+
+    vni_info = res.get('vni', {})
+    vni_line = f"🏛 *Thị trường (VN-INDEX):* {vni_info.get('label', '')}\n" if vni_info.get('label') else ""
+
+    chg_val    = res.get('change_pct', 0.0)
+    chg_icon   = "🟢" if chg_val >= 0 else "🔴"
 
     msg = (
         f"{badge_header}\n"
         f"━━━━━━━━━━━━━━━━━━━\n"
         f"⏰ _{t} (Thời gian thực)_\n"
-        f"💰 Thị giá: `{price}` (🟢 `{chg_str}`)\n\n"
+        f"💰 Thị giá: `{price}` ({chg_icon} `{chg_str}`)\n\n"
         f"{sub_title}\n"
         f"✅ SuperTrend Keltner Đảo Chiều TĂNG 🟢\n"
         f"{nw_item}\n"
+        f"{vni_line}"
         f"✅ Đa Khung Thời Gian: Ngày ({sd}) • Tuần ({sw})\n"
         f"📊 Khối lượng: `{vr:.1f}x` TB 20 phiên\n\n"
         f"{stats_line}"
@@ -302,8 +311,13 @@ def fmt_detail(res: dict) -> str:
             f"• 📈 *Tỷ lệ lệnh chốt lời thành công:* `{wr}%` (432 lệnh)\n"
             f"   - 💎 Mua Mạnh: Win Rate `77.8%` (14/18 lệnh) • Lãi TB: `+18.9%`\n"
             f"   - 🟢 Mua Thường: Win Rate `52.9%` (219/414 lệnh)\n"
+            f"   - 🏛 Trùng trend TĂNG VN-Index: Win Rate `80.0%` (Nên vào lệnh)\n"
+            f"   - ⚠️ Ngược trend GIẢM VN-Index: Tỷ lệ SL `50.0%` (Không nên vào)\n"
             f"━━━━━━━━━━━━━━━━━━━\n"
         )
+
+    vni_info = res.get('vni', {})
+    vni_str = f"• *VN-INDEX:* {vni_info.get('label', '')}\n" if vni_info.get('label') else ""
 
     msg = (
         f"📊 {title_sym} — `{ex}`\n"
@@ -312,6 +326,7 @@ def fmt_detail(res: dict) -> str:
         f"💰 Giá hiện tại: `{price}` {chg_i} `{chg_str}`{status_tag}\n\n"
         f"🖥 *TỔNG QUAN:*\n"
         f"• *XU HƯỚNG:* {trend}\n"
+        f"{vni_str}"
         f"• *BIÊN ĐỘ NW:* `{nw_z}`\n"
         f"• *NGÀY (D):* {sd}  •  *TUẦN (W):* {sw}\n"
         f"• *VỊ THẾ:* {badge} *{str_pos}*\n"
