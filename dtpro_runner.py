@@ -310,280 +310,208 @@ def get_context_history_str(bs: dict, vni_state: str) -> str:
 def fmt_buy_alert(res: dict) -> str:
     """
     Format thẻ cảnh báo điểm mua gửi tự động tới Telegram khi kích hoạt trong giờ giao dịch.
-    Rõ ràng, bố cục chuẩn, phân tách từng phần, người nhận đọc 3 giây là hiểu ngay kế hoạch.
+    Siêu đẹp, ngắn gọn, làm nổi bật mục đích chính: Giá vào, Cắt lỗ, Chốt lời, Tỷ trọng.
     """
     sym        = res['symbol']
     ex         = res['exchange']
     comp       = get_company_info(sym)
     comp_name  = comp.get('name') or comp.get('short_name') or ''
-    title_sym  = f"*{sym}: {comp_name}*" if comp_name else f"*{sym}*"
+    title_sym  = f"*{sym} — {comp_name}* (`{ex}`)" if comp_name else f"*{sym}* (`{ex}`)"
 
     price      = res['price_vnd']
-    chg        = res['change_pct']
+    cur_p      = res.get('price', 0.0)
+    chg        = res.get('change_pct', 0.0)
     chg_str    = _pct(chg)
+    chg_icon   = "🟢" if chg >= 0 else "🔴"
     is_diamond = res.get('buy_diamond', False)
-    nw_zone    = res.get('nw_zone_label', 'TRUNG TÍNH')
-    sd         = res.get('state_d_str', 'N/A')
-    sw         = res.get('state_w_str', 'N/A')
     vr         = res.get('vol_ratio', 0.0)
     t          = res.get('updated_time', '')
 
     # Luôn tính toán SL và TP chuẩn vị thế MUA (SL dưới giá vào, TP trên giá vào)
-    cur_p      = res.get('price', 0.0)
     cur_atr    = res.get('atr', 0.0)
     risk_val   = cur_atr * 1.5 if cur_atr > 0 else cur_p * 0.05
     sl_calc    = cur_p - risk_val
     tp1_calc   = cur_p + risk_val * config.DTPRO_RR1
     tp2_calc   = cur_p + risk_val * config.DTPRO_RR2
 
-    sl         = format_vnd(sl_calc)
+    sl_vnd     = format_vnd(sl_calc)
     sl_pct     = _pct((sl_calc - cur_p) / cur_p * 100.0) if cur_p > 0 else "0.0%"
-    tp1        = format_vnd(tp1_calc)
+    tp1_vnd    = format_vnd(tp1_calc)
     tp1_pct    = _pct((tp1_calc - cur_p) / cur_p * 100.0) if cur_p > 0 else "0.0%"
-    tp2        = format_vnd(tp2_calc)
+    tp2_vnd    = format_vnd(tp2_calc)
     tp2_pct    = _pct((tp2_calc - cur_p) / cur_p * 100.0) if cur_p > 0 else "0.0%"
 
     # Bối cảnh thị trường
-    vni_info = res.get('vni', {})
-    vni_state = vni_info.get('state', 'TĂNG')
-    vni_state_str = vni_info.get('state_str', '🟢 TĂNG')
-    vni_p = vni_info.get('price', 0.0)
-    vni_c = vni_info.get('chg_pct', 0.0)
-    # VN-Index tính theo điểm, KHÔNG phải đồng (đ)
-    vni_p_str = f"{vni_p:,.2f} điểm".replace(",", ".") if vni_p > 0 else ""
-    vni_detail_str = f"({vni_p_str} • {_pct(vni_c)})" if vni_p > 0 else ""
+    vni_info      = res.get('vni', {})
+    vni_state     = vni_info.get('state', 'NGANG')
+    vni_state_str = vni_info.get('state_str', '⚪ NGANG')
+    vni_p         = vni_info.get('price', 0.0)
+    vni_c         = vni_info.get('chg_pct', 0.0)
+    vni_p_str     = f"{vni_p:,.2f} điểm".replace(",", ".") if vni_p > 0 else ""
+    vni_detail    = f"({vni_p_str} • {_pct(vni_c)})" if vni_p > 0 else ""
 
-    stock_state, stock_state_str = determine_stock_3state(res)
-    relation, relation_badge, relation_str, relation_cmt = calc_market_relation(vni_state, stock_state, sym)
+    stock_state, _ = determine_stock_3state(res)
+    relation, relation_badge, _, relation_cmt = calc_market_relation(vni_state, stock_state, sym)
 
     if is_diamond:
-        badge_header = f"🚨 *TÍN HIỆU MUA MẠNH* 💎\n📈 {title_sym} — `{ex}`"
-        sub_title    = "✨ *HỢP LƯU TỐI ƯU (ĐÁY NW + SUPERTREND)*"
-        nw_item      = "• Nadaraya-Watson: ✅ *Hội tụ Vùng Đáy* (trong 7 nến vừa qua)"
+        badge_header = f"🚨 *CẢNH BÁO: KÍCH HOẠT ĐIỂM MUA MẠNH* 💎\n📈 {title_sym}"
+        signal_note  = "✨ *Hợp lưu tối ưu:* Đáy Nadaraya-Watson + SuperTrend Đảo chiều TĂNG 🟢"
     else:
-        badge_header = f"🚨 *TÍN HIỆU MUA CHUẨN* 🟢\n📈 {title_sym} — `{ex}`"
-        sub_title    = "📈 *SUPERTREND ĐẢO CHIỀU TĂNG*"
-        nw_item      = f"• Nadaraya-Watson: Biên độ `{nw_zone}`"
+        badge_header = f"🚨 *CẢNH BÁO: KÍCH HOẠT ĐIỂM MUA CHUẨN* 🟢\n📈 {title_sym}"
+        signal_note  = "📈 *Tín hiệu:* SuperTrend Keltner chính thức Đảo chiều TĂNG 🟢"
 
     bs = res.get('buy_stats', {})
-    context_hist = get_context_history_str(bs, vni_state)
     stats_block = fmt_stats_block(sym, bs)
-
-    chg_val    = res.get('change_pct', 0.0)
-    chg_icon   = "🟢" if chg_val >= 0 else "🔴"
-
-    if relation == "ĐỒNG PHA":
-        vni_narrative = "🟢 *THUẬN THEO THỊ TRƯỜNG*: Tín hiệu mua bùng nổ cùng chiều với đà tăng của VN-Index."
-    elif relation == "NGƯỢC PHA":
-        vni_narrative = "🟡 *ĐI NGƯỢC THỊ TRƯỜNG*: Cổ phiếu có dòng tiền riêng trong khi VN-Index đang giảm. Cần quản trị rủi ro chặt chẽ."
-    else:
-        vni_narrative = "⚪ *THỊ TRƯỜNG TRUNG TÍNH*: VN-Index đi ngang tích lũy, cổ phiếu xuất hiện điểm mua độc lập."
 
     msg = (
         f"{badge_header}\n"
-        f"━━━━━━━━━━━━━━━━━━━\n"
-        f"💰 *Giá kích hoạt:* `{price}` ({chg_icon} `{chg_str}`)\n"
+        f"━━━━━━━━━━━━━━━━━━━━\n"
+        f"💰 *Giá kích hoạt:* `{price}` ({chg_icon} `{chg_str}`) | 📊 *Vol:* `{vr:.1f}x` MA20\n"
         f"⏰ *Thời gian:* _{t} (Thời gian thực)_\n\n"
-        f"{sub_title}\n"
-        f"• SuperTrend Keltner: 🟢 *Đảo Chiều TĂNG*\n"
-        f"{nw_item}\n"
-        f"• Đa Khung Thời Gian: Ngày ({sd}) • Tuần ({sw})\n"
-        f"• Khối lượng: `{vr:.1f}x` TB 20 phiên\n\n"
-        f"🌐 *THỊ TRƯỜNG CHUNG (VN-INDEX)*\n"
-        f"• Xu hướng: {vni_state_str} {vni_detail_str}\n"
-        f"• Quan hệ: *{relation_badge}*\n"
-        f"• Nhận định: {vni_narrative}\n\n"
-        f"🎯 *KẾ HOẠCH GIAO DỊCH (R:R CHUẨN)*\n"
-        f"• 🎯 *Giá vào (Entry):* `{price}`\n"
-        f"• 🛑 *Cắt lỗ (SL):*    `{sl}` ({sl_pct})\n"
-        f"• 🏆 *Mục tiêu 1 (TP1):* `{tp1}` ({tp1_pct}) — _(1.0R - Dời SL hòa vốn)_\n"
-        f"• 🚀 *Mục tiêu 2 (TP2):* `{tp2}` ({tp2_pct}) — _(2.0R - Chốt lời chính)_\n"
-        f"━━━━━━━━━━━━━━━━━━━\n"
-        f"{context_hist}"
+
+        f"{signal_note}\n"
+        f"🌐 *Thị trường:* VN-Index {vni_state_str} {vni_detail}\n"
+        f"🔎 *Tương quan:* *{relation_badge}* — {relation_cmt}\n\n"
+
+        f"🎯 *KẾ HOẠCH GIẢI NGÂN (R:R CHUẨN)*\n"
+        f"• 🎯 Điểm mua (Entry): `{price}`\n"
+        f"• 🛑 Cắt lỗ (SL):      `{sl_vnd}` ({sl_pct})\n"
+        f"• 🏆 Chốt lời 1 (TP1): `{tp1_vnd}` ({tp1_pct}) — _(1.0R - Dời SL hòa vốn)_\n"
+        f"• 🚀 Chốt lời 2 (TP2): `{tp2_vnd}` ({tp2_pct}) — _(2.0R - Mục tiêu chính)_\n\n"
+
+        f"━━━━━━━━━━━━━━━━━━━━\n"
         f"{stats_block}\n"
-        f"💡 _Quản trị rủi ro: Tối đa 2% NAV cho mỗi vị thế!_"
+        f"💡 _Khuyến nghị: Phân bổ tối đa 2% NAV tài khoản cho vị thế này!_"
     )
     return msg
 
 
 def fmt_detail(res: dict) -> str:
     """
-    Format tin nhắn tra cứu chi tiết 1 mã, đồng bộ bảng điều khiển Mini-HUD chuẩn Pine Script,
-    bổ sung đầy đủ bối cảnh thị trường chung VN-INDEX và quan hệ ĐỒNG PHA / NGƯỢC PHA.
+    Format tin nhắn tra cứu chi tiết 1 mã, siêu đẹp, ngắn gọn, dễ hiểu,
+    phân định rõ ràng 3 trạng thái:
+      1. Có điểm MUA hôm nay -> Kế hoạch giải ngân ngay
+      2. Đang trong sóng TĂNG -> Đang nắm giữ, không mua đuổi
+      3. Đang trong nhịp GIẢM / CHƯA CÓ ĐIỂM MUA -> Đứng ngoài quan sát
+    Tránh tuyệt đối việc hiển thị các lệnh bán/mua cũ từ hàng chục phiên trước gây hiểu lầm.
     """
-    sym     = res['symbol']
-    ex      = res['exchange']
-    comp    = get_company_info(sym)
+    sym       = res['symbol']
+    ex        = res['exchange']
+    comp      = get_company_info(sym)
     comp_name = comp.get('name') or comp.get('short_name') or ''
-    title_sym = f"*{sym}: {comp_name}*" if comp_name else f"*{sym}*"
+    title_sym = f"*{sym} — {comp_name}* (`{ex}`)" if comp_name else f"*{sym}* (`{ex}`)"
 
-    price   = res['price_vnd']
-    chg     = res['change_pct']
-    chg_i   = "🟢" if chg >= 0 else "🔴"
-    chg_str = _pct(chg)
-    trend   = res['trend_label']
-    nw_z    = res['nw_zone_label']
-    sd      = res['state_d_str']
-    sw      = res['state_w_str']
-    str_pos = res.get('str_pos', 'ĐANG QUAN SÁT')
-    vr      = res['vol_ratio']
-    t       = res['updated_time']
-
-    entry_p = res.get('entry_price_vnd', price)
-    sl      = res.get('sl_vnd', '0 đ')
-    sl_pct  = _pct(res.get('sl_pct', 0.0))
-    tp1     = res.get('tp1_vnd', '0 đ')
-    tp1_pct = _pct(res.get('tp1_pct', 0.0))
-    tp2     = res.get('tp2_vnd', '0 đ')
-    tp2_pct = _pct(res.get('tp2_pct', 0.0))
-
-    pos_name = res.get('pos_name', '')
-    action_type = "MUA" if res.get('active_pos') == 1 else ("BÁN" if res.get('active_pos') == -1 else "THAM KHẢO")
-    if "MẠNH" in pos_name:
-        badge = "💎"
-    elif "MUA" in pos_name:
-        badge = "🟢"
-    elif "BÁN" in pos_name:
-        badge = "🔴"
-    else:
-        badge = "⚪️"
-
-    bars_ago = res.get('bars_since_trigger', 0)
-    last_vni_up = res.get('last_vni_up', True)
-    vni_entry_str = "VN-Index TĂNG" if last_vni_up else "VN-Index GIẢM"
+    price     = res['price_vnd']
+    cur_p     = res.get('price', 0.0)
+    chg       = res.get('change_pct', 0.0)
+    chg_i     = "🟢" if chg >= 0 else "🔴"
+    chg_str   = _pct(chg)
+    vr        = res.get('vol_ratio', 0.0)
+    t         = res.get('updated_time', '')
     
-    if bars_ago == 0:
-        time_tag = f"Phiên hôm nay - Tại thời điểm {vni_entry_str}"
-    elif bars_ago < 999:
-        time_tag = f"Cách đây {bars_ago} phiên - Tại thời điểm {vni_entry_str}"
-    else:
-        time_tag = "Lệnh gần nhất"
+    # Tính SL/TP chuẩn cho vị thế Mua
+    cur_atr   = res.get('atr', 0.0)
+    risk_val  = cur_atr * 1.5 if cur_atr > 0 else cur_p * 0.05
+    sl_calc   = cur_p - risk_val
+    tp1_calc  = cur_p + risk_val * config.DTPRO_RR1
+    tp2_calc  = cur_p + risk_val * config.DTPRO_RR2
 
-    # Trạng thái vị thế và rủi ro
-    cur_p = res.get('price', 0.0)
-    sl_val = res.get('sl', 0.0)
-    tp1_val = res.get('tp1', 0.0)
-    tp2_val = res.get('tp2', 0.0)
-    pos_dir = res.get('active_pos', 0)
+    sl_vnd    = format_vnd(sl_calc)
+    sl_pct    = _pct((sl_calc - cur_p) / cur_p * 100.0) if cur_p > 0 else "0.0%"
+    tp1_vnd   = format_vnd(tp1_calc)
+    tp1_pct   = _pct((tp1_calc - cur_p) / cur_p * 100.0) if cur_p > 0 else "0.0%"
+    tp2_vnd   = format_vnd(tp2_calc)
+    tp2_pct   = _pct((tp2_calc - cur_p) / cur_p * 100.0) if cur_p > 0 else "0.0%"
 
-    status_tag = ""
-    if pos_dir == 1:
-        if cur_p <= sl_val:
-            status_tag = " ⚠️ *(Đã chạm vùng Cắt lỗ)*"
-        elif cur_p >= tp2_val:
-            status_tag = " 🚀 *(Đã đạt mục tiêu TP2)*"
-        elif cur_p >= tp1_val:
-            status_tag = " 🏆 *(Đã đạt mục tiêu TP1)*"
-    elif pos_dir == -1:
-        if cur_p >= sl_val:
-            status_tag = " ⚠️ *(Đã chạm vùng Cắt lỗ)*"
-        elif cur_p <= tp2_val:
-            status_tag = " 🚀 *(Đã đạt mục tiêu TP2)*"
-        elif cur_p <= tp1_val:
-            status_tag = " 🏆 *(Đã đạt mục tiêu TP1)*"
+    # Bối cảnh VN-Index
+    vni_info      = res.get('vni', {})
+    vni_state     = vni_info.get('state', 'NGANG')
+    vni_state_str = vni_info.get('state_str', '⚪ NGANG')
+    vni_p         = vni_info.get('price', 0.0)
+    vni_c         = vni_info.get('chg_pct', 0.0)
+    vni_p_str     = f"{vni_p:,.2f} điểm".replace(",", ".") if vni_p > 0 else ""
+    vni_detail    = f"({vni_p_str} • {_pct(vni_c)})" if vni_p > 0 else ""
 
-    # Bối cảnh VN-Index & Quan hệ xu hướng
-    vni_info = res.get('vni', {})
-    vni_state = vni_info.get('state', 'TĂNG')
-    vni_state_str = vni_info.get('state_str', '🟢 TĂNG')
-    vni_p = vni_info.get('price', 0.0)
-    vni_c = vni_info.get('chg_pct', 0.0)
-    # VN-Index tính theo điểm, KHÔNG phải đồng (đ)
-    vni_p_str = f"{vni_p:,.2f} điểm".replace(",", ".") if vni_p > 0 else ""
-    vni_detail_str = f"({vni_p_str} • {_pct(vni_c)})" if vni_p > 0 else ""
+    stock_state, _ = determine_stock_3state(res)
+    relation, relation_badge, _, relation_cmt = calc_market_relation(vni_state, stock_state, sym)
 
-    stock_state, stock_state_str = determine_stock_3state(res)
-    relation, relation_badge, relation_str, comment = calc_market_relation(vni_state, stock_state, sym)
-
+    # Thống kê lịch sử 5 năm
     bs = res.get('buy_stats', {})
-    context_hist_str = get_context_history_str(bs, vni_state)
     stats_sec = fmt_stats_block(sym, bs)
 
-    # Nhận định trạng thái hiện tại gắn với bối cảnh thị trường
     is_buy_today = res.get('buy_diamond') or res.get('buy_standard')
-    is_sell_today = res.get('sell_diamond') or res.get('sell_standard')
+    is_diamond   = res.get('buy_diamond', False)
+    active_pos   = res.get('active_pos', 0)
+    bars_ago     = res.get('bars_since_trigger', 0)
+    entry_p      = res.get('entry_price_vnd', price)
+    entry_val    = res.get('entry_p', cur_p)
 
+    # Khối trạng thái và hành động
     if is_buy_today:
-        if relation == "ĐỒNG PHA":
-            status_alert = (
-                f"📌 *TRẠNG THÁI HIỆN TẠI:*\n"
-                f"🟢 *MUA — TÍN HIỆU THUẬN XU HƯỚNG THỊ TRƯỜNG*\n"
-                f"→ Tín hiệu Mua xuất hiện cùng hướng với đà tăng của thị trường."
-            )
-        elif relation == "NGƯỢC PHA":
-            status_alert = (
-                f"📌 *TRẠNG THÁI HIỆN TẠI:*\n"
-                f"🟡 *MUA — CỔ PHIẾU ĐANG ĐI NGƯỢC THỊ TRƯỜNG CHUNG*\n"
-                f"→ Tín hiệu Mua xuất hiện khi thị trường chung đang giảm.\n"
-                f"→ Cần theo dõi thêm diễn biến VN-Index và thanh khoản cổ phiếu để quản trị rủi ro."
-            )
+        if is_diamond:
+            status_header = "💎 *KÍCH HOẠT ĐIỂM MUA MẠNH HÔM NAY!*"
+            status_desc   = "✨ *Hợp lưu tối ưu:* Đáy Nadaraya-Watson + SuperTrend Đảo chiều TĂNG 🟢\n👉 *Hành động:* **GIẢI NGÂN MUA** (Tỷ trọng tối đa 2% NAV tài khoản)"
         else:
-            status_alert = (
-                f"📌 *TRẠNG THÁI HIỆN TẠI:*\n"
-                f"🟡 *MUA — BỐI CẢNH THỊ TRƯỜNG TRUNG TÍNH*\n"
-                f"→ Cổ phiếu có điểm mua riêng lẻ trong khi thị trường chưa đồng thuận."
-            )
-    elif is_sell_today:
-        status_alert = (
-            f"📌 *TRẠNG THÁI HIỆN TẠI:*\n"
-            f"🔴 *BÁN — TÍN HIỆU ĐẢO CHIỀU GIẢM*"
+            status_header = "🟢 *KÍCH HOẠT ĐIỂM MUA CHUẨN HÔM NAY!*"
+            status_desc   = "📈 *Tín hiệu:* SuperTrend Keltner chính thức Đảo chiều TĂNG 🟢\n👉 *Hành động:* **GIẢI NGÂN MUA** (Tỷ trọng tối đa 2% NAV tài khoản)"
+
+        plan_block = (
+            f"🎯 *KẾ HOẠCH GIAO DỊCH (R:R CHUẨN)*\n"
+            f"• 🎯 Điểm mua (Entry): `{price}`\n"
+            f"• 🛑 Cắt lỗ (SL):      `{sl_vnd}` ({sl_pct})\n"
+            f"• 🏆 Mục tiêu 1 (TP1): `{tp1_vnd}` ({tp1_pct}) — _(Dời SL hòa vốn)_\n"
+            f"• 🚀 Mục tiêu 2 (TP2): `{tp2_vnd}` ({tp2_pct}) — _(Chốt lời chính)_\n"
         )
-    elif pos_dir == 1:
-        if relation == "ĐỒNG PHA":
-            status_alert = (
-                f"📌 *TRẠNG THÁI HIỆN TẠI:*\n"
-                f"🟢 *ĐANG NẮM GIỮ (MUA) — THUẬN XU HƯỚNG THỊ TRƯỜNG*\n"
-                f"→ Vị thế nắm giữ đang đồng pha tăng với thị trường chung."
-            )
-        elif relation == "NGƯỢC PHA":
-            status_alert = (
-                f"📌 *TRẠNG THÁI HIỆN TẠI:*\n"
-                f"🟡 *MUA — CỔ PHIẾU ĐANG ĐI NGƯỢC THỊ TRƯỜNG CHUNG*\n"
-                f"→ Cổ phiếu giữ xu hướng tăng nhưng thị trường chung đang giảm. Chú ý mốc Cắt lỗ (SL)."
-            )
-        else:
-            status_alert = (
-                f"📌 *TRẠNG THÁI HIỆN TẠI:*\n"
-                f"⚪ *ĐANG NẮM GIỮ (MUA) — THỊ TRƯỜNG TRUNG TÍNH*"
-            )
+    elif active_pos == 1:
+        pnl = (cur_p - entry_val) / entry_val * 100.0 if entry_val > 0 else 0.0
+        pnl_str = _pct(pnl)
+        pnl_icon = "🟢" if pnl >= 0 else "🔴"
+        
+        status_header = f"🟢 *ĐANG NẮM GIỮ (Vị thế MUA từ {bars_ago} phiên trước)*"
+        status_desc   = (
+            f"• Giá mua ban đầu: `{entry_p}`\n"
+            f"• Lợi nhuận tạm tính: {pnl_icon} *`{pnl_str}`*\n"
+            f"👉 *Hành động:* **TIẾP TỤC NẮM GIỮ** — Tuyệt đối không mua đuổi thêm!"
+        )
+        plan_block = (
+            f"🎯 *CÁC MỐC QUẢN TRỊ VỊ THẾ*\n"
+            f"• 🛑 Cắt lỗ bảo toàn vốn (SL): `{format_vnd(res.get('sl', sl_calc))}`\n"
+            f"• 🏆 Mục tiêu chốt lời 1 (TP1): `{format_vnd(res.get('tp1', tp1_calc))}`\n"
+            f"• 🚀 Mục tiêu chốt lời 2 (TP2): `{format_vnd(res.get('tp2', tp2_calc))}`\n"
+        )
     else:
-        if relation == "ĐỒNG PHA" and stock_state == "TĂNG":
-            status_alert = (
-                f"📌 *TRẠNG THÁI HIỆN TẠI:*\n"
-                f"⚪ *CHƯA CÓ TÍN HIỆU MUA MỚI*\n"
-                f"✅ Hai xu hướng đang đồng pha tăng.\n"
-                f"→ Đang chờ điều kiện kích hoạt điểm Mua chuẩn."
-            )
+        # Đang trong nhịp giảm hoặc đi ngang không có điểm mua
+        if stock_state == "GIẢM":
+            status_header = "🔴 *ĐANG TRONG XU HƯỚNG GIẢM — CHƯA CÓ ĐIỂM MUA*"
+            status_desc   = "👉 *Hành động:* **ĐỨNG NGOÀI QUAN SÁT** — Tuyệt đối không bắt đáy!\n• Cổ phiếu đang chịu áp lực điều chỉnh, kiên nhẫn chờ dòng tiền đảo chiều."
         else:
-            status_alert = "👉 _Chưa có điểm mua mới hôm nay. Gõ mã khác để tra cứu!_"
+            status_header = "⚪ *ĐANG TÍCH LŨY ĐI NGANG — TIẾP TỤC QUAN SÁT*"
+            status_desc   = "👉 *Hành động:* **ĐỨNG NGOÀI QUAN SÁT**\n• Cổ phiếu đang trong vùng tích lũy, chờ đợi phiên bùng nổ vượt cản."
+        plan_block = ""
+
+    plan_divider = "━━━━━━━━━━━━━━━━━━━━\n" if plan_block else ""
 
     msg = (
-        f"📊 {title_sym} — `{ex}`\n"
-        f"━━━━━━━━━━━━━━━━━━━\n"
-        f"⏰ _{t}_\n"
-        f"💰 Giá hiện tại: `{price}` {chg_i} `{chg_str}`{status_tag}\n\n"
-        f"🌐 *THỊ TRƯỜNG CHUNG (VN-INDEX)*\n"
-        f"• *Xu hướng:* {vni_state_str} {vni_detail_str}\n\n"
-        f"📌 *{sym} HIỆN TẠI*\n"
-        f"• *Xu hướng chính:* {trend}\n"
-        f"• *Khung Ngày (D):* {sd}  •  *Khung Tuần (W):* {sw}\n"
-        f"• *Biên độ NW:* `{nw_z}`\n"
-        f"• *Vị thế:* {badge} *{str_pos}*\n"
-        f"• *Khối lượng:* `{vr:.1f}x` MA20\n\n"
-        f"🔎 *QUAN HỆ VỚI VN-INDEX*\n"
-        f"• *Trạng thái:* *{relation_str}*\n"
-        f"{comment}\n\n"
-        f"🎯 *TÍN HIỆU GIAO DỊCH GẦN NHẤT ({action_type}):*\n"
-        f"• 🎯 *Giá vào (Lệnh gần nhất):* `{entry_p}` ({time_tag})\n"
-        f"• 🛑 *Cắt lỗ (SL):*  `{sl}` ({sl_pct})\n"
-        f"• 🏆 *TP1:*     `{tp1}` ({tp1_pct}) — _(1.0R)_\n"
-        f"• 🚀 *TP2:*     `{tp2}` ({tp2_pct}) — _(2.0R)_\n"
-        f"━━━━━━━━━━━━━━━━━━━\n"
-        f"{context_hist_str}"
-        f"{stats_sec}\n"
-        f"{status_alert}\n"
-    )
+        f"📊 {title_sym}\n"
+        f"━━━━━━━━━━━━━━━━━━━━\n"
+        f"💰 *Thị giá:* `{price}` ({chg_i} `{chg_str}`) | 📊 *Vol:* `{vr:.1f}x` MA20\n"
+        f"⏰ *Cập nhật:* _{t}_\n\n"
 
+        f"📌 *TRẠNG THÁI HIỆN TẠI*\n"
+        f"{status_header}\n"
+        f"{status_desc}\n\n"
+
+        f"{plan_block}"
+        f"{plan_divider}"
+
+        f"🌐 *BỐI CẢNH THỊ TRƯỜNG (VN-INDEX)*\n"
+        f"• VN-Index: {vni_state_str} {vni_detail}\n"
+        f"• Tương quan: *{relation_badge}* — {relation_cmt}\n\n"
+
+        f"━━━━━━━━━━━━━━━━━━━━\n"
+        f"{stats_sec}\n"
+        f"💡 _Gõ tên mã bất kỳ (VD: HPG, SSI, FPT, VCB) để tra cứu nhanh!_"
+    )
     return msg
 
 
