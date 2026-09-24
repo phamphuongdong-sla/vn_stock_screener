@@ -154,39 +154,31 @@ def _confidence_label(n: int) -> str:
 
 
 def fmt_stats_block(sym: str, bs: dict) -> str:
-    """Format bảng thống kê theo yêu cầu mới."""
+    """Format bảng thống kê 5 năm lịch sử trực quan, dễ xem trên di động."""
     if not bs or bs.get('total_buys', 0) <= 0:
         return ""
     
+    tot = bs.get('total_buys', 0)
+    tot_w = bs.get('tot_wins', 0)
+    tot_l = tot - tot_w
+    tot_wr = bs.get('tot_winrate', 0.0)
+
+    up_cnt = bs.get('vni_up_cnt', 0)
+    up_win = bs.get('vni_up_wins', 0)
+    up_wr = bs.get('vni_up_winrate', 0.0)
+
+    dn_cnt = bs.get('vni_dn_cnt', 0)
+    dn_win = bs.get('vni_dn_wins', 0)
+    dn_wr = bs.get('vni_dn_winrate', 0.0)
+
     return (
-        f"```text\n"
-        f"THỐNG KÊ KHUNG NGÀY\n"
-        f"────────────────────────────\n"
-        f"Mua                         {bs.get('n_buy', 0)}\n"
-        f"Mua mạnh                     {bs.get('n_buy_diamond', 0)}\n"
-        f"Tổng lệnh mua               {bs.get('total_buys', 0)}\n"
-        f"Tổng tín hiệu               {bs.get('total_signals', 0)}\n\n"
-        f"Tỷ trọng Mua             {bs.get('buy_ratio', 0.0):.2f}%\n\n"
-        f"────────────────────────────\n"
-        f"THEO XU HƯỚNG VN-INDEX\n\n"
-        f"VN-Index TĂNG\n"
-        f"Số lệnh                      {bs.get('vni_up_cnt', 0)}\n"
-        f"Lệnh thắng                   {bs.get('vni_up_wins', 0)}\n"
-        f"Lệnh thua                     {bs.get('vni_up_cnt', 0) - bs.get('vni_up_wins', 0)}\n"
-        f"Win Rate                  {bs.get('vni_up_winrate', 0.0):.2f}%\n\n"
-        f"VN-Index GIẢM\n"
-        f"Số lệnh                      {bs.get('vni_dn_cnt', 0)}\n"
-        f"Lệnh thắng                    {bs.get('vni_dn_wins', 0)}\n"
-        f"Lệnh thua                     {bs.get('vni_dn_cnt', 0) - bs.get('vni_dn_wins', 0)}\n"
-        f"Win Rate                  {bs.get('vni_dn_winrate', 0.0):.2f}%\n\n"
-        f"────────────────────────────\n"
-        f"TỔNG\n"
-        f"Lệnh được đánh giá           {bs.get('total_buys', 0)}\n"
-        f"Lệnh thắng                   {bs.get('tot_wins', 0)}\n"
-        f"Lệnh thua                    {bs.get('total_buys', 0) - bs.get('tot_wins', 0)}\n"
-        f"WIN RATE                  {bs.get('tot_winrate', 0.0):.2f}%\n"
-        f"```\n"
+        f"📈 *TỔNG KẾT HIỆU QUẢ 5 NĂM QUA ({sym})*\n"
+        f"• Tổng số lệnh Mua: `{tot}` lệnh (Chuẩn: `{bs.get('n_buy',0)}` • Mạnh: `{bs.get('n_buy_diamond',0)}`)\n"
+        f"• Khi VN-Index TĂNG: `{up_win}/{up_cnt}` thắng (`{up_wr:.1f}%`)\n"
+        f"• Khi VN-Index GIẢM: `{dn_win}/{dn_cnt}` thắng (`{dn_wr:.1f}%`)\n"
+        f"• 👉 *Toàn bộ 5 năm:* `{tot_w} Thắng` / `{tot_l} Thua` → *Win Rate: `{tot_wr:.1f}%`*\n"
     )
+
 
 
 def determine_stock_3state(res: dict):
@@ -273,37 +265,38 @@ def get_context_history_str(bs: dict, vni_state: str) -> str:
         v_cnt = bs.get('vni_dn_cnt', 0)
         v_win = bs.get('vni_dn_wins', 0)
         v_wr  = bs.get('vni_dn_winrate', 0.0)
-        hist_label = "VN-INDEX GIẢM"
+        hist_label = "VN-INDEX ĐANG GIẢM"
     elif vni_state == "TĂNG":
         v_cnt = bs.get('vni_up_cnt', 0)
         v_win = bs.get('vni_up_wins', 0)
         v_wr  = bs.get('vni_up_winrate', 0.0)
-        hist_label = "VN-INDEX TĂNG"
+        hist_label = "VN-INDEX ĐANG TĂNG"
     else:
         v_cnt = bs.get('total_buys', 0)
         v_win = bs.get('tot_wins', 0)
         v_wr  = bs.get('tot_winrate', 0.0)
-        hist_label = "THỊ TRƯỜNG TRUNG TÍNH"
+        hist_label = "VN-INDEX ĐI NGANG"
 
     confidence = _confidence_label(v_cnt)
 
     if v_cnt == 0:
         return (
-            f"📊 *LỊCH SỬ CÙNG BỐI CẢNH ({hist_label}):*\n"
-            f"• ⚪ CHƯA ĐỦ DỮ LIỆU trong bối cảnh này\n\n"
+            f"📊 *LỊCH SỬ 5 NĂM CÙNG BỐI CẢNH ({hist_label})*\n"
+            f"• ⚪ *Chưa có mẫu lệnh* trong bối cảnh này\n\n"
         )
     return (
-        f"📊 *LỊCH SỬ CÙNG BỐI CẢNH ({hist_label}):*\n"
-        f"• Số lệnh: `{v_cnt}` | Thắng: `{v_win}` | Thua: `{v_cnt - v_win}`\n"
-        f"• Win Rate lịch sử: `{v_wr:.1f}%` | Độ tin cậy: {confidence}\n\n"
+        f"📊 *LỊCH SỬ 5 NĂM CÙNG BỐI CẢNH ({hist_label})*\n"
+        f"• Số lệnh đã kiểm nghiệm: `{v_cnt}` lệnh\n"
+        f"• Kết quả: *`{v_win} Thắng`* / *`{v_cnt - v_win} Thua`*\n"
+        f"• Tỷ lệ thắng (Win Rate): *`{v_wr:.1f}%`*\n"
+        f"• Mức độ tin cậy mẫu: {confidence}\n\n"
     )
 
 
 def fmt_buy_alert(res: dict) -> str:
     """
     Format thẻ cảnh báo điểm mua gửi tự động tới Telegram khi kích hoạt trong giờ giao dịch.
-    Phân biệt rõ: 💎 MUA MẠNH (hội tụ đáy NW) vs 🟢 MUA (đảo chiều chuẩn),
-    đồng thời phân tích bối cảnh đồng pha / ngược pha với VN-Index.
+    Rõ ràng, bố cục chuẩn, phân tách từng phần, người nhận đọc 3 giây là hiểu ngay kế hoạch.
     """
     sym        = res['symbol']
     ex         = res['exchange']
@@ -320,12 +313,21 @@ def fmt_buy_alert(res: dict) -> str:
     sw         = res.get('state_w_str', 'N/A')
     vr         = res.get('vol_ratio', 0.0)
     t          = res.get('updated_time', '')
-    sl         = res.get('sl_vnd', '0 đ')
-    sl_pct     = _pct(res.get('sl_pct', 0.0))
-    tp1        = res.get('tp1_vnd', '0 đ')
-    tp1_pct    = _pct(res.get('tp1_pct', 0.0))
-    tp2        = res.get('tp2_vnd', '0 đ')
-    tp2_pct    = _pct(res.get('tp2_pct', 0.0))
+
+    # Luôn tính toán SL và TP chuẩn vị thế MUA (SL dưới giá vào, TP trên giá vào)
+    cur_p      = res.get('price', 0.0)
+    cur_atr    = res.get('atr', 0.0)
+    risk_val   = cur_atr * 1.5 if cur_atr > 0 else cur_p * 0.05
+    sl_calc    = cur_p - risk_val
+    tp1_calc   = cur_p + risk_val * config.DTPRO_RR1
+    tp2_calc   = cur_p + risk_val * config.DTPRO_RR2
+
+    sl         = format_vnd(sl_calc)
+    sl_pct     = _pct((sl_calc - cur_p) / cur_p * 100.0) if cur_p > 0 else "0.0%"
+    tp1        = format_vnd(tp1_calc)
+    tp1_pct    = _pct((tp1_calc - cur_p) / cur_p * 100.0) if cur_p > 0 else "0.0%"
+    tp2        = format_vnd(tp2_calc)
+    tp2_pct    = _pct((tp2_calc - cur_p) / cur_p * 100.0) if cur_p > 0 else "0.0%"
 
     # Bối cảnh thị trường
     vni_info = res.get('vni', {})
@@ -341,13 +343,13 @@ def fmt_buy_alert(res: dict) -> str:
     relation, relation_badge, relation_str, relation_cmt = calc_market_relation(vni_state, stock_state, sym)
 
     if is_diamond:
-        badge_header = f"💎 [TÍN HIỆU MUA MẠNH] {title_sym} — `{ex}`"
-        sub_title    = "✨ *HỢP LƯU TỐI ƯU (XÁC SUẤT CAO NHẤT)*"
-        nw_item      = "✅ Đáy Nadaraya-Watson (hội tụ trong 7 nến vừa qua)"
+        badge_header = f"🚨 *TÍN HIỆU MUA MẠNH* 💎\n📈 {title_sym} — `{ex}`"
+        sub_title    = "✨ *HỢP LƯU TỐI ƯU (ĐÁY NW + SUPERTREND)*"
+        nw_item      = "• Nadaraya-Watson: ✅ *Hội tụ Vùng Đáy* (trong 7 nến vừa qua)"
     else:
-        badge_header = f"🟢 [TÍN HIỆU MUA] {title_sym} — `{ex}`"
-        sub_title    = "📈 *CHỈ BÁO XÁC NHẬN ĐIỂM MUA*"
-        nw_item      = f"✅ Biên độ Nadaraya-Watson: `{nw_zone}`"
+        badge_header = f"🚨 *TÍN HIỆU MUA CHUẨN* 🟢\n📈 {title_sym} — `{ex}`"
+        sub_title    = "📈 *SUPERTREND ĐẢO CHIỀU TĂNG*"
+        nw_item      = f"• Nadaraya-Watson: Biên độ `{nw_zone}`"
 
     bs = res.get('buy_stats', {})
     context_hist = get_context_history_str(bs, vni_state)
@@ -357,33 +359,34 @@ def fmt_buy_alert(res: dict) -> str:
     chg_icon   = "🟢" if chg_val >= 0 else "🔴"
 
     if relation == "ĐỒNG PHA":
-        vni_narrative = "✅ *Tín hiệu Mua xuất hiện cùng hướng với đà tăng của thị trường chung.*"
+        vni_narrative = "🟢 *THUẬN THEO THỊ TRƯỜNG*: Tín hiệu mua bùng nổ cùng chiều với đà tăng của VN-Index."
     elif relation == "NGƯỢC PHA":
-        vni_narrative = "⚠️ *Tín hiệu Mua xuất hiện khi VN-Index đang giảm. Cần theo dõi thêm thanh khoản & quản trị rủi ro.*"
+        vni_narrative = "🟡 *ĐI NGƯỢC THỊ TRƯỜNG*: Cổ phiếu có dòng tiền riêng trong khi VN-Index đang giảm. Cần quản trị rủi ro chặt chẽ."
     else:
-        vni_narrative = "🟡 *Tín hiệu Mua xuất hiện trong bối cảnh thị trường đang tích lũy / trung tính.*"
+        vni_narrative = "⚪ *THỊ TRƯỜNG TRUNG TÍNH*: VN-Index đi ngang tích lũy, cổ phiếu xuất hiện điểm mua độc lập."
 
     msg = (
         f"{badge_header}\n"
         f"━━━━━━━━━━━━━━━━━━━\n"
-        f"⏰ _{t} (Thời gian thực)_\n"
-        f"💰 Thị giá: `{price}` ({chg_icon} `{chg_str}`)\n\n"
+        f"💰 *Giá kích hoạt:* `{price}` ({chg_icon} `{chg_str}`)\n"
+        f"⏰ *Thời gian:* _{t} (Thời gian thực)_\n\n"
         f"{sub_title}\n"
-        f"✅ SuperTrend Keltner Đảo Chiều TĂNG 🟢\n"
+        f"• SuperTrend Keltner: 🟢 *Đảo Chiều TĂNG*\n"
         f"{nw_item}\n"
-        f"🌐 *Thị trường (VN-INDEX):* {vni_state_str} {vni_detail_str}\n"
-        f"🔎 *Quan hệ:* *{relation_badge}*\n"
-        f"{vni_narrative}\n"
-        f"✅ Đa Khung Thời Gian: Ngày ({sd}) • Tuần ({sw})\n"
-        f"📊 Khối lượng: `{vr:.1f}x` TB 20 phiên\n\n"
-        f"🎯 *KẾ HOẠCH GIAO DỊCH (R:R CHUẨN):*\n"
+        f"• Đa Khung Thời Gian: Ngày ({sd}) • Tuần ({sw})\n"
+        f"• Khối lượng: `{vr:.1f}x` TB 20 phiên\n\n"
+        f"🌐 *THỊ TRƯỜNG CHUNG (VN-INDEX)*\n"
+        f"• Xu hướng: {vni_state_str} {vni_detail_str}\n"
+        f"• Quan hệ: *{relation_badge}*\n"
+        f"• Nhận định: {vni_narrative}\n\n"
+        f"🎯 *KẾ HOẠCH GIAO DỊCH (R:R CHUẨN)*\n"
         f"• 🎯 *Giá vào (Entry):* `{price}`\n"
         f"• 🛑 *Cắt lỗ (SL):*    `{sl}` ({sl_pct})\n"
-        f"• 🏆 *TP1 (+{config.DTPRO_RR1:.1f}R):*    `{tp1}` ({tp1_pct}) — _Dời SL hòa vốn_\n"
-        f"• 🚀 *TP2 (+{config.DTPRO_RR2:.1f}R):*    `{tp2}` ({tp2_pct}) — _Mục tiêu chính_\n"
+        f"• 🏆 *Mục tiêu 1 (TP1):* `{tp1}` ({tp1_pct}) — _(1.0R - Dời SL hòa vốn)_\n"
+        f"• 🚀 *Mục tiêu 2 (TP2):* `{tp2}` ({tp2_pct}) — _(2.0R - Chốt lời chính)_\n"
         f"━━━━━━━━━━━━━━━━━━━\n"
         f"{context_hist}"
-        f"{stats_block}"
+        f"{stats_block}\n"
         f"💡 _Quản trị rủi ro: Tối đa 2% NAV cho mỗi vị thế!_"
     )
     return msg

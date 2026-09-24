@@ -131,7 +131,7 @@ def get_vnindex_status() -> dict:
         from screener import get_session
         s = get_session()
         now_ts = int(now)
-        from_ts = now_ts - 400 * 86400
+        from_ts = now_ts - config.DTPRO_HISTORY_DAYS * 86400
         u = f"https://services.entrade.com.vn/chart-api/v2/ohlcs/index?from={from_ts}&to={now_ts}&symbol=VNINDEX&resolution=1D"
         r = s.get(u, timeout=(2.0, 4.0))
         if r.status_code == 200:
