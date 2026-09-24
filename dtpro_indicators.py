@@ -248,6 +248,8 @@ def track_positions_and_signals(
     last_nw_low_bar = -9999
     last_nw_high_bar = -9999
 
+    buy_trades = []
+
     for i in range(1, n):
         if is_day_nw[i]:
             last_nw_low_bar = i
@@ -271,6 +273,14 @@ def track_positions_and_signals(
             tp2_p = close[i] + r * rr2
             last_trigger_bar = i
             last_trigger_type = "BUY_DIAMOND" if is_diamond else "BUY_STANDARD"
+            buy_trades.append({
+                'bar': i,
+                'is_diamond': is_diamond,
+                'entry': entry_p,
+                'sl': sl_p,
+                'tp1': tp1_p,
+                'tp2': tp2_p,
+            })
 
         elif sell_trigger:
             active_pos = -1
@@ -335,6 +345,64 @@ def track_positions_and_signals(
     bars_since_nw_low   = (n - 1 - last_nw_low_bar) if last_nw_low_bar >= 0 else 999
     bars_since_nw_high  = (n - 1 - last_nw_high_bar) if last_nw_high_bar >= 0 else 999
 
+    # Thống kê hiệu quả toàn bộ các lệnh Mua lịch sử của mã (Backtest)
+    buy_stats_list = []
+    for bt in buy_trades:
+        b_bar = bt['bar']
+        b_entry = bt['entry']
+        b_sl = bt['sl']
+        b_tp1 = bt['tp1']
+        b_tp2 = bt['tp2']
+        b_dia = bt['is_diamond']
+
+        first_tp1 = None
+        first_tp2 = None
+        first_sl = None
+
+        for j in range(b_bar + 1, n):
+            if first_sl is None and low[j] <= b_sl:
+                first_sl = j
+            if first_tp1 is None and high[j] >= b_tp1:
+                first_tp1 = j
+            if first_tp2 is None and high[j] >= b_tp2:
+                first_tp2 = j
+            if dirs[j] == -1 and dirs[j-1] == 1:
+                break
+
+        win_tp1 = (first_tp1 is not None) and (first_sl is None or first_tp1 < first_sl)
+        win_tp2 = (first_tp2 is not None) and (first_sl is None or first_tp2 < first_sl)
+        hit_sl_first = (first_sl is not None) and (first_tp1 is None or first_sl < first_tp1)
+
+        buy_stats_list.append({
+            'is_diamond': b_dia,
+            'win_tp1': win_tp1,
+            'win_tp2': win_tp2,
+            'hit_sl_first': hit_sl_first,
+        })
+
+    tot_buys = len(buy_stats_list)
+    dia_list = [t for t in buy_stats_list if t['is_diamond']]
+    std_list = [t for t in buy_stats_list if not t['is_diamond']]
+
+    tot_wins = sum(1 for t in buy_stats_list if t['win_tp1'])
+    dia_wins = sum(1 for t in dia_list if t['win_tp1'])
+    std_wins = sum(1 for t in std_list if t['win_tp1'])
+
+    buy_stats = {
+        'total_buys': tot_buys,
+        'total_wins': tot_wins,
+        'winrate_pct': round(tot_wins / tot_buys * 100.0, 1) if tot_buys > 0 else 0.0,
+        'diamond_cnt': len(dia_list),
+        'diamond_wins': dia_wins,
+        'diamond_winrate': round(dia_wins / len(dia_list) * 100.0, 1) if dia_list else 0.0,
+        'standard_cnt': len(std_list),
+        'standard_wins': std_wins,
+        'standard_winrate': round(std_wins / len(std_list) * 100.0, 1) if std_list else 0.0,
+        'tp1_rate': round(tot_wins / tot_buys * 100.0, 1) if tot_buys > 0 else 0.0,
+        'tp2_rate': round(sum(1 for t in buy_stats_list if t['win_tp2']) / tot_buys * 100.0, 1) if tot_buys > 0 else 0.0,
+        'sl_rate': round(sum(1 for t in buy_stats_list if t['hit_sl_first']) / tot_buys * 100.0, 1) if tot_buys > 0 else 0.0,
+    }
+
     return {
         'buy_trigger':        curr_buy_trigger,
         'sell_trigger':       curr_sell_trigger,
@@ -365,6 +433,7 @@ def track_positions_and_signals(
         'bars_since_nw_high': bars_since_nw_high,
         'had_nw_low':         curr_had_nw_low,
         'had_nw_high':        curr_had_nw_high,
+        'buy_stats':          buy_stats,
     }
 
 
@@ -529,5 +598,6 @@ def analyze_dtpro(
         # Meta
         'updated_time':       datetime.now().strftime("%H:%M %d/%m/%Y"),
         'nw_bars_used':       actual_win,
+        'buy_stats':          state.get('buy_stats', {}),
     }
 

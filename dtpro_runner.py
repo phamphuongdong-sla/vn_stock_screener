@@ -175,6 +175,23 @@ def fmt_buy_alert(res: dict) -> str:
         sub_title    = "📈 *CHỈ BÁO XÁC NHẬN ĐIỂM MUA*"
         nw_item      = f"✅ Biên độ Nadaraya-Watson: `{nw_zone}`"
 
+    bs = res.get('buy_stats', {})
+    stats_line = ""
+    if bs and bs.get('total_buys', 0) > 0:
+        tot_b = bs['total_buys']
+        tot_w = bs['total_wins']
+        wr    = bs['winrate_pct']
+        stats_line = (
+            f"📊 *XÁC SUẤT THẮNG LỊCH SỬ MÃ {sym}:*\n"
+            f"• Tỷ lệ đạt TP1 trước SL: `{wr}%` ({tot_w}/{tot_b} lệnh)\n"
+        )
+        if is_diamond and bs.get('diamond_cnt', 0) > 0:
+            d_cnt = bs['diamond_cnt']
+            d_w   = bs['diamond_wins']
+            d_wr  = bs['diamond_winrate']
+            stats_line += f"• Riêng 💎 Mua Mạnh: `{d_wr}%` ({d_w}/{d_cnt} lệnh)\n"
+        stats_line += "\n"
+
     msg = (
         f"{badge_header}\n"
         f"━━━━━━━━━━━━━━━━━━━\n"
@@ -185,6 +202,7 @@ def fmt_buy_alert(res: dict) -> str:
         f"{nw_item}\n"
         f"✅ Đa Khung Thời Gian: Ngày ({sd}) • Tuần ({sw})\n"
         f"📊 Khối lượng: `{vr:.1f}x` TB 20 phiên\n\n"
+        f"{stats_line}"
         f"🎯 *KẾ HOẠCH GIAO DỊCH (R:R CHUẨN):*\n"
         f"• 🎯 *Giá vào (Entry):* `{price}`\n"
         f"• 🛑 *Cắt lỗ (SL):*    `{sl}` ({sl_pct})\n"
@@ -268,6 +286,34 @@ def fmt_detail(res: dict) -> str:
         elif cur_p <= tp1_val:
             status_tag = " 🏆 *(Đã đạt mục tiêu TP1)*"
 
+    bs = res.get('buy_stats', {})
+    stats_sec = ""
+    if bs and bs.get('total_buys', 0) > 0:
+        tot_b = bs['total_buys']
+        tot_w = bs['total_wins']
+        wr    = bs['winrate_pct']
+        d_cnt = bs.get('diamond_cnt', 0)
+        d_w   = bs.get('diamond_wins', 0)
+        d_wr  = bs.get('diamond_winrate', 0.0)
+        s_cnt = bs.get('standard_cnt', 0)
+        s_w   = bs.get('standard_wins', 0)
+        s_wr  = bs.get('standard_winrate', 0.0)
+        tp1_r = bs.get('tp1_rate', 0.0)
+        tp2_r = bs.get('tp2_rate', 0.0)
+        sl_r  = bs.get('sl_rate', 0.0)
+
+        dia_txt = f"`{d_wr}%` ({d_w}/{d_cnt} lệnh)" if d_cnt > 0 else "_Chưa có lệnh Mua Mạnh trong 400 phiên_"
+        std_txt = f"`{s_wr}%` ({s_w}/{s_cnt} lệnh)" if s_cnt > 0 else "_Chưa có_"
+
+        stats_sec = (
+            f"📊 *XÁC SUẤT THẮNG LỊCH SỬ (BACKTEST MÃ {sym}):*\n"
+            f"• 📈 *Tỷ lệ thắng lệnh MUA:* `{wr}%` ({tot_w}/{tot_b} lệnh đạt TP1)\n"
+            f"• 💎 *Mua Mạnh:* {dia_txt}\n"
+            f"• 🟢 *Mua Thường:* {std_txt}\n"
+            f"• 🎯 *Tỷ lệ chạm TP1:* `{tp1_r}%` | *TP2:* `{tp2_r}%` | *Chạm SL:* `{sl_r}%`\n"
+            f"━━━━━━━━━━━━━━━━━━━\n"
+        )
+
     msg = (
         f"📊 {title_sym} — `{ex}`\n"
         f"━━━━━━━━━━━━━━━━━━━\n"
@@ -285,6 +331,7 @@ def fmt_detail(res: dict) -> str:
         f"• 🏆 *TP1:*     `{tp1}` ({tp1_pct}) — _(1.0R)_\n"
         f"• 🚀 *TP2:*     `{tp2}` ({tp2_pct}) — _(2.0R)_\n"
         f"━━━━━━━━━━━━━━━━━━━\n"
+        f"{stats_sec}"
     )
 
     if res.get('buy_diamond'):
