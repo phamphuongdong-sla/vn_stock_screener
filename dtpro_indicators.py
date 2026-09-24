@@ -43,10 +43,15 @@ def calc_nadaraya_watson(
     """
     vals = close.values.astype(np.float64)
     n = len(vals)
-    weights = _gauss_weights(min(window, n), h)
-    
+    w_len = min(window, n)
+    weights = _gauss_weights(w_len, h)
+
     # Chuẩn hóa mẫu số động theo số nến quá khứ có sẵn
-    denoms = np.cumsum(weights)[:n]
+    denoms = np.empty(n, dtype=np.float64)
+    denoms[:w_len] = np.cumsum(weights)
+    if n > w_len:
+        denoms[w_len:] = weights.sum()
+
     conv = np.convolve(vals, weights, mode='full')[:n]
     result = conv / denoms
 

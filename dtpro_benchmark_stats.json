@@ -1,0 +1,35 @@
+{
+  "updated_at": "2026-09-24 08:48:24",
+  "sample_stocks": 250,
+  "history_days": 1000,
+  "diamond": {
+    "total": 81,
+    "tp1_wins": 30,
+    "winrate_tp1": 37.0,
+    "tp2_wins": 18,
+    "winrate_tp2": 22.2,
+    "sl_hits": 47,
+    "sl_rate": 58.0,
+    "avg_pnl": -0.55
+  },
+  "standard": {
+    "total": 1034,
+    "tp1_wins": 473,
+    "winrate_tp1": 45.7,
+    "tp2_wins": 304,
+    "winrate_tp2": 29.4,
+    "sl_hits": 550,
+    "sl_rate": 53.2,
+    "avg_pnl": -0.93
+  },
+  "overall": {
+    "total": 1115,
+    "tp1_wins": 503,
+    "winrate_tp1": 45.1,
+    "tp2_wins": 322,
+    "winrate_tp2": 28.9,
+    "sl_hits": 597,
+    "sl_rate": 53.5,
+    "avg_pnl": -0.9
+  }
+}

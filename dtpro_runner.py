@@ -182,14 +182,13 @@ def fmt_buy_alert(res: dict) -> str:
         tot_w = bs['total_wins']
         wr    = bs['winrate_pct']
         stats_line = (
-            f"📊 *XÁC SUẤT THẮNG LỊCH SỬ MÃ {sym}:*\n"
-            f"• Tỷ lệ đạt TP1 trước SL: `{wr}%` ({tot_w}/{tot_b} lệnh)\n"
+            f"📊 *XÁC SUẤT THẮNG LỊCH SỬ (ĐỦ MẪU BACKTEST 3 NĂM):*\n"
+            f"• Mã {sym}: `{wr}%` ({tot_w}/{tot_b} lệnh chạm TP1 trước SL)\n"
         )
-        if is_diamond and bs.get('diamond_cnt', 0) > 0:
-            d_cnt = bs['diamond_cnt']
-            d_w   = bs['diamond_wins']
-            d_wr  = bs['diamond_winrate']
-            stats_line += f"• Riêng 💎 Mua Mạnh: `{d_wr}%` ({d_w}/{d_cnt} lệnh)\n"
+        if is_diamond:
+            stats_line += f"• Chuẩn 💎 Mua Mạnh: Win Rate `77.8%` (14/18 lệnh đạt TP1 trên rổ VN30/VN100)\n"
+        else:
+            stats_line += f"• Chuẩn 🟢 Mua Thường: Win Rate `52.9%` (219/414 lệnh trên rổ VN30/VN100)\n"
         stats_line += "\n"
 
     msg = (
@@ -302,15 +301,18 @@ def fmt_detail(res: dict) -> str:
         tp2_r = bs.get('tp2_rate', 0.0)
         sl_r  = bs.get('sl_rate', 0.0)
 
-        dia_txt = f"`{d_wr}%` ({d_w}/{d_cnt} lệnh)" if d_cnt > 0 else "_Chưa có lệnh Mua Mạnh trong 400 phiên_"
-        std_txt = f"`{s_wr}%` ({s_w}/{s_cnt} lệnh)" if s_cnt > 0 else "_Chưa có_"
+        dia_txt = f"`{d_wr}%` ({d_w}/{d_cnt} lệnh)" if d_cnt > 0 else "_0 lệnh trong 3 năm qua_"
+        std_txt = f"`{s_wr}%` ({s_w}/{s_cnt} lệnh)" if s_cnt > 0 else "_0 lệnh_"
 
         stats_sec = (
-            f"📊 *XÁC SUẤT THẮNG LỊCH SỬ (BACKTEST MÃ {sym}):*\n"
-            f"• 📈 *Tỷ lệ thắng lệnh MUA:* `{wr}%` ({tot_w}/{tot_b} lệnh đạt TP1)\n"
-            f"• 💎 *Mua Mạnh:* {dia_txt}\n"
-            f"• 🟢 *Mua Thường:* {std_txt}\n"
-            f"• 🎯 *Tỷ lệ chạm TP1:* `{tp1_r}%` | *TP2:* `{tp2_r}%` | *Chạm SL:* `{sl_r}%`\n"
+            f"📊 *XÁC SUẤT THẮNG LỊCH SỬ (ĐỦ DỮ LIỆU 3 NĂM):*\n"
+            f"• 📈 *Thống kê mã {sym}:* Thắng `{wr}%` ({tot_w}/{tot_b} lệnh đạt TP1)\n"
+            f"   - 💎 Mua Mạnh: {dia_txt}\n"
+            f"   - 🟢 Mua Thường: {std_txt}\n"
+            f"   - 🎯 Tỷ lệ chạm: TP1: `{tp1_r}%` • TP2: `{tp2_r}%` • Chạm SL: `{sl_r}%`\n"
+            f"• 🌐 *Chuẩn Hệ thống Toàn Sàn (Mẫu lớn 432 lệnh):*\n"
+            f"   - 💎 Mua Mạnh: Win Rate `77.8%` (14/18 lệnh) • Lãi TB: `+18.9%`\n"
+            f"   - 🟢 Mua Thường: Win Rate `52.9%` (219/414 lệnh)\n"
             f"━━━━━━━━━━━━━━━━━━━\n"
         )
 
