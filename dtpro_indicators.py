@@ -841,6 +841,7 @@ def analyze_dtpro(
         'vol_ratio':          round(vr, 2),
         # Quản trị rủi ro
         'entry_price':        entry_price,
+        'entry_p':            entry_price,
         'entry_price_vnd':    format_vnd(entry_price),
         'sl':                 sl_val,
         'sl_vnd':             format_vnd(sl_val),

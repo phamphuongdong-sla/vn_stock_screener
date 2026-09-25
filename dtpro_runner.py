@@ -302,7 +302,7 @@ def fmt_buy_alert(res: dict) -> str:
     price      = res['price_vnd']
     cur_p      = res.get('price', 0.0)
     chg        = res.get('change_pct', 0.0)
-    chg_str    = _pct(chg)
+    chg_str    = f" ({_pct(chg)})" if abs(chg) >= 0.01 else ""
     is_diamond = res.get('buy_diamond', False)
     vr         = res.get('vol_ratio', 0.0)
     t          = res.get('updated_time', '')
@@ -335,7 +335,7 @@ def fmt_buy_alert(res: dict) -> str:
         f"🚨 *TÍN HIỆU: {tag}*\n"
         f"📈 *{title_sym}* (`{ex}`)\n"
         f"━━━━━━━━━━━━━━━━━━━━\n"
-        f"💰 *Giá mua (Entry):* `{price}` ({chg_str}) | Vol: `{vr:.1f}x` MA20\n"
+        f"💰 *Giá mua (Entry):* `{price}`{chg_str} | Vol: `{vr:.1f}x` MA20\n"
         f"⏰ *Kích hoạt:* _{t}_\n\n"
 
         f"🎯 *KẾ HOẠCH GIẢI NGÂN (R:R)*\n"
@@ -367,7 +367,7 @@ def fmt_detail(res: dict) -> str:
     price     = res['price_vnd']
     cur_p     = res.get('price', 0.0)
     chg       = res.get('change_pct', 0.0)
-    chg_str   = _pct(chg)
+    chg_str   = f" ({_pct(chg)})" if abs(chg) >= 0.01 else ""
     vr        = res.get('vol_ratio', 0.0)
     t         = res.get('updated_time', '')
     
@@ -397,8 +397,13 @@ def fmt_detail(res: dict) -> str:
     is_diamond   = res.get('buy_diamond', False)
     active_pos   = res.get('active_pos', 0)
     bars_ago     = res.get('bars_since_trigger', 0)
-    entry_p      = res.get('entry_price_vnd', price)
-    entry_val    = res.get('entry_p', cur_p)
+    entry_val    = res.get('entry_price') or res.get('entry_p') or cur_p
+    entry_p      = res.get('entry_price_vnd') or (format_vnd(entry_val) if entry_val > 0 else price)
+
+    pnl = res.get('pnl_pct')
+    if pnl is None:
+        pnl = ((cur_p - entry_val) / entry_val * 100.0) if entry_val > 0 else 0.0
+    pnl_str = _pct(pnl)
 
     if is_buy_today:
         tag = "💎 MUA MẠNH" if is_diamond else "🟢 MUA CHUẨN"
@@ -409,11 +414,10 @@ def fmt_detail(res: dict) -> str:
             f"• 🚀 TP2: `{tp2_vnd}` ({tp2_pct}) — _Chốt lời chính_\n"
         )
     elif active_pos == 1:
-        pnl = (cur_p - entry_val) / entry_val * 100.0 if entry_val > 0 else 0.0
-        pnl_str = _pct(pnl)
+        time_ago_str = f"`{bars_ago}` phiên trước" if bars_ago > 0 else "Phiên hôm nay"
         status_sec = (
             f"🟢 *VỊ THẾ: ĐANG NẮM GIỮ (Không mua đuổi)*\n"
-            f"• Lệnh từ: `{bars_ago}` phiên trước (Giá vào: `{entry_p}` • Lãi/lỗ: *`{pnl_str}`*)\n"
+            f"• Lệnh từ: {time_ago_str} (Giá vào: `{entry_p}` • Lãi/lỗ: *`{pnl_str}`*)\n"
             f"• Quản trị: SL `{format_vnd(res.get('sl', sl_calc))}` | TP1 `{format_vnd(res.get('tp1', tp1_calc))}` | TP2 `{format_vnd(res.get('tp2', tp2_calc))}`\n"
         )
     else:
@@ -429,7 +433,7 @@ def fmt_detail(res: dict) -> str:
 
     msg = (
         f"📈 *{title_sym}* (`{ex}`)\n"
-        f"Thị giá: `{price}` ({chg_str}) | Vol: `{vr:.1f}x` MA20\n"
+        f"Thị giá: `{price}`{chg_str} | Vol: `{vr:.1f}x` MA20\n"
         f"Cập nhật: _{t}_\n"
         f"━━━━━━━━━━━━━━━━━━━━\n"
         f"{status_sec}\n"
