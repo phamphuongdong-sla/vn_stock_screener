@@ -276,18 +276,36 @@ def track_positions_and_signals(
         is_dinh_nw[i] = (high[i] >= nw_u[i]) or cross_up
 
     # 3. State Machine & Bộ nhớ lệnh chờ kết quả (Sections 12-16 Pine Script)
+    def _lookup_vni_trend(vni_map: dict, t: int) -> int:
+        if not vni_map:
+            return 1
+        if t in vni_map:
+            return 1 if vni_map[t] else 0
+        day_key = (t + 25200) // 86400
+        if day_key in vni_map:
+            return 1 if vni_map[day_key] else 0
+        return 1
+
     stat_wins   = [0] * 18
     stat_losses = [0] * 18
-    trade_bar     = []
-    trade_dir     = []
-    trade_entry   = []
-    trade_tp      = []
-    trade_sl      = []
-    trade_context = []
-    trade_is_dia  = []
+    trade_bar      = []
+    trade_dir      = []
+    trade_entry    = []
+    trade_tp       = []
+    trade_sl       = []
+    trade_context  = []
+    trade_is_dia   = []
+    trade_vni_same = []
 
     dia_wins = 0; dia_losses = 0
     std_wins = 0; std_losses = 0
+    dia_vni_wins = 0; dia_vni_losses = 0
+    std_vni_wins = 0; std_vni_losses = 0
+
+    sell_dia_wins = 0; sell_dia_losses = 0
+    sell_std_wins = 0; sell_std_losses = 0
+    sell_dia_vni_wins = 0; sell_dia_vni_losses = 0
+    sell_std_vni_wins = 0; sell_std_vni_losses = 0
 
     active_pos = 0
     pos_name = "ĐANG QUAN SÁT"
@@ -308,7 +326,7 @@ def track_positions_and_signals(
             last_nw_high_bar = i
 
         t_now = t_arr[i]
-        vn_trend_val = 1 if (vni_trend_map and vni_trend_map.get(t_now, True)) else 0
+        vn_trend_val = _lookup_vni_trend(vni_trend_map, t_now)
         stk_trend_val = stock_trend[i]
 
         # Section 14 Pine Script: Cập nhật các lệnh đã phát sinh trước đó
@@ -320,6 +338,7 @@ def track_positions_and_signals(
             s_sl  = trade_sl[k]
             s_ctx = trade_context[k]
             s_dia = trade_is_dia[k]
+            s_same = trade_vni_same[k]
             age   = i - s_bar
 
             hit_tp = high[i] >= s_tp if s_dir == 1 else low[i] <= s_tp
@@ -348,13 +367,35 @@ def track_positions_and_signals(
                 if is_win:
                     stat_wins[stat_idx] += 1
                     if s_dir == 1:
-                        if s_dia: dia_wins += 1
-                        else: std_wins += 1
+                        if s_dia:
+                            dia_wins += 1
+                            if s_same: dia_vni_wins += 1
+                        else:
+                            std_wins += 1
+                            if s_same: std_vni_wins += 1
+                    else:
+                        if s_dia:
+                            sell_dia_wins += 1
+                            if s_same: sell_dia_vni_wins += 1
+                        else:
+                            sell_std_wins += 1
+                            if s_same: sell_std_vni_wins += 1
                 if is_loss:
                     stat_losses[stat_idx] += 1
                     if s_dir == 1:
-                        if s_dia: dia_losses += 1
-                        else: std_losses += 1
+                        if s_dia:
+                            dia_losses += 1
+                            if s_same: dia_vni_losses += 1
+                        else:
+                            std_losses += 1
+                            if s_same: std_vni_losses += 1
+                    else:
+                        if s_dia:
+                            sell_dia_losses += 1
+                            if s_same: sell_dia_vni_losses += 1
+                        else:
+                            sell_std_losses += 1
+                            if s_same: sell_std_vni_losses += 1
                 to_remove.append(k)
 
         for k in to_remove:
@@ -365,6 +406,7 @@ def track_positions_and_signals(
             trade_sl.pop(k)
             trade_context.pop(k)
             trade_is_dia.pop(k)
+            trade_vni_same.pop(k)
 
         # Section 10 & 15 Pine Script: Kiểm tra kích hoạt tín hiệu MUA/BÁN
         buy_trigger  = (dirs[i] == 1 and dirs[i-1] == -1)
@@ -393,6 +435,7 @@ def track_positions_and_signals(
             trade_sl.append(sl_p)
             trade_context.append(new_ctx)
             trade_is_dia.append(is_diamond)
+            trade_vni_same.append(vn_trend_val == 1)
 
         elif sell_trigger:
             active_pos = -1
@@ -414,6 +457,7 @@ def track_positions_and_signals(
             trade_sl.append(sl_p)
             trade_context.append(new_ctx)
             trade_is_dia.append(is_diamond)
+            trade_vni_same.append(vn_trend_val == 0)
 
     # 4. Trạng thái nến hiện tại (phiên hôm nay)
     curr_buy_trigger  = (dirs[-1] == 1 and dirs[-2] == -1) if n >= 2 else False
@@ -467,8 +511,9 @@ def track_positions_and_signals(
     bars_since_nw_high  = (n - 1 - last_nw_high_bar) if last_nw_high_bar >= 0 else 999
 
     # Section 16 Pine Script: Lấy thống kê cho lệnh MUA ở bối cảnh hiện tại
+    # Section 16 Pine Script: Lấy thống kê cho lệnh MUA ở bối cảnh hiện tại
     cur_t = t_arr[-1]
-    cur_vn = 1 if (vni_trend_map and vni_trend_map.get(cur_t, True)) else 0
+    cur_vn = _lookup_vni_trend(vni_trend_map, cur_t)
     cur_stk = stock_trend[-1]
     current_context = f_context_index(cur_vn, cur_stk)
 
@@ -491,45 +536,123 @@ def track_positions_and_signals(
 
     confidence_str = f_confidence(buy_samples_current)
 
-    # Thống kê tổng hợp toàn bộ lịch sử (chuẩn Pine Script 20 nến lookahead)
+    # 1. Thống kê lệnh MUA (chuẩn Pine Script 20 nến lookahead)
+    # Mua mạnh (💎 BUY MẠNH)
+    dia_samples = dia_wins + dia_losses
+    dia_winrate = round(dia_wins * 100.0 / dia_samples, 1) if dia_samples > 0 else 0.0
+    dia_vni_samples = dia_vni_wins + dia_vni_losses
+    dia_vni_winrate = round(dia_vni_wins * 100.0 / dia_vni_samples, 1) if dia_vni_samples > 0 else 0.0
+
+    # Mua chuẩn (🟢 BUY)
+    std_samples = std_wins + std_losses
+    std_winrate = round(std_wins * 100.0 / std_samples, 1) if std_samples > 0 else 0.0
+    std_vni_samples = std_vni_wins + std_vni_losses
+    std_vni_winrate = round(std_vni_wins * 100.0 / std_vni_samples, 1) if std_vni_samples > 0 else 0.0
+
+    # Toàn bộ lệnh MUA
     tot_buy_wins   = dia_wins + std_wins
     tot_buy_losses = dia_losses + std_losses
     tot_buy_samples = tot_buy_wins + tot_buy_losses
     tot_buy_winrate = round(tot_buy_wins * 100.0 / tot_buy_samples, 1) if tot_buy_samples > 0 else 0.0
 
-    dia_samples = dia_wins + dia_losses
-    dia_winrate = round(dia_wins * 100.0 / dia_samples, 1) if dia_samples > 0 else 0.0
+    tot_buy_vni_wins = dia_vni_wins + std_vni_wins
+    tot_buy_vni_losses = dia_vni_losses + std_vni_losses
+    tot_buy_vni_samples = tot_buy_vni_wins + tot_buy_vni_losses
+    tot_buy_vni_winrate = round(tot_buy_vni_wins * 100.0 / tot_buy_vni_samples, 1) if tot_buy_vni_samples > 0 else 0.0
 
-    std_samples = std_wins + std_losses
-    std_winrate = round(std_wins * 100.0 / std_samples, 1) if std_samples > 0 else 0.0
+    # 2. Thống kê lệnh BÁN (giảm tiếp chạm TP1)
+    # Bán mạnh (🔥 SELL MẠNH)
+    sell_dia_samples = sell_dia_wins + sell_dia_losses
+    sell_dia_winrate = round(sell_dia_wins * 100.0 / sell_dia_samples, 1) if sell_dia_samples > 0 else 0.0
+    sell_dia_vni_samples = sell_dia_vni_wins + sell_dia_vni_losses
+    sell_dia_vni_winrate = round(sell_dia_vni_wins * 100.0 / sell_dia_vni_samples, 1) if sell_dia_vni_samples > 0 else 0.0
+
+    # Bán chuẩn (🔴 SELL)
+    sell_std_samples = sell_std_wins + sell_std_losses
+    sell_std_winrate = round(sell_std_wins * 100.0 / sell_std_samples, 1) if sell_std_samples > 0 else 0.0
+    sell_std_vni_samples = sell_std_vni_wins + sell_std_vni_losses
+    sell_std_vni_winrate = round(sell_std_vni_wins * 100.0 / sell_std_vni_samples, 1) if sell_std_vni_samples > 0 else 0.0
+
+    # Toàn bộ lệnh BÁN
+    tot_sell_wins = sell_dia_wins + sell_std_wins
+    tot_sell_losses = sell_dia_losses + sell_std_losses
+    tot_sell_samples = tot_sell_wins + tot_sell_losses
+    tot_sell_winrate = round(tot_sell_wins * 100.0 / tot_sell_samples, 1) if tot_sell_samples > 0 else 0.0
+
+    tot_sell_vni_wins = sell_dia_vni_wins + sell_std_vni_wins
+    tot_sell_vni_losses = sell_dia_vni_losses + sell_std_vni_losses
+    tot_sell_vni_samples = tot_sell_vni_wins + tot_sell_vni_losses
+    tot_sell_vni_winrate = round(tot_sell_vni_wins * 100.0 / tot_sell_vni_samples, 1) if tot_sell_vni_samples > 0 else 0.0
 
     buy_stats = {
         # Cùng bối cảnh (Khớp 100% Pine Script Section 16 HUD & Alert)
-        'context_index':      current_context,
-        'context_samples':    buy_samples_current,
-        'context_wins':       buy_wins_current,
-        'context_losses':     buy_losses_current,
-        'context_winrate':    buy_winrate_current,
-        'context_confidence': confidence_str,
+        'context_index':        current_context,
+        'context_samples':      buy_samples_current,
+        'context_wins':         buy_wins_current,
+        'context_losses':       buy_losses_current,
+        'context_winrate':      buy_winrate_current,
+        'context_confidence':   confidence_str,
 
-        # Tổng hợp lệnh lịch sử
-        'n_buy':              std_samples,
-        'std_wins':           std_wins,
-        'std_losses':         std_losses,
-        'std_winrate':        std_winrate,
+        # Mua chuẩn (🟢 BUY)
+        'n_buy':                std_samples,
+        'std_wins':             std_wins,
+        'std_losses':           std_losses,
+        'std_winrate':          std_winrate,
+        'std_vni_samples':      std_vni_samples,
+        'std_vni_wins':         std_vni_wins,
+        'std_vni_losses':       std_vni_losses,
+        'std_vni_winrate':      std_vni_winrate,
 
-        'n_buy_diamond':      dia_samples,
-        'dia_wins':           dia_wins,
-        'dia_losses':         dia_losses,
-        'dia_winrate':        dia_winrate,
+        # Mua mạnh (💎 BUY MẠNH)
+        'n_buy_diamond':        dia_samples,
+        'dia_wins':             dia_wins,
+        'dia_losses':           dia_losses,
+        'dia_winrate':          dia_winrate,
+        'dia_vni_samples':      dia_vni_samples,
+        'dia_vni_wins':         dia_vni_wins,
+        'dia_vni_losses':       dia_vni_losses,
+        'dia_vni_winrate':      dia_vni_winrate,
 
-        'total_buys':         tot_buy_samples,
-        'tot_wins':           tot_buy_wins,
-        'tot_losses':         tot_buy_losses,
-        'tot_winrate':        tot_buy_winrate,
+        # Tổng hợp lệnh MUA
+        'total_buys':           tot_buy_samples,
+        'tot_wins':             tot_buy_wins,
+        'tot_losses':           tot_buy_losses,
+        'tot_winrate':          tot_buy_winrate,
+        'tot_vni_samples':      tot_buy_vni_samples,
+        'tot_vni_wins':         tot_buy_vni_wins,
+        'tot_vni_losses':       tot_buy_vni_losses,
+        'tot_vni_winrate':      tot_buy_vni_winrate,
+
+        # Bán chuẩn (🔴 SELL)
+        'sell_std_samples':     sell_std_samples,
+        'sell_std_wins':        sell_std_wins,
+        'sell_std_losses':      sell_std_losses,
+        'sell_std_winrate':     sell_std_winrate,
+        'sell_std_vni_samples': sell_std_vni_samples,
+        'sell_std_vni_wins':    sell_std_vni_wins,
+        'sell_std_vni_losses':  sell_std_vni_losses,
+        'sell_std_vni_winrate': sell_std_vni_winrate,
+
+        # Bán mạnh (🔥 SELL MẠNH)
+        'sell_dia_samples':     sell_dia_samples,
+        'sell_dia_wins':        sell_dia_wins,
+        'sell_dia_losses':      sell_dia_losses,
+        'sell_dia_winrate':     sell_dia_winrate,
+        'sell_dia_vni_samples': sell_dia_vni_samples,
+        'sell_dia_vni_wins':    sell_dia_vni_wins,
+        'sell_dia_vni_losses':  sell_dia_vni_losses,
+        'sell_dia_vni_winrate': sell_dia_vni_winrate,
+
+        # Tổng hợp lệnh BÁN
+        'total_sells':          tot_sell_samples,
+        'sell_tot_wins':        tot_sell_wins,
+        'sell_tot_losses':      tot_sell_losses,
+        'sell_tot_winrate':     tot_sell_winrate,
+        'sell_tot_vni_samples': tot_sell_vni_samples,
+        'sell_tot_vni_wins':    tot_sell_vni_wins,
+        'sell_tot_vni_losses':  tot_sell_vni_losses,
+        'sell_tot_vni_winrate': tot_sell_vni_winrate,
     }
-
-
 
     return {
         'buy_trigger':        curr_buy_trigger,
@@ -561,7 +684,7 @@ def track_positions_and_signals(
         'bars_since_nw_high': bars_since_nw_high,
         'had_nw_low':         curr_had_nw_low,
         'had_nw_high':        curr_had_nw_high,
-        'last_vni_up':        bool(vni_trend_map.get(t_arr[last_trigger_bar], True)) if (vni_trend_map and last_trigger_bar >= 0) else True,
+        'last_vni_up':        bool(_lookup_vni_trend(vni_trend_map, t_arr[last_trigger_bar])) if (vni_trend_map and last_trigger_bar >= 0) else True,
         'buy_stats':          buy_stats,
     }
 

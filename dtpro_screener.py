@@ -114,7 +114,13 @@ def get_vnindex_trend_map(days: int = 1000) -> dict:
                 from dtpro_indicators import calc_supertrend
                 st_dir, _ = calc_supertrend(df_vni, st_len=config.DTPRO_ST_LEN, atr_mult=config.DTPRO_ST_MULT, atr_len=config.DTPRO_ATR_LEN)
                 is_up = st_dir == 1
-                _vni_hist_map = {d['t'][i]: bool(is_up.iloc[i]) for i in range(len(d['t']))}
+                new_map = {}
+                for i in range(len(d['t'])):
+                    t_val = int(d['t'][i])
+                    val = bool(is_up.iloc[i])
+                    new_map[t_val] = val
+                    new_map[(t_val + 25200) // 86400] = val
+                _vni_hist_map = new_map
                 _vni_hist_time = now
     except Exception:
         pass

@@ -155,38 +155,67 @@ def _confidence_label(n: int) -> str:
 
 
 def fmt_stats_block(sym: str, bs: dict) -> str:
-    """Format bảng thống kê bối cảnh và lịch sử theo chuẩn Pine Script Section 16 & Alert."""
+    """Format bảng thống kê 10 năm theo 4 loại tín hiệu & cùng trend VN-Index."""
     if not bs:
         return ""
-    
-    ctx_samples = bs.get('context_samples', 0)
-    ctx_w = bs.get('context_wins', 0)
-    ctx_wr = bs.get('context_winrate', 0.0)
-    conf = bs.get('context_confidence', '⚪ CHƯA ĐỦ DỮ LIỆU')
 
-    tot = bs.get('total_buys', 0)
-    tot_w = bs.get('tot_wins', 0)
-    tot_wr = bs.get('tot_winrate', 0.0)
-
-    n_dia = bs.get('n_buy_diamond', 0)
+    dia_n = bs.get('n_buy_diamond', 0)
     dia_w = bs.get('dia_wins', 0)
     dia_wr = bs.get('dia_winrate', 0.0)
+    dia_vni_n = bs.get('dia_vni_samples', 0)
+    dia_vni_w = bs.get('dia_vni_wins', 0)
+    dia_vni_wr = bs.get('dia_vni_winrate', 0.0)
 
-    if ctx_samples >= 5:
-        ctx_desc = f"• Cùng bối cảnh: *`{ctx_w}/{ctx_samples}` thắng (`{ctx_wr:.1f}%`)* | _{conf}_\n"
-    elif ctx_samples > 0:
-        ctx_desc = f"• Cùng bối cảnh: `{ctx_w}/{ctx_samples}` thắng ({conf})\n"
+    std_n = bs.get('n_buy', 0)
+    std_w = bs.get('std_wins', 0)
+    std_wr = bs.get('std_winrate', 0.0)
+    std_vni_n = bs.get('std_vni_samples', 0)
+    std_vni_w = bs.get('std_vni_wins', 0)
+    std_vni_wr = bs.get('std_vni_winrate', 0.0)
+
+    tot_buy_n = bs.get('total_buys', 0)
+    tot_buy_w = bs.get('tot_wins', 0)
+    tot_buy_wr = bs.get('tot_winrate', 0.0)
+    tot_buy_vni_n = bs.get('tot_vni_samples', 0)
+    tot_buy_vni_w = bs.get('tot_vni_wins', 0)
+    tot_buy_vni_wr = bs.get('tot_vni_winrate', 0.0)
+
+    sell_tot_n = bs.get('total_sells', 0)
+    sell_tot_w = bs.get('sell_tot_wins', 0)
+    sell_tot_wr = bs.get('sell_tot_winrate', 0.0)
+    sell_tot_vni_n = bs.get('sell_tot_vni_samples', 0)
+    sell_tot_vni_w = bs.get('sell_tot_vni_wins', 0)
+    sell_tot_vni_wr = bs.get('sell_tot_vni_winrate', 0.0)
+
+    sell_dia_n = bs.get('sell_dia_samples', 0)
+    sell_dia_w = bs.get('sell_dia_wins', 0)
+
+    lines = ["📊 *THỐNG KÊ 10 NĂM (CHỈ BÁO & VN-INDEX)*"]
+
+    # 1. 💎 Mua mạnh
+    if dia_n > 0:
+        dia_vni_str = f" | Cùng trend VNI: `{dia_vni_w}/{dia_vni_n}` (`{dia_vni_wr:.1f}%`)" if dia_vni_n > 0 else ""
+        lines.append(f"• 💎 Mua mạnh: *`{dia_w}/{dia_n}`* (`{dia_wr:.1f}%`){dia_vni_str}")
     else:
-        ctx_desc = "• Cùng bối cảnh: _Chưa có mẫu tương đồng_\n"
+        lines.append("• 💎 Mua mạnh: _0 tín hiệu trong 10 năm_")
 
-    dia_desc = f" (💎 Mua mạnh: `{dia_w}/{n_dia}` - `{dia_wr:.1f}%`)" if n_dia > 0 else ""
-    tot_desc = f"• Toàn bộ 10 năm: *`{tot_w}/{tot}` thắng (`{tot_wr:.1f}%`)*{dia_desc}\n" if tot > 0 else ""
+    # 2. 🟢 Mua chuẩn
+    if std_n > 0:
+        std_vni_str = f" | Cùng trend VNI: `{std_vni_w}/{std_vni_n}` (`{std_vni_wr:.1f}%`)" if std_vni_n > 0 else ""
+        lines.append(f"• 🟢 Mua chuẩn: *`{std_w}/{std_n}`* (`{std_wr:.1f}%`){std_vni_str}")
 
-    return (
-        f"📊 *LỊCH SỬ THỐNG KÊ (20 NẾN)*\n"
-        f"{ctx_desc}"
-        f"{tot_desc}"
-    )
+    # 3. 📈 Toàn bộ lệnh MUA
+    if tot_buy_n > 0:
+        tot_vni_str = f" | Cùng trend VNI: *`{tot_buy_vni_w}/{tot_buy_vni_n}` (`{tot_buy_vni_wr:.1f}%`)*" if tot_buy_vni_n > 0 else ""
+        lines.append(f"• 📈 *Tổng lệnh MUA:* *`{tot_buy_w}/{tot_buy_n}`* (`{tot_buy_wr:.1f}%`){tot_vni_str}")
+
+    # 4. 🔴 Lệnh BÁN
+    if sell_tot_n > 0:
+        sell_dia_str = f" (🔥 Bán mạnh: `{sell_dia_w}/{sell_dia_n}`)" if sell_dia_n > 0 else ""
+        sell_vni_str = f" | Cùng trend VNI: `{sell_tot_vni_w}/{sell_tot_vni_n}` (`{sell_tot_vni_wr:.1f}%`)" if sell_tot_vni_n > 0 else ""
+        lines.append(f"• 🔴 Lệnh BÁN: `{sell_tot_w}/{sell_tot_n}` (`{sell_tot_wr:.1f}%`) hạ tiếp{sell_dia_str}{sell_vni_str}")
+
+    return "\n".join(lines) + "\n"
 
 
 def determine_stock_3state(res: dict):

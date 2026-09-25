@@ -146,10 +146,17 @@ class TestDTPro(unittest.TestCase):
 
         self.assertIn("VIC", detail_msg)
         self.assertIn("THỊ TRƯỜNG CHUNG", detail_msg)
-        self.assertIn("LỊCH SỬ THỐNG KÊ", detail_msg)
+        self.assertIn("THỐNG KÊ 10 NĂM", detail_msg)
+        self.assertIn("Tổng lệnh MUA", detail_msg)
 
         self.assertIn("VIC", alert_msg)
         self.assertIn("KẾ HOẠCH GIẢI NGÂN", alert_msg)
+        self.assertIn("buy_stats", res)
+        bs = res['buy_stats']
+        self.assertIn('dia_vni_wins', bs)
+        self.assertIn('std_vni_wins', bs)
+        self.assertIn('tot_vni_wins', bs)
+        self.assertIn('sell_tot_wins', bs)
 
 
 if __name__ == "__main__":
