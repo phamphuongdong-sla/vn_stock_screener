@@ -2,20 +2,31 @@ name: Dòng Tiền PRO Bot — Master Edition
 
 on:
   schedule:
-    # Phiên sáng VN 09:00–11:30 = UTC 02:00–04:30 (Thứ 2–6)
-    - cron: '*/5 2-3 * * 1-5'
-    - cron: '0,5,10,15,20,25,30 4 * * 1-5'
-    # Phiên chiều VN 13:00–15:00 = UTC 06:00–08:00
-    - cron: '*/5 6-7 * * 1-5'
-    - cron: '0 8 * * 1-5'
+    # Phiên sáng: Khởi động 08:50 VN (01:50 UTC) chạy liên tục đến 11:35 VN
+    - cron: '50 1 * * 1-5'
+    # Dự phòng phiên sáng: Khởi động 09:30 VN (02:30 UTC) nếu lượt 08:50 bị trễ
+    - cron: '30 2 * * 1-5'
+    # Phiên chiều: Khởi động 12:50 VN (05:50 UTC) chạy liên tục đến 15:05 VN
+    - cron: '50 5 * * 1-5'
+    # Dự phòng phiên chiều: Khởi động 13:30 VN (06:30 UTC) nếu lượt 12:50 bị trễ
+    - cron: '30 6 * * 1-5'
 
-  workflow_dispatch:   # Chạy thủ công bất cứ lúc nào
+  workflow_dispatch:   # Cho phép khởi động phiên chạy trực tiếp bất cứ lúc nào
+    inputs:
+      duration_minutes:
+        description: 'Thời gian chạy liên tục (phút)'
+        required: false
+        default: '180'
+
+concurrency:
+  group: dtpro-bot-live
+  cancel-in-progress: false
 
 jobs:
-  dtpro-scan-and-reply:
-    name: "DTPro — Quét & Trả lời Telegram"
+  dtpro-live-session:
+    name: "DTPro — Live Daemon Session"
     runs-on: ubuntu-latest
-    timeout-minutes: 10   # NW kernel cần ~60-90s để quét 700 mã
+    timeout-minutes: 240
 
     steps:
       - name: Checkout code
@@ -30,9 +41,11 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run DTPro Bot
+      - name: Run DTPro Live Bot Session
         env:
           TZ: 'Asia/Ho_Chi_Minh'
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: python dtpro_runner.py
+        run: |
+          python dtpro_runner.py --listen --max-minutes ${{ inputs.duration_minutes || '180' }}
+

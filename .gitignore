@@ -18,3 +18,4 @@ alerted_stocks.json
 *.db-shm
 *.db-wal
 .DS_Store
+.env

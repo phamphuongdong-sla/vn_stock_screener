@@ -680,16 +680,24 @@ def run_github_actions():
     print("[3/3] Hoàn tất lượt chạy GitHub Actions.")
 
 
-def run_daemon():
+def run_daemon(max_minutes: Optional[int] = None):
     """
-    Chế độ chạy nền 24/7 (khi chạy trên máy cá nhân hoặc VPS):
-    Liên tục lắng nghe tin nhắn Telegram và quét định kỳ 1 phút/lần trong giờ giao dịch.
+    Chế độ chạy nền liên tục (hỗ trợ cả VPS, máy cá nhân và GitHub Actions Live Session):
+    - Lắng nghe tin nhắn Telegram mỗi 1-2 giây (phản hồi tức thì <1s)
+    - Quét định kỳ toàn sàn trong giờ giao dịch (bắn cảnh báo tức thì)
+    - Nếu có max_minutes: Tự động dừng sau thời gian quy định (phù hợp phiên GitHub Actions)
     """
-    print("🚀 Dòng Tiền PRO Bot — Khởi động chế độ Daemon 24/7...")
+    start_time = time.time()
+    max_secs = (max_minutes * 60) if max_minutes else None
+    limit_str = f"{max_minutes} phút" if max_minutes else "Vô hạn (24/7)"
+    print(f"🚀 Dòng Tiền PRO Bot — Khởi động chế độ Live Daemon (Thời lượng: {limit_str})...")
     last_uid  = 0
     last_scan = 0
 
     while True:
+        if max_secs and (time.time() - start_time >= max_secs):
+            print(f"⏰ Đã đạt giới hạn phiên {max_minutes} phút. Kết thúc phiên chạy an toàn.")
+            break
         try:
             updates = gdnl_bot.get_pending_updates(offset=last_uid + 1)
             if updates:
@@ -800,8 +808,21 @@ def run_scan():
 
 if __name__ == "__main__":
     args = sys.argv[1:]
-    if args and args[0] == "--listen":
-        run_daemon()
+    if args and args[0] in ["--listen", "--daemon", "--session"]:
+        max_m = None
+        if "--max-minutes" in args:
+            idx = args.index("--max-minutes")
+            if idx + 1 < len(args):
+                try:
+                    max_m = int(args[idx + 1])
+                except ValueError:
+                    pass
+        elif args[0] == "--session" and len(args) >= 2:
+            try:
+                max_m = int(args[1])
+            except ValueError:
+                pass
+        run_daemon(max_minutes=max_m)
     elif args and args[0] == "--check" and len(args) >= 2:
         run_check(args[1])
     elif args and args[0] == "--scan":

@@ -6,15 +6,27 @@ File cấu hình cho Bot Quét Cổ Phiếu Cá Mập (Vietnam Stock Screener)
 import os
 import json
 
+def _load_env_file():
+    env_path = os.path.join(os.path.dirname(__file__), ".env")
+    if os.path.exists(env_path):
+        try:
+            with open(env_path, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith("#") and "=" in line:
+                        k, v = line.split("=", 1)
+                        os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
+        except Exception:
+            pass
+
+_load_env_file()
+
 # ==========================================
 # 1. CẤU HÌNH TELEGRAM CẢNH BÁO
 # ==========================================
-# Hướng dẫn tạo bot:
-# 1. Chat với @BotFather trên Telegram -> gõ /newbot -> lấy TOKEN (dạng 123456789:ABCdef...)
-# 2. Chat với @userinfobot -> lấy Chat ID của bạn (dạng số: 987654321)
 TELEGRAM_ENABLED = True
-TELEGRAM_BOT_TOKEN = "8969001909:AAF8o9IWI3YcLbNmKvH4IqiYrGlbpXZPrXw"
-TELEGRAM_CHAT_ID = "2125548447"
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
+TELEGRAM_CHAT_ID   = os.getenv("TELEGRAM_CHAT_ID", "")
 
 # ==========================================
 # 2. TIÊU CHUẨN KHẮT KHE: CHẮC CHẮN CÓ CÁ MẬP (SMART MONEY)
