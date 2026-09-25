@@ -17,7 +17,7 @@ import os
 import json
 import requests
 from datetime import datetime
-from typing import Set
+from typing import Set, Optional, Dict, List
 
 import config
 from screener import is_trading_hour, format_vnd
