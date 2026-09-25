@@ -335,7 +335,7 @@ def fmt_buy_alert(res: dict) -> str:
         f"🚨 *TÍN HIỆU: {tag}*\n"
         f"📈 *{title_sym}* (`{ex}`)\n"
         f"━━━━━━━━━━━━━━━━━━━━\n"
-        f"💰 *Giá mua (Entry):* `{price}`{chg_str} | Vol: `{vr:.1f}x` MA20\n"
+        f"💰 *Giá mua (Entry):* `{price}`{chg_str}\n"
         f"⏰ *Kích hoạt:* _{t}_\n\n"
 
         f"🎯 *KẾ HOẠCH GIẢI NGÂN (R:R)*\n"
@@ -433,8 +433,8 @@ def fmt_detail(res: dict) -> str:
 
     msg = (
         f"📈 *{title_sym}* (`{ex}`)\n"
-        f"Thị giá: `{price}`{chg_str} | Vol: `{vr:.1f}x` MA20\n"
-        f"Cập nhật: _{t}_\n"
+        f"💰 *Giá hiện tại:* `{price}`{chg_str}\n"
+        f"⏰ *Cập nhật:* _{t}_\n"
         f"━━━━━━━━━━━━━━━━━━━━\n"
         f"{status_sec}\n"
         f"🌐 *THỊ TRƯỜNG CHUNG (VN-INDEX)*\n"
