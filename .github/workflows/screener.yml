@@ -1,15 +1,7 @@
 name: Vietnam Stock Screener Telegram Bot
 
 on:
-  schedule:
-    # Lịch quét 5 phút/lần trong giờ giao dịch TTCK Việt Nam (Thứ 2 đến Thứ 6)
-    # Phiên sáng: 09:00 - 11:30 VN (02:00 - 04:30 UTC)
-    - cron: '*/5 2-3 * * 1-5'
-    - cron: '0,5,10,15,20,25,30 4 * * 1-5'
-    # Phiên chiều: 13:00 - 15:00 VN (06:00 - 08:00 UTC)
-    - cron: '*/5 6-7 * * 1-5'
-    - cron: '0 8 * * 1-5'
-  workflow_dispatch:          # Cho phép bấm nút quét thủ công bất cứ lúc nào
+  workflow_dispatch:          # Chỉ chạy thủ công khi cần
 
 jobs:
   scan:

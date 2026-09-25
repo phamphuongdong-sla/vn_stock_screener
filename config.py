@@ -52,7 +52,7 @@ SCAN_INTERVAL_SECONDS = 180   # 3 phút quét 1 lần trong giờ giao dịch (g
 EXCHANGES = ["HOSE", "HNX"]
 
 # Số luồng phân tích chuyên sâu đồng thời
-MAX_WORKERS = 4
+MAX_WORKERS = 8
 
 # ==========================================
 # 4. GDNL — Vùng Xu Hướng PRO (Pine Script Port)
