@@ -16,6 +16,7 @@ import time
 import os
 import json
 import requests
+import threading
 from datetime import datetime
 from typing import Set, Optional, Dict, List
 
@@ -552,13 +553,17 @@ def process_updates(updates: list) -> int:
             continue
 
         if cmd == "/SCAN":
-            gdnl_bot.send_message(chat_id, "🔍 Đang quét toàn sàn tìm điểm MUA... Vui lòng chờ 30-60 giây.")
-            try:
-                sigs = dtpro_screener.run_dtpro_screener(buy_only=True)
-                gdnl_bot.send_message(chat_id, fmt_scan_summary(
-                    sigs, f"[{datetime.now().strftime('%H:%M %d/%m')} - Giờ giao dịch]"))
-            except Exception as e:
-                gdnl_bot.send_message(chat_id, f"❌ Lỗi quét: {e}")
+            def _async_scan(target_chat):
+                try:
+                    sigs = dtpro_screener.run_dtpro_screener(buy_only=True)
+                    now_str = datetime.now().strftime('%H:%M %d/%m')
+                    summary_msg = fmt_scan_summary(sigs, f"[{now_str}]")
+                    gdnl_bot.send_message(target_chat, summary_msg)
+                except Exception as e:
+                    gdnl_bot.send_message(target_chat, f"❌ Lỗi quét: {e}")
+
+            gdnl_bot.send_message(chat_id, "🔍 Đang quét toàn sàn tìm điểm MUA... Vui lòng chờ 15-30 giây.")
+            threading.Thread(target=_async_scan, args=(chat_id,), daemon=True).start()
             continue
 
         target = None

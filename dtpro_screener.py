@@ -5,6 +5,7 @@ dtpro_screener.py — Quét toàn sàn HOSE+HNX theo chỉ báo DÒNG TIỀN PRO
 
 import concurrent.futures
 import time
+import threading
 from datetime import datetime
 from typing import List, Optional, Dict
 
@@ -231,13 +232,24 @@ def analyze_single(symbol: str) -> Optional[Dict]:
     return res
 
 
+_screener_cache = {}
+_screener_cache_time = {}
+_screener_lock = threading.Lock()
+
 def run_dtpro_screener(buy_only: bool = True, signal_only: bool = True) -> List[Dict]:
     """
     Quét toàn sàn HOSE + HNX theo bộ chỉ báo DÒNG TIỀN & XU HƯỚNG PRO:
-    Tối ưu hóa: Lọc sơ bộ thanh khoản trước khi gọi API, phân tích song song 16 luồng siêu tốc.
+    Tối ưu hóa: Lọc sơ bộ thanh khoản trước khi gọi API, phân tích song song luồng siêu tốc.
+    Bộ đệm kết quả 45s giúp trả về tức thì cho nhiều người cùng tra cứu hoặc quét liên tục.
     - buy_only=True: Chỉ lấy các mã có điểm MUA hoặc MUA MẠNH hôm nay
     - signal_only=True: Lấy các mã có tín hiệu (Mua hoặc Bán)
     """
+    cache_key = (buy_only, signal_only)
+    now_ts = time.time()
+    with _screener_lock:
+        if cache_key in _screener_cache and (now_ts - _screener_cache_time.get(cache_key, 0) < 45):
+            return _screener_cache[cache_key].copy()
+
     elapsed = get_elapsed_trading_minutes()
     min_val = (1_000_000_000 if elapsed <= 45 else
                2_000_000_000 if elapsed <= 90 else config.MIN_TRADE_VALUE)
@@ -287,4 +299,7 @@ def run_dtpro_screener(buy_only: bool = True, signal_only: bool = True) -> List[
     ))
     tag = "ĐIỂM MUA (MUA & MUA MẠNH)" if buy_only else "tín hiệu"
     print(f"[DTPro] Hoàn tất — Tìm thấy {len(results)} mã có {tag}.")
+    with _screener_lock:
+        _screener_cache[cache_key] = results
+        _screener_cache_time[cache_key] = time.time()
     return results
