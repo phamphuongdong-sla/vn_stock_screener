@@ -23,6 +23,7 @@ import config
 from screener import is_trading_hour, format_vnd
 import gdnl_bot
 import dtpro_screener
+import database
 
 
 # ─────────────────────────────────────────────────────────────
@@ -154,10 +155,15 @@ def _confidence_label(n: int) -> str:
 
 
 def fmt_stats_block(sym: str, bs: dict) -> str:
-    """Format bảng thống kê 5 năm lịch sử siêu gọn, không thừa chữ."""
-    if not bs or bs.get('total_buys', 0) <= 0:
+    """Format bảng thống kê bối cảnh và lịch sử theo chuẩn Pine Script Section 16 & Alert."""
+    if not bs:
         return ""
     
+    ctx_samples = bs.get('context_samples', 0)
+    ctx_w = bs.get('context_wins', 0)
+    ctx_wr = bs.get('context_winrate', 0.0)
+    conf = bs.get('context_confidence', '⚪ CHƯA ĐỦ DỮ LIỆU')
+
     tot = bs.get('total_buys', 0)
     tot_w = bs.get('tot_wins', 0)
     tot_wr = bs.get('tot_winrate', 0.0)
@@ -166,22 +172,21 @@ def fmt_stats_block(sym: str, bs: dict) -> str:
     dia_w = bs.get('dia_wins', 0)
     dia_wr = bs.get('dia_winrate', 0.0)
 
-    n_std = bs.get('n_buy', 0)
-    std_w = bs.get('std_wins', 0)
-    std_wr = bs.get('std_winrate', 0.0)
+    if ctx_samples >= 5:
+        ctx_desc = f"• Cùng bối cảnh: *`{ctx_w}/{ctx_samples}` thắng (`{ctx_wr:.1f}%`)* | _{conf}_\n"
+    elif ctx_samples > 0:
+        ctx_desc = f"• Cùng bối cảnh: `{ctx_w}/{ctx_samples}` thắng ({conf})\n"
+    else:
+        ctx_desc = "• Cùng bối cảnh: _Chưa có mẫu tương đồng_\n"
 
-    dia_line = f"• 💎 Mua mạnh: `{dia_w}/{n_dia}` thắng (`{dia_wr:.1f}%`)\n" if n_dia > 0 else "• 💎 Mua mạnh: `0` lệnh\n"
-    std_line = f"• 🟢 Mua chuẩn: `{std_w}/{n_std}` thắng (`{std_wr:.1f}%`)\n" if n_std > 0 else ""
+    dia_desc = f" (💎 Mua mạnh: `{dia_w}/{n_dia}` - `{dia_wr:.1f}%`)" if n_dia > 0 else ""
+    tot_desc = f"• Toàn bộ 10 năm: *`{tot_w}/{tot}` thắng (`{tot_wr:.1f}%`)*{dia_desc}\n" if tot > 0 else ""
 
     return (
-        f"📊 *THỐNG KÊ 5 NĂM (KHUNG NGÀY)*\n"
-        f"{dia_line}"
-        f"{std_line}"
-        f"• 👉 Tổng cộng: *`{tot_w}/{tot}` thắng (`{tot_wr:.1f}%`)*\n"
+        f"📊 *LỊCH SỬ THỐNG KÊ (20 NẾN)*\n"
+        f"{ctx_desc}"
+        f"{tot_desc}"
     )
-
-
-
 
 
 def determine_stock_3state(res: dict):
@@ -190,10 +195,8 @@ def determine_stock_3state(res: dict):
     - 🟢 TĂNG: close > EMA20 AND EMA20 > EMA50 (state_d == 1)
     - 🔴 GIẢM: close < EMA20 AND EMA20 < EMA50 (state_d == -1)
     - ⚪ NGANG: các trường hợp còn lại (state_d == 0)
-    Không dùng SuperTrend direction làm override — chỉ dùng EMA state.
     """
     state_d = res.get('state_d', 0)
-
     if state_d == 1:
         return "TĂNG", "🟢 TĂNG"
     elif state_d == -1:
@@ -208,44 +211,40 @@ def calc_market_relation(vni_state: str, stock_state: str, sym: str):
     - ĐỒNG PHA (🟢)
     - TRUNG TÍNH (🟡)
     - NGƯỢC PHA (🔴)
-    Kèm câu bình luận bối cảnh hoàn chỉnh.
     """
     if vni_state == "TĂNG":
         if stock_state == "TĂNG":
             relation = "ĐỒNG PHA"
             relation_badge = "🟢 ĐỒNG PHA"
-            relation_str = "🟢 ĐỒNG PHA (THUẬN XU HƯỚNG THỊ TRƯỜNG)"
-            comment = f"→ Cổ phiếu {sym} đang đồng pha tăng với VN-Index."
+            relation_str = "🟢 ĐỒNG PHA"
+            comment = f"→ {sym} đang đồng pha tăng với VN-Index."
         elif stock_state == "GIẢM":
             relation = "NGƯỢC PHA"
             relation_badge = "🔴 NGƯỢC PHA"
-            relation_str = "🔴 NGƯỢC PHA (NGƯỢC XU HƯỚNG THỊ TRƯỜNG)"
+            relation_str = "🔴 NGƯỢC PHA"
             comment = f"→ {sym} đang giảm, yếu hơn trạng thái chung của thị trường."
-        else: # NGANG
+        else:
             relation = "TRUNG TÍNH"
             relation_badge = "🟡 TRUNG TÍNH"
-            relation_str = "🟡 TRUNG TÍNH (CHƯA ĐỒNG THUẬN)"
-            comment = f"→ {sym} đang đi ngang tích lũy trong khi thị trường tăng."
+            relation_str = "🟡 TRUNG TÍNH"
+            comment = f"→ {sym} đang tích lũy trong khi thị trường tăng."
     elif vni_state == "GIẢM":
         if stock_state == "GIẢM":
             relation = "ĐỒNG PHA"
             relation_badge = "🟢 ĐỒNG PHA"
-            relation_str = "🟢 ĐỒNG PHA (THUẬN XU HƯỚNG THỊ TRƯỜNG)"
+            relation_str = "🟢 ĐỒNG PHA"
             comment = f"→ {sym} đang giảm cùng xu hướng thị trường chung."
         elif stock_state == "TĂNG":
             relation = "NGƯỢC PHA"
             relation_badge = "🔴 NGƯỢC PHA"
-            relation_str = "🔴 NGƯỢC PHA (NGƯỢC XU HƯỚNG THỊ TRƯỜNG)"
-            comment = (
-                f"→ {sym} đang tăng trong khi VN-Index đang giảm.\n"
-                f"→ Cần theo dõi khả năng duy trì xu hướng riêng của {sym}."
-            )
-        else: # NGANG
+            relation_str = "🔴 NGƯỢC PHA"
+            comment = f"→ {sym} đang tăng trong khi VN-Index đang giảm."
+        else:
             relation = "TRUNG TÍNH"
             relation_badge = "🟡 TRUNG TÍNH"
-            relation_str = "🟡 TRUNG TÍNH (CHƯA ĐỒNG THUẬN)"
+            relation_str = "🟡 TRUNG TÍNH"
             comment = f"→ {sym} đang giữ nền đi ngang trong khi thị trường giảm."
-    else: # VN-Index NGANG
+    else:
         if stock_state == "NGANG":
             relation = "TRUNG TÍNH"
             relation_badge = "⚪ CẢ HAI ĐANG NGANG"
@@ -253,53 +252,17 @@ def calc_market_relation(vni_state: str, stock_state: str, sym: str):
             comment = f"→ Cả thị trường chung và {sym} đều đang trong vùng tích lũy đi ngang."
         else:
             relation = "TRUNG TÍNH"
-            relation_badge = "🟡 TRUNG TÍNH"
+            relation_badge = "🟡 THỊ TRƯỜNG TRUNG TÍNH"
             relation_str = "🟡 THỊ TRƯỜNG TRUNG TÍNH"
-            comment = f"→ VN-Index đang đi ngang, {sym} đang vận động theo xu hướng riêng ({stock_state})."
+            comment = f"→ VN-Index đang đi ngang, {sym} vận động theo xu hướng riêng ({stock_state})."
 
     return relation, relation_badge, relation_str, comment
-
-
-def get_context_history_str(bs: dict, vni_state: str) -> str:
-    """Format khối thống kê lịch sử trong cùng bối cảnh thị trường."""
-    if not bs or bs.get('total_buys', 0) <= 0:
-        return ""
-    if vni_state == "GIẢM":
-        v_cnt = bs.get('vni_dn_cnt', 0)
-        v_win = bs.get('vni_dn_wins', 0)
-        v_wr  = bs.get('vni_dn_winrate', 0.0)
-        hist_label = "VN-INDEX ĐANG GIẢM"
-    elif vni_state == "TĂNG":
-        v_cnt = bs.get('vni_up_cnt', 0)
-        v_win = bs.get('vni_up_wins', 0)
-        v_wr  = bs.get('vni_up_winrate', 0.0)
-        hist_label = "VN-INDEX ĐANG TĂNG"
-    else:
-        v_cnt = bs.get('total_buys', 0)
-        v_win = bs.get('tot_wins', 0)
-        v_wr  = bs.get('tot_winrate', 0.0)
-        hist_label = "VN-INDEX ĐI NGANG"
-
-    confidence = _confidence_label(v_cnt)
-
-    if v_cnt == 0:
-        return (
-            f"📊 *LỊCH SỬ 5 NĂM CÙNG BỐI CẢNH ({hist_label})*\n"
-            f"• ⚪ *Chưa có mẫu lệnh* trong bối cảnh này\n\n"
-        )
-    return (
-        f"📊 *LỊCH SỬ 5 NĂM CÙNG BỐI CẢNH ({hist_label})*\n"
-        f"• Số lệnh đã kiểm nghiệm: `{v_cnt}` lệnh\n"
-        f"• Kết quả: *`{v_win} Thắng`* / *`{v_cnt - v_win} Thua`*\n"
-        f"• Tỷ lệ thắng (Win Rate): *`{v_wr:.1f}%`*\n"
-        f"• Mức độ tin cậy mẫu: {confidence}\n\n"
-    )
 
 
 def fmt_buy_alert(res: dict) -> str:
     """
     Format thẻ cảnh báo điểm mua gửi tự động tới Telegram khi kích hoạt trong giờ giao dịch.
-    Ngắn gọn, súc tích, chỉ nêu trọng tâm.
+    Ngắn gọn, súc tích, trực diện.
     """
     sym        = res['symbol']
     ex         = res['exchange']
@@ -336,7 +299,7 @@ def fmt_buy_alert(res: dict) -> str:
     stock_state, _ = determine_stock_3state(res)
     relation, relation_badge, _, _ = calc_market_relation(vni_info.get('state', 'NGANG'), stock_state, sym)
 
-    tag = "💎 MUA MẠNH (Đáy NW + SuperTrend)" if is_diamond else "🟢 MUA CHUẨN (SuperTrend)"
+    tag = "💎 MUA MẠNH" if is_diamond else "🟢 MUA CHUẨN"
     stats_block = fmt_stats_block(sym, res.get('buy_stats', {}))
 
     msg = (
@@ -344,19 +307,19 @@ def fmt_buy_alert(res: dict) -> str:
         f"📈 *{title_sym}* (`{ex}`)\n"
         f"━━━━━━━━━━━━━━━━━━━━\n"
         f"💰 *Giá mua (Entry):* `{price}` ({chg_str}) | Vol: `{vr:.1f}x` MA20\n"
-        f"⏰ *Kích hoạt:* _{t} (Thời gian thực)_\n\n"
+        f"⏰ *Kích hoạt:* _{t}_\n\n"
 
-        f"🎯 *KẾ HOẠCH GIẢI NGÂN (R:R CHUẨN)*\n"
+        f"🎯 *KẾ HOẠCH GIẢI NGÂN (R:R)*\n"
         f"• 🛑 Cắt lỗ (SL): `{sl_vnd}` ({sl_pct})\n"
-        f"• 🏆 Chốt lời TP1: `{tp1_vnd}` ({tp1_pct}) — _Dời SL hòa vốn_\n"
-        f"• 🚀 Chốt lời TP2: `{tp2_vnd}` ({tp2_pct}) — _Chốt lời chính_\n\n"
+        f"• 🏆 TP1: `{tp1_vnd}` ({tp1_pct}) — _Dời SL hòa vốn_\n"
+        f"• 🚀 TP2: `{tp2_vnd}` ({tp2_pct}) — _Chốt lời chính_\n\n"
 
         f"🌐 *THỊ TRƯỜNG CHUNG (VN-INDEX)*\n"
         f"• Xu hướng: {vni_state_str} ({vni_p_str}) | Tương quan: *{relation_badge}*\n\n"
 
         f"━━━━━━━━━━━━━━━━━━━━\n"
         f"{stats_block}\n"
-        f"💡 _Khuyến nghị: Tối đa 2% NAV cho mỗi vị thế!_"
+        f"💡 _Khuyến nghị: Quản trị rủi ro tối đa 2% NAV/vị thế!_"
     )
     return msg
 
@@ -413,24 +376,24 @@ def fmt_detail(res: dict) -> str:
         status_sec = (
             f"🎯 *TÍN HIỆU HÔM NAY: {tag}*\n"
             f"• 🛑 Cắt lỗ (SL): `{sl_vnd}` ({sl_pct})\n"
-            f"• 🏆 Chốt lời TP1: `{tp1_vnd}` ({tp1_pct}) — _Dời SL hòa vốn_\n"
-            f"• 🚀 Chốt lời TP2: `{tp2_vnd}` ({tp2_pct}) — _Chốt lời chính_\n"
+            f"• 🏆 TP1: `{tp1_vnd}` ({tp1_pct}) — _Dời SL hòa vốn_\n"
+            f"• 🚀 TP2: `{tp2_vnd}` ({tp2_pct}) — _Chốt lời chính_\n"
         )
     elif active_pos == 1:
         pnl = (cur_p - entry_val) / entry_val * 100.0 if entry_val > 0 else 0.0
         pnl_str = _pct(pnl)
         status_sec = (
             f"🟢 *VỊ THẾ: ĐANG NẮM GIỮ (Không mua đuổi)*\n"
-            f"• Vị thế từ: {bars_ago} phiên trước (Giá vào: `{entry_p}` • Lãi/lỗ: *`{pnl_str}`*)\n"
+            f"• Lệnh từ: `{bars_ago}` phiên trước (Giá vào: `{entry_p}` • Lãi/lỗ: *`{pnl_str}`*)\n"
             f"• Quản trị: SL `{format_vnd(res.get('sl', sl_calc))}` | TP1 `{format_vnd(res.get('tp1', tp1_calc))}` | TP2 `{format_vnd(res.get('tp2', tp2_calc))}`\n"
         )
     else:
         status_sec = (
             f"🔴 *VỊ THẾ: ĐỨNG NGOÀI (Chưa có điểm mua)*\n"
-            f"• Đang nhịp điều chỉnh — Tuyệt đối không bắt đáy, chờ dòng tiền đảo chiều!\n"
+            f"• Đang nhịp điều chỉnh — Chờ dòng tiền đảo chiều xác nhận.\n"
         ) if stock_state == "GIẢM" else (
-            f"⚪ *VỊ THẾ: ĐỨNG NGOÀI (Đang đi ngang)*\n"
-            f"• Đang tích lũy — Chờ tín hiệu bùng nổ xác nhận xu hướng mới.\n"
+            f"⚪ *VỊ THẾ: ĐỨNG NGOÀI (Đang tích lũy)*\n"
+            f"• Đang đi ngang — Chờ tín hiệu bùng nổ xác nhận xu hướng mới.\n"
         )
 
     stats_sec = fmt_stats_block(sym, res.get('buy_stats', {}))
@@ -447,6 +410,7 @@ def fmt_detail(res: dict) -> str:
         f"{stats_sec}"
     )
     return msg
+
 
 
 def fmt_scan_summary(signals: list, time_str: str = "") -> str:
@@ -537,6 +501,23 @@ def process_updates(updates: list) -> int:
             gdnl_bot.send_message(chat_id, fmt_status())
             continue
 
+        if cmd == "/HEALTH":
+            db_ok = "OK"
+            try:
+                database.get_recent_signals(limit=1)
+            except Exception:
+                db_ok = "FAIL"
+            vni_ok = "OK" if dtpro_screener.get_vnindex_status() else "FAIL"
+            health_msg = (
+                f"🩺 *HỆ THỐNG HEALTH CHECK*\n"
+                f"• Database (SQLite): ✅ {db_ok}\n"
+                f"• Data Provider (Entrade): ✅ {vni_ok}\n"
+                f"• Telegram Bot: ✅ OK\n"
+                f"• Trạng thái: 🟢 HOẠT ĐỘNG TỐT\n"
+            )
+            gdnl_bot.send_message(chat_id, health_msg)
+            continue
+
         if cmd == "/SCAN":
             gdnl_bot.send_message(chat_id, "🔍 Đang quét toàn sàn tìm điểm MUA... Vui lòng chờ 30-60 giây.")
             try:
@@ -612,7 +593,12 @@ def run_github_actions():
             new_alerts = 0
             for sig in buy_signals:
                 sym = sig['symbol']
-                # Chỉ cảnh báo nếu mã chưa được gửi hôm nay
+                sig_time = sig.get('time', int(time.time()))
+                sig_type = "BUY_DIAMOND" if sig.get('buy_diamond') else "BUY_STANDARD"
+
+                # Chống bắn lặp 2 lớp: Database SQLite + Bộ nhớ phiên
+                if database.is_signal_exists(sym, '1D', sig_time, sig_type):
+                    continue
                 if sym not in alerted_stocks_today:
                     alert_card = fmt_buy_alert(sig)
                     sent = gdnl_bot.send_alert_to_default(alert_card)
@@ -621,6 +607,30 @@ def run_github_actions():
                         new_alerts += 1
                         kind = "💎 MUA MẠNH" if sig.get('buy_diamond') else "🟢 MUA"
                         print(f"  ✅ [ĐÃ CẢNH BÁO] Mã {sym} ({kind}) tới Telegram thành công!")
+
+                        # Lưu vào Database SQLite
+                        stock_state, _ = determine_stock_3state(sig)
+                        vni_info = sig.get('vni', {})
+                        vni_state = vni_info.get('state', 'NGANG')
+                        rel, _, _, _ = calc_market_relation(vni_state, stock_state, sym)
+                        database.save_signal({
+                            'symbol': sym,
+                            'timestamp': sig_time,
+                            'timeframe': '1D',
+                            'signal': 'BUY',
+                            'strength': 'DIAMOND' if sig.get('buy_diamond') else 'STANDARD',
+                            'entry': sig.get('price', 0.0),
+                            'sl': sig.get('sl', 0.0),
+                            'tp1': sig.get('tp1', 0.0),
+                            'tp2': sig.get('tp2', 0.0),
+                            'atr': sig.get('atr', 0.0),
+                            'stock_trend': stock_state,
+                            'trend_d': sig.get('state_d_str', 'TĂNG'),
+                            'trend_w': sig.get('state_w_str', 'TĂNG'),
+                            'vnindex_trend': vni_state,
+                            'market_relation': rel,
+                            'status': 'ACTIVE',
+                        })
                         time.sleep(0.5)
 
             if new_alerts > 0:
@@ -663,11 +673,38 @@ def run_daemon():
                     new_alerts = 0
                     for sig in buy_signals:
                         sym = sig['symbol']
+                        sig_time = sig.get('time', int(time.time()))
+                        sig_type = "BUY_DIAMOND" if sig.get('buy_diamond') else "BUY_STANDARD"
+
+                        if database.is_signal_exists(sym, '1D', sig_time, sig_type):
+                            continue
                         if sym not in alerted_stocks_today:
                             alert_card = fmt_buy_alert(sig)
                             if gdnl_bot.send_alert_to_default(alert_card):
                                 alerted_stocks_today.add(sym)
                                 new_alerts += 1
+                                stock_state, _ = determine_stock_3state(sig)
+                                vni_info = sig.get('vni', {})
+                                vni_state = vni_info.get('state', 'NGANG')
+                                rel, _, _, _ = calc_market_relation(vni_state, stock_state, sym)
+                                database.save_signal({
+                                    'symbol': sym,
+                                    'timestamp': sig_time,
+                                    'timeframe': '1D',
+                                    'signal': 'BUY',
+                                    'strength': 'DIAMOND' if sig.get('buy_diamond') else 'STANDARD',
+                                    'entry': sig.get('price', 0.0),
+                                    'sl': sig.get('sl', 0.0),
+                                    'tp1': sig.get('tp1', 0.0),
+                                    'tp2': sig.get('tp2', 0.0),
+                                    'atr': sig.get('atr', 0.0),
+                                    'stock_trend': stock_state,
+                                    'trend_d': sig.get('state_d_str', 'TĂNG'),
+                                    'trend_w': sig.get('state_w_str', 'TĂNG'),
+                                    'vnindex_trend': vni_state,
+                                    'market_relation': rel,
+                                    'status': 'ACTIVE',
+                                })
                                 time.sleep(0.5)
                     if new_alerts > 0:
                         save_alerted_stocks_today(alerted_stocks_today)

@@ -70,7 +70,7 @@ def calc_nw_bands(
           nwLower = nwOut - nwMae
     """
     abs_dev = (close - nw_out).abs()
-    nw_mae  = abs_dev.rolling(mae_window, min_periods=max(1, mae_window // 5)).mean() * nw_mult
+    nw_mae  = abs_dev.rolling(mae_window, min_periods=1).mean() * nw_mult
     upper   = nw_out + nw_mae
     lower   = nw_out - nw_mae
     return nw_out, upper, lower
@@ -223,16 +223,22 @@ def track_positions_and_signals(
     rr1: float = 1.0,
     rr2: float = 2.0,
     vni_trend_map: dict = None,
+    ema_fast: int = 20,
+    ema_slow: int = 50,
+    stat_lookahead_bars: int = 20,
 ) -> Dict:
     """
     Mô phỏng 100% logic Pine Script DÒNG TIỀN & XU HƯỚNG PRO:
-      isVungDayNW  = low <= nwLower or nwCrossDown
-      isVungDinhNW = high >= nwUpper or nwCrossUp
-      barsSinceNWLow  = ta.barssince(isVungDayNW)
-      hadNWLow  = barsSinceNWLow <= cuaSoLookback
-      buyDiamond  = buyTrigger and hadNWLow
-      buyStandard = buyTrigger and not hadNWLow
-      activePos, posName, entryP, slP, tp1P, tp2P, pnlPct
+      - isVungDayNW  = low <= nwLower or nwCrossDown
+      - isVungDinhNW = high >= nwUpper or nwCrossUp
+      - barsSinceNWLow  = ta.barssince(isVungDayNW)
+      - hadNWLow  = barsSinceNWLow <= cuaSoLookback (7)
+      - buyDiamond  = buyTrigger and hadNWLow
+      - buyStandard = buyTrigger and not hadNWLow
+      - Quản lý vị thế: activePos, entryP, slP, tp1P, tp2P, pnlPct
+      - Thống kê 18 nhóm bối cảnh (Sections 12-16 Pine Script):
+        + Đánh giá trong statLookaheadBars = 20 nến (chạm TP1 = WIN, SL = LOSS, quá 20 nến loại khỏi mẫu)
+        + Lệnh hiện tại KHÔNG đưa vào thống kê của chính nó
     """
     close = df['close'].values
     high  = df['high'].values
@@ -244,7 +250,22 @@ def track_positions_and_signals(
     t_arr = df['time'].values if 'time' in df.columns else np.zeros(len(close), dtype=int)
     n = len(close)
 
-    # 1. Tính isVungDayNW và isVungDinhNW trên từng nến
+    # 1. Tính stockTrend theo EMA20 & EMA50 cho từng nến (Pine f_trend())
+    f_ema = calc_ema(df['close'], ema_fast).values
+    s_ema = calc_ema(df['close'], ema_slow).values
+    stock_trend = np.zeros(n, dtype=int)
+    for i in range(n):
+        if close[i] > f_ema[i] and f_ema[i] > s_ema[i]:
+            stock_trend[i] = 1
+        elif close[i] < f_ema[i] and f_ema[i] < s_ema[i]:
+            stock_trend[i] = -1
+        else:
+            stock_trend[i] = 0
+
+    def f_context_index(vn: int, stk: int) -> int:
+        return (vn + 1) * 3 + (stk + 1)
+
+    # 2. Tính isVungDayNW và isVungDinhNW trên từng nến
     is_day_nw = np.zeros(n, dtype=bool)
     is_dinh_nw = np.zeros(n, dtype=bool)
 
@@ -254,7 +275,20 @@ def track_positions_and_signals(
         is_day_nw[i]  = (low[i] <= nw_l[i]) or cross_down
         is_dinh_nw[i] = (high[i] >= nw_u[i]) or cross_up
 
-    # 2. State Machine: Duyệt qua lịch sử để xác định activePos, entryP, slP, tp1P, tp2P
+    # 3. State Machine & Bộ nhớ lệnh chờ kết quả (Sections 12-16 Pine Script)
+    stat_wins   = [0] * 18
+    stat_losses = [0] * 18
+    trade_bar     = []
+    trade_dir     = []
+    trade_entry   = []
+    trade_tp      = []
+    trade_sl      = []
+    trade_context = []
+    trade_is_dia  = []
+
+    dia_wins = 0; dia_losses = 0
+    std_wins = 0; std_losses = 0
+
     active_pos = 0
     pos_name = "ĐANG QUAN SÁT"
     entry_p = 0.0
@@ -267,15 +301,72 @@ def track_positions_and_signals(
     last_nw_low_bar = -9999
     last_nw_high_bar = -9999
 
-    buy_trades = []
-    sell_trades = []
-
     for i in range(1, n):
         if is_day_nw[i]:
             last_nw_low_bar = i
         if is_dinh_nw[i]:
             last_nw_high_bar = i
 
+        t_now = t_arr[i]
+        vn_trend_val = 1 if (vni_trend_map and vni_trend_map.get(t_now, True)) else 0
+        stk_trend_val = stock_trend[i]
+
+        # Section 14 Pine Script: Cập nhật các lệnh đã phát sinh trước đó
+        to_remove = []
+        for k in range(len(trade_bar) - 1, -1, -1):
+            s_bar = trade_bar[k]
+            s_dir = trade_dir[k]
+            s_tp  = trade_tp[k]
+            s_sl  = trade_sl[k]
+            s_ctx = trade_context[k]
+            s_dia = trade_is_dia[k]
+            age   = i - s_bar
+
+            hit_tp = high[i] >= s_tp if s_dir == 1 else low[i] <= s_tp
+            hit_sl = low[i] <= s_sl if s_dir == 1 else high[i] >= s_sl
+
+            resolved = False
+            is_win   = False
+            is_loss  = False
+
+            # Nếu cùng 1 nến chạm cả TP và SL: áp dụng nguyên tắc bảo thủ tính SL trước
+            if hit_tp and hit_sl:
+                resolved = True
+                is_loss = True
+            elif hit_tp:
+                resolved = True
+                is_win = True
+            elif hit_sl:
+                resolved = True
+                is_loss = True
+            elif age >= stat_lookahead_bars:
+                # Hết 20 nến mà chưa TP/SL: loại khỏi mẫu thống kê (không tăng win/loss)
+                resolved = True
+
+            if resolved:
+                stat_idx = s_ctx if s_dir == 1 else s_ctx + 9
+                if is_win:
+                    stat_wins[stat_idx] += 1
+                    if s_dir == 1:
+                        if s_dia: dia_wins += 1
+                        else: std_wins += 1
+                if is_loss:
+                    stat_losses[stat_idx] += 1
+                    if s_dir == 1:
+                        if s_dia: dia_losses += 1
+                        else: std_losses += 1
+                to_remove.append(k)
+
+        for k in to_remove:
+            trade_bar.pop(k)
+            trade_dir.pop(k)
+            trade_entry.pop(k)
+            trade_tp.pop(k)
+            trade_sl.pop(k)
+            trade_context.pop(k)
+            trade_is_dia.pop(k)
+
+        # Section 10 & 15 Pine Script: Kiểm tra kích hoạt tín hiệu MUA/BÁN
         buy_trigger  = (dirs[i] == 1 and dirs[i-1] == -1)
         sell_trigger = (dirs[i] == -1 and dirs[i-1] == 1)
 
@@ -293,17 +384,15 @@ def track_positions_and_signals(
             tp2_p = close[i] + r * rr2
             last_trigger_bar = i
             last_trigger_type = "BUY_DIAMOND" if is_diamond else "BUY_STANDARD"
-            vni_up = vni_trend_map.get(t_arr[i], True) if vni_trend_map else True
-            buy_trades.append({
-                'bar': i,
-                'is_diamond': is_diamond,
-                'entry': entry_p,
-                'sl': sl_p,
-                'tp1': tp1_p,
-                'tp2': tp2_p,
-                'vni_up': vni_up,
-                'time': t_arr[i],
-            })
+
+            new_ctx = f_context_index(vn_trend_val, stk_trend_val)
+            trade_bar.append(i)
+            trade_dir.append(1)
+            trade_entry.append(entry_p)
+            trade_tp.append(tp1_p)
+            trade_sl.append(sl_p)
+            trade_context.append(new_ctx)
+            trade_is_dia.append(is_diamond)
 
         elif sell_trigger:
             active_pos = -1
@@ -316,12 +405,17 @@ def track_positions_and_signals(
             tp2_p = close[i] - r * rr2
             last_trigger_bar = i
             last_trigger_type = "SELL_DIAMOND" if is_diamond else "SELL_STANDARD"
-            sell_trades.append({
-                'bar': i,
-                'is_diamond': is_diamond
-            })
 
-    # Trạng thái nến hiện tại (phiên hôm nay)
+            new_ctx = f_context_index(vn_trend_val, stk_trend_val)
+            trade_bar.append(i)
+            trade_dir.append(-1)
+            trade_entry.append(entry_p)
+            trade_tp.append(tp1_p)
+            trade_sl.append(sl_p)
+            trade_context.append(new_ctx)
+            trade_is_dia.append(is_diamond)
+
+    # 4. Trạng thái nến hiện tại (phiên hôm nay)
     curr_buy_trigger  = (dirs[-1] == 1 and dirs[-2] == -1) if n >= 2 else False
     curr_sell_trigger = (dirs[-1] == -1 and dirs[-2] == 1) if n >= 2 else False
     curr_had_nw_low   = (n - 1 - last_nw_low_bar) <= cua_so_lookback
@@ -372,85 +466,69 @@ def track_positions_and_signals(
     bars_since_nw_low   = (n - 1 - last_nw_low_bar) if last_nw_low_bar >= 0 else 999
     bars_since_nw_high  = (n - 1 - last_nw_high_bar) if last_nw_high_bar >= 0 else 999
 
-    # Thống kê hiệu quả toàn bộ các lệnh Mua lịch sử của mã (Backtest trên Khung Ngày D1)
-    buy_stats_list = []
-    for bt in buy_trades:
-        b_bar = bt['bar']
-        b_entry = bt['entry']
-        b_sl = bt['sl']
-        b_tp1 = bt['tp1']
-        b_tp2 = bt['tp2']
-        b_dia = bt['is_diamond']
+    # Section 16 Pine Script: Lấy thống kê cho lệnh MUA ở bối cảnh hiện tại
+    cur_t = t_arr[-1]
+    cur_vn = 1 if (vni_trend_map and vni_trend_map.get(cur_t, True)) else 0
+    cur_stk = stock_trend[-1]
+    current_context = f_context_index(cur_vn, cur_stk)
 
-        # Đánh giá kết quả lệnh: chạm TP1 (+1.0R) trước khi chạm SL (-1.5 ATR)
-        first_tp1 = None
-        first_sl = None
+    buy_wins_current   = stat_wins[current_context]
+    buy_losses_current = stat_losses[current_context]
+    buy_samples_current = buy_wins_current + buy_losses_current
+    buy_winrate_current = round(buy_wins_current * 100.0 / buy_samples_current, 1) if buy_samples_current > 0 else 0.0
 
-        for j in range(b_bar + 1, min(n, b_bar + 100)):
-            if first_sl is None and low[j] <= b_sl:
-                first_sl = j
-            if first_tp1 is None and high[j] >= b_tp1:
-                first_tp1 = j
-            if first_tp1 is not None or first_sl is not None:
-                break
+    def f_confidence(samples: int) -> str:
+        if samples < 5:
+            return "⚪ CHƯA ĐỦ DỮ LIỆU"
+        elif samples < 10:
+            return "🔴 MẪU NHỎ"
+        elif samples < 20:
+            return "🟠 DỮ LIỆU HẠN CHẾ"
+        elif samples < 50:
+            return "🟡 DỮ LIỆU KHÁ"
+        else:
+            return "🟢 DỮ LIỆU ĐỦ LỚN"
 
-        # Nếu cùng 1 nến chạm cả TP và SL: áp dụng nguyên tắc bảo thủ tính SL trước
-        is_win = (first_tp1 is not None) and (first_sl is None or first_tp1 < first_sl)
+    confidence_str = f_confidence(buy_samples_current)
 
-        b_vni_up = bt.get('vni_up', True)
-        buy_stats_list.append({
-            'is_diamond': b_dia,
-            'is_win': is_win,
-            'vni_up': b_vni_up,
-            'entry': b_entry,
-        })
+    # Thống kê tổng hợp toàn bộ lịch sử (chuẩn Pine Script 20 nến lookahead)
+    tot_buy_wins   = dia_wins + std_wins
+    tot_buy_losses = dia_losses + std_losses
+    tot_buy_samples = tot_buy_wins + tot_buy_losses
+    tot_buy_winrate = round(tot_buy_wins * 100.0 / tot_buy_samples, 1) if tot_buy_samples > 0 else 0.0
 
-    # Tổng hợp các vùng tín hiệu
-    tot_buys = len(buy_stats_list)
-    dia_list = [t for t in buy_stats_list if t['is_diamond']]
-    std_list = [t for t in buy_stats_list if not t['is_diamond']]
+    dia_samples = dia_wins + dia_losses
+    dia_winrate = round(dia_wins * 100.0 / dia_samples, 1) if dia_samples > 0 else 0.0
 
-    n_buy_diamond = len(dia_list)
-    n_buy = len(std_list)
-
-    dia_wins = sum(1 for t in dia_list if t['is_win'])
-    std_wins = sum(1 for t in std_list if t['is_win'])
-    tot_wins = sum(1 for t in buy_stats_list if t['is_win'])
-
-    dia_winrate = round(dia_wins / n_buy_diamond * 100.0, 1) if n_buy_diamond else 0.0
-    std_winrate = round(std_wins / n_buy * 100.0, 1) if n_buy else 0.0
-    tot_winrate = round(tot_wins / tot_buys * 100.0, 1) if tot_buys else 0.0
-
-    vni_up_list = [t for t in buy_stats_list if t['vni_up']]
-    vni_dn_list = [t for t in buy_stats_list if not t['vni_up']]
-
-    vni_up_wins = sum(1 for t in vni_up_list if t['is_win'])
-    vni_dn_wins = sum(1 for t in vni_dn_list if t['is_win'])
+    std_samples = std_wins + std_losses
+    std_winrate = round(std_wins * 100.0 / std_samples, 1) if std_samples > 0 else 0.0
 
     buy_stats = {
-        'n_buy': n_buy,
-        'std_wins': std_wins,
-        'std_losses': n_buy - std_wins,
-        'std_winrate': std_winrate,
+        # Cùng bối cảnh (Khớp 100% Pine Script Section 16 HUD & Alert)
+        'context_index':      current_context,
+        'context_samples':    buy_samples_current,
+        'context_wins':       buy_wins_current,
+        'context_losses':     buy_losses_current,
+        'context_winrate':    buy_winrate_current,
+        'context_confidence': confidence_str,
 
-        'n_buy_diamond': n_buy_diamond,
-        'dia_wins': dia_wins,
-        'dia_losses': n_buy_diamond - dia_wins,
-        'dia_winrate': dia_winrate,
+        # Tổng hợp lệnh lịch sử
+        'n_buy':              std_samples,
+        'std_wins':           std_wins,
+        'std_losses':         std_losses,
+        'std_winrate':        std_winrate,
 
-        'total_buys': tot_buys,
-        'tot_wins': tot_wins,
-        'tot_losses': tot_buys - tot_wins,
-        'tot_winrate': tot_winrate,
+        'n_buy_diamond':      dia_samples,
+        'dia_wins':           dia_wins,
+        'dia_losses':         dia_losses,
+        'dia_winrate':        dia_winrate,
 
-        'vni_up_cnt': len(vni_up_list),
-        'vni_up_wins': vni_up_wins,
-        'vni_up_winrate': round(vni_up_wins / len(vni_up_list) * 100.0, 1) if vni_up_list else 0.0,
-
-        'vni_dn_cnt': len(vni_dn_list),
-        'vni_dn_wins': vni_dn_wins,
-        'vni_dn_winrate': round(vni_dn_wins / len(vni_dn_list) * 100.0, 1) if vni_dn_list else 0.0,
+        'total_buys':         tot_buy_samples,
+        'tot_wins':           tot_buy_wins,
+        'tot_losses':         tot_buy_losses,
+        'tot_winrate':        tot_buy_winrate,
     }
+
 
 
     return {
@@ -483,7 +561,7 @@ def track_positions_and_signals(
         'bars_since_nw_high': bars_since_nw_high,
         'had_nw_low':         curr_had_nw_low,
         'had_nw_high':        curr_had_nw_high,
-        'last_vni_up':        buy_trades[-1]['vni_up'] if buy_trades else True,
+        'last_vni_up':        bool(vni_trend_map.get(t_arr[last_trigger_bar], True)) if (vni_trend_map and last_trigger_bar >= 0) else True,
         'buy_stats':          buy_stats,
     }
 
@@ -543,7 +621,7 @@ def analyze_dtpro(
     # 1. Nadaraya-Watson (Gaussian kernel non-repaint)
     actual_win = min(nw_win, n)
     nw_out_s   = calc_nadaraya_watson(close, nw_h, actual_win)
-    actual_mae = min(499, n // 2)
+    actual_mae = min(499, max(10, n - 1))
     _, nw_upper_s, nw_lower_s = calc_nw_bands(close, nw_out_s, nw_mult, actual_mae)
 
     # 2. SuperTrend (Keltner ST)
@@ -560,7 +638,9 @@ def analyze_dtpro(
     state = track_positions_and_signals(
         df, direction, nw_upper_s, nw_lower_s, atr_s,
         cua_so_lookback=cua_so_lookback, rr1=rr1, rr2=rr2,
-        vni_trend_map=vni_trend_map
+        vni_trend_map=vni_trend_map,
+        ema_fast=ema_fast, ema_slow=ema_slow,
+        stat_lookahead_bars=20,
     )
 
     # Giá hiện tại

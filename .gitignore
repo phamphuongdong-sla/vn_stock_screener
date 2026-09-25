@@ -14,4 +14,7 @@ bot.pid
 bot.log
 *.log
 alerted_stocks.json
+*.db
+*.db-shm
+*.db-wal
 .DS_Store

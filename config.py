@@ -88,7 +88,7 @@ DTPRO_NW_WIN      = 500    # Kích thước kernel NW (số nến)
 DTPRO_LOOKBACK    = 7      # Cửa sổ chờ hợp lưu NW (Nến), mặc định 7 nến
 DTPRO_RR1         = 1.0    # R:R mức TP1
 DTPRO_RR2         = 2.0    # R:R mức TP2
-DTPRO_HISTORY_DAYS = 1825  # 5 năm lịch sử (~1245 phiên giao dịch) để thống kê chính xác chu kỳ thị trường
+DTPRO_HISTORY_DAYS = 3650  # 10 năm lịch sử (~2500 phiên) đồng bộ 100% TradingView
 
 # ==========================================
 # 6. THÔNG TIN DOANH NGHIỆP NIÊM YẾT
