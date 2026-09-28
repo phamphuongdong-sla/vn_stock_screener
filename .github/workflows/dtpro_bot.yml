@@ -2,31 +2,32 @@ name: Dòng Tiền PRO Bot — Master Edition
 
 on:
   schedule:
-    # Phiên sáng: Khởi động 08:50 VN (01:50 UTC) chạy liên tục đến 11:35 VN
-    - cron: '50 1 * * 1-5'
-    # Dự phòng phiên sáng: Khởi động 09:30 VN (02:30 UTC) nếu lượt 08:50 bị trễ
-    - cron: '30 2 * * 1-5'
-    # Phiên chiều: Khởi động 12:50 VN (05:50 UTC) chạy liên tục đến 15:05 VN
-    - cron: '50 5 * * 1-5'
-    # Dự phòng phiên chiều: Khởi động 13:30 VN (06:30 UTC) nếu lượt 12:50 bị trễ
-    - cron: '30 6 * * 1-5'
+    # 4 ca trực 6 tiếng/ngày — Chạy liên tục 24/7/365 (Thứ 2 đến Chủ Nhật & Lễ, ngày đêm):
+    # Ca 1 (Sáng): 07:00 VN (00:00 UTC) — Bao trọn phiên sáng 09:00 - 11:30
+    - cron: '0 0 * * *'
+    # Ca 2 (Chiều): 13:00 VN (06:00 UTC) — Bao trọn phiên chiều 13:00 - 15:00
+    - cron: '0 6 * * *'
+    # Ca 3 (Tối): 19:00 VN (12:00 UTC) — Phục vụ NĐT tra cứu mã buổi tối
+    - cron: '0 12 * * *'
+    # Ca 4 (Đêm & Rạng sáng): 01:00 VN (18:00 UTC) — Trực ca đêm tới sáng
+    - cron: '0 18 * * *'
 
-  workflow_dispatch:   # Cho phép khởi động phiên chạy trực tiếp bất cứ lúc nào
+  workflow_dispatch:   # Cho phép kích hoạt trực tiếp bằng tay bất cứ lúc nào
     inputs:
       duration_minutes:
-        description: 'Thời gian chạy liên tục (phút)'
+        description: 'Thời gian chạy liên tục (phút, tối đa 355)'
         required: false
-        default: '180'
+        default: '355'
 
 concurrency:
   group: dtpro-bot-live
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   dtpro-live-session:
     name: "DTPro — Live Daemon Session"
     runs-on: ubuntu-latest
-    timeout-minutes: 240
+    timeout-minutes: 360
 
     steps:
       - name: Checkout code
@@ -47,5 +48,5 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          python dtpro_runner.py --listen --max-minutes ${{ inputs.duration_minutes || '180' }}
+          python dtpro_runner.py --listen --max-minutes ${{ inputs.duration_minutes || '355' }}
 
