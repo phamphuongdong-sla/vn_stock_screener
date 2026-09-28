@@ -573,18 +573,21 @@ def process_updates(updates: list) -> int:
             target = text_up
 
         if target:
-            try:
-                res = dtpro_screener.analyze_single(target)
-                if res:
-                    gdnl_bot.send_message(chat_id, fmt_detail(res))
-                else:
-                    gdnl_bot.send_message(
-                        chat_id,
-                        f"❌ Không tìm thấy dữ liệu cho mã *{target}*.\n"
-                        f"Vui lòng kiểm tra lại mã cổ phiếu!"
-                    )
-            except Exception as e:
-                gdnl_bot.send_message(chat_id, f"❌ Lỗi phân tích {target}: {e}")
+            def _async_analyze(t_chat, t_sym):
+                try:
+                    res = dtpro_screener.analyze_single(t_sym)
+                    if res:
+                        gdnl_bot.send_message(t_chat, fmt_detail(res))
+                    else:
+                        gdnl_bot.send_message(
+                            t_chat,
+                            f"❌ Không tìm thấy dữ liệu cho mã *{t_sym}*.\n"
+                            f"Vui lòng kiểm tra lại mã cổ phiếu!"
+                        )
+                except Exception as e:
+                    gdnl_bot.send_message(t_chat, f"❌ Lỗi phân tích {t_sym}: {e}")
+
+            threading.Thread(target=_async_analyze, args=(chat_id, target), daemon=True).start()
 
     return last_id
 
@@ -685,39 +688,74 @@ def run_github_actions():
     print("[3/3] Hoàn tất lượt chạy GitHub Actions.")
 
 
+def dispatch_next_github_run() -> bool:
+    """
+    Tự động kích hoạt phiên chạy tiếp sức trên GitHub Actions trước khi phiên hiện tại kết thúc.
+    Đảm bảo tính liên tục 24/7/365 không bao giờ bị đứt quãng (Zero Downtime Handover).
+    """
+    token = os.environ.get("GH_PAT") or os.environ.get("GITHUB_TOKEN")
+    repo = os.environ.get("GITHUB_REPOSITORY", "phamphuongdong-sla/vn_stock_screener")
+    if not token:
+        print("[Tự tiếp sức] Không tìm thấy token GH_PAT để kích hoạt phiên tiếp theo.", flush=True)
+        return False
+
+    url = f"https://api.github.com/repos/{repo}/actions/workflows/dtpro_bot.yml/dispatches"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/vnd.github.v3+json",
+    }
+    try:
+        resp = requests.post(url, headers=headers, json={"ref": "main"}, timeout=15)
+        if resp.status_code in [200, 204]:
+            print("🚀 [TỰ TIẾP SỨC] Đã kích hoạt phiên chạy kế tiếp trên GitHub Actions thành công! (Zero Downtime)", flush=True)
+            return True
+        else:
+            print(f"⚠️ [TỰ TIẾP SỨC] GitHub API trả về mã {resp.status_code}: {resp.text}", flush=True)
+    except Exception as e:
+        print(f"⚠️ [TỰ TIẾP SỨC] Lỗi kết nối GitHub API: {e}", flush=True)
+    return False
+
+
 def run_daemon(max_minutes: Optional[int] = None):
     """
     Chế độ chạy nền liên tục (hỗ trợ cả VPS, máy cá nhân và GitHub Actions Live Session):
-    - Lắng nghe tin nhắn Telegram mỗi 1-2 giây (phản hồi tức thì <1s)
-    - Quét định kỳ toàn sàn trong giờ giao dịch (bắn cảnh báo tức thì)
-    - Nếu có max_minutes: Tự động dừng sau thời gian quy định (phù hợp phiên GitHub Actions)
+    - ĐA LUỒNG TÁCH BIỆT:
+      + Luồng 1 (Telegram Poller): Lắng nghe tin nhắn Telegram mỗi 1s, phản hồi tức thì song song
+      + Luồng 2 (Market Scanner): Quét định kỳ toàn sàn mỗi 3 phút trong giờ giao dịch, bắn cảnh báo
+    - TỰ TIẾP SỨC (Self-Retriggering): Tự động đánh thức runner kế tiếp trước khi phiên hiện tại kết thúc
     """
     start_time = time.time()
     max_secs = (max_minutes * 60) if max_minutes else None
     limit_str = f"{max_minutes} phút" if max_minutes else "Vô hạn (24/7)"
-    print(f"🚀 Dòng Tiền PRO Bot — Khởi động chế độ Live Daemon (Thời lượng: {limit_str})...")
-    last_uid  = 0
-    last_scan = 0
+    print(f"🚀 Dòng Tiền PRO Bot — Khởi động chế độ Live Daemon ĐA LUỒNG (Thời lượng: {limit_str})...", flush=True)
 
-    while True:
-        if max_secs and (time.time() - start_time >= max_secs):
-            print(f"⏰ Đã đạt giới hạn phiên {max_minutes} phút. Kết thúc phiên chạy an toàn.")
-            break
-        try:
-            updates = gdnl_bot.get_pending_updates(offset=last_uid + 1)
-            if updates:
-                last_uid = process_updates(updates)
-        except Exception as e:
-            print(f"[Lỗi polling] {e}")
+    stop_event = threading.Event()
+    dispatched_next = [False]
 
-        now = time.time()
-        if now - last_scan >= config.SCAN_INTERVAL_SECONDS:
+    def _telegram_poller():
+        last_uid = 0
+        print("  [Telegram Poller] Luồng trực Telegram đã khởi động (Tần suất 1s, phản hồi tức thì).", flush=True)
+        while not stop_event.is_set():
+            try:
+                updates = gdnl_bot.get_pending_updates(offset=last_uid + 1)
+                if updates:
+                    last_uid = process_updates(updates)
+            except Exception as e:
+                print(f"[Lỗi polling Telegram] {e}", flush=True)
+            time.sleep(1.0)
+        print("  [Telegram Poller] Dừng luồng Telegram.", flush=True)
+
+    def _market_scanner():
+        print("  [Market Scanner] Luồng quét thị trường tự động đã khởi động (Chu kỳ 3 phút).", flush=True)
+        while not stop_event.is_set():
             if is_trading_hour():
                 try:
                     alerted_stocks_today = load_alerted_stocks_today()
                     buy_signals = dtpro_screener.run_dtpro_screener(buy_only=True)
                     new_alerts = 0
                     for sig in buy_signals:
+                        if stop_event.is_set():
+                            break
                         sym = sig['symbol']
                         sig_time = sig.get('time', int(time.time()))
                         sig_type = "BUY_DIAMOND" if sig.get('buy_diamond') else "BUY_STANDARD"
@@ -755,10 +793,44 @@ def run_daemon(max_minutes: Optional[int] = None):
                     if new_alerts > 0:
                         save_alerted_stocks_today(alerted_stocks_today)
                 except Exception as e:
-                    print(f"[Lỗi quét daemon] {e}")
-            last_scan = time.time()
+                    print(f"[Lỗi quét daemon] {e}", flush=True)
 
-        time.sleep(2)
+            for _ in range(config.SCAN_INTERVAL_SECONDS):
+                if stop_event.is_set():
+                    break
+                time.sleep(1.0)
+        print("  [Market Scanner] Dừng luồng quét thị trường.", flush=True)
+
+    t_poller = threading.Thread(target=_telegram_poller, daemon=True, name="DTPro-Poller")
+    t_scanner = threading.Thread(target=_market_scanner, daemon=True, name="DTPro-Scanner")
+    t_poller.start()
+    t_scanner.start()
+
+    try:
+        while True:
+            elapsed = time.time() - start_time
+            if max_secs:
+                # 5 phút trước khi hết phiên: Kích hoạt ca trực tiếp sức
+                if not dispatched_next[0] and (max_secs - elapsed <= 300):
+                    dispatched_next[0] = True
+                    print("⏰ Còn 5 phút kết thúc ca trực hiện tại. Đang kích hoạt ca trực tiếp sức...", flush=True)
+                    dispatch_next_github_run()
+
+                if elapsed >= max_secs:
+                    print(f"⏰ Đã hoàn thành trọn vẹn ca trực {max_minutes} phút. Bàn giao an toàn.", flush=True)
+                    break
+
+            time.sleep(5)
+    except KeyboardInterrupt:
+        print("\n🛑 Nhận tín hiệu dừng từ người dùng.", flush=True)
+    finally:
+        stop_event.set()
+        # Nếu phiên bị dừng đột ngột và chưa dispatch, tự động kích hoạt ca tiếp sức để hồi phục
+        if max_secs and not dispatched_next[0]:
+            dispatched_next[0] = True
+            print("🔄 [TỰ HỒI PHỤC] Đang kích hoạt phiên chạy cứu hộ để duy trì 24/7...", flush=True)
+            dispatch_next_github_run()
+        print("🏁 Live Daemon đã kết thúc.", flush=True)
 
 
 def run_check(symbol: str):

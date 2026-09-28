@@ -15,9 +15,9 @@ on:
   workflow_dispatch:   # Cho phép kích hoạt trực tiếp bằng tay bất cứ lúc nào
     inputs:
       duration_minutes:
-        description: 'Thời gian chạy liên tục (phút, tối đa 355)'
+        description: 'Thời gian chạy liên tục (phút, tối đa 350)'
         required: false
-        default: '355'
+        default: '350'
 
 concurrency:
   group: dtpro-bot-live
@@ -45,8 +45,11 @@ jobs:
       - name: Run DTPro Live Bot Session
         env:
           TZ: 'Asia/Ho_Chi_Minh'
+          PYTHONUNBUFFERED: '1'
+          GH_PAT: ${{ secrets.GH_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          python dtpro_runner.py --listen --max-minutes ${{ inputs.duration_minutes || '355' }}
+          python -u dtpro_runner.py --listen --max-minutes ${{ inputs.duration_minutes || '350' }}
 
