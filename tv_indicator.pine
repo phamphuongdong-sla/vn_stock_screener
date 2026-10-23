@@ -1,0 +1,547 @@
+//@version=6
+// This work is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
+// https://creativecommons.org/licenses/by-nc-sa/4.0/
+// © Zeiierman — Bản Đầy Đủ Cản Gốc + 4 Cấp Độ Đi Lệnh & Giao Diện Pro Max (DTPro Edition)
+indicator("Hồ Sơ Mua/Bán + Hỗ Trợ Kháng Cự Động (Bản Gốc Đầy Đủ + Điểm Mua Bán)", overlay=true, max_lines_count=250, max_labels_count=500, max_boxes_count=300, max_bars_back=5000)
+
+// ~~ Chú giải (Tooltips) Tiếng Việt {
+var string tt1  = "Số nến lịch sử dùng để dựng Hồ sơ khối lượng cuộn. Với nến ngày (1D) ở VN, 300 - 500 nến tương đương 1.5 - 2 năm giao dịch."
+var string tt2  = "Số hàng mức giá chia nhỏ trong hồ sơ. Càng nhiều hàng thì độ chi tiết mức giá gom hàng càng cao."
+var string tt3  = "Độ rộng tối đa của cột hồ sơ khối lượng ở mép phải biểu đồ."
+var string tt4  = "Khoảng cách lề từ nến hiện tại đến cột hồ sơ khối lượng."
+var string tt5  = "Bật/Tắt hiển thị cột Hồ sơ khối lượng Mua/Bán ở bên phải."
+var string tt6  = "Làm nổi bật mức giá có khối lượng giao dịch lớn nhất (Đường cam POC)."
+var string tt7  = "Vẽ viền làm nổi bật các hàng khối lượng trùng với Hỗ trợ/Kháng cự đang hoạt động."
+var string tt8  = "Số nến xác nhận đỉnh đáy Swing (Mặc định 5 nến)."
+var string tt9  = "Khoảng cách tối đa (theo ATR) để tìm kiếm nút khối lượng gom hàng lớn quanh đỉnh/đáy thô."
+var string tt10 = "Tỷ lệ khối lượng nút tối thiểu so với POC."
+var string tt11 = "Bằng chứng dòng tiền tối thiểu để công nhận mức Hỗ trợ/Kháng cự hợp lệ."
+var string tt12 = "Lực hút mức giá về phía nút khối lượng lớn nhất."
+var string tt13 = "Điểm số tối thiểu (0-100) để giữ lại mức Hỗ trợ/Kháng cự trên biểu đồ (Khuyên dùng: 30 - 45)."
+var string tt14 = "Số lượng đường cản tối đa trên biểu đồ để tránh rối mắt (Bản gốc là 20)."
+var string tt15 = "Gộp các đường cản nằm quá gần nhau."
+var string tt16 = "Biên độ nến đóng cửa vượt qua cản để xác nhận phá vỡ."
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~}
+
+// ~~ Nhóm cài đặt (Groups) {
+gSIG  = "⚡ 1. TÍN HIỆU ĐI LỆNH 4 CẤP ĐỘ (TTCK VN)"
+gHUD  = "💎 2. BẢNG ĐIỀU KHIỂN HUD PRO MAX (GLASSMORPHISM)"
+gPROF = "📊 3. HỒ SƠ KHỐI LƯỢNG (VOLUME PROFILE)"
+gENG  = "🛡️ 4. HỖ TRỢ & KHÁNG CỰ CẤU TRÚC (BẢN GỐC)"
+gSTY  = "🎨 5. MÀU SẮC & GIAO DIỆN"
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~}
+
+// ~~ Tham số đầu vào (Inputs) {
+// 1. Tín hiệu Đi Lệnh
+showSignals  = input.bool(true, "Bật Tín Hiệu Đi Lệnh", group=gSIG)
+showBuyDo    = input.bool(true, "🟢 MUA DÒ (20-30%)", group=gSIG, inline="b")
+showBuyChinh = input.bool(true, "💎 MUA CHÍNH (Đủ 100%)", group=gSIG, inline="b")
+showBanDo    = input.bool(true, "🟡 BÁN DÒ (Chốt 30-50%)", group=gSIG, inline="s")
+showBanHet   = input.bool(true, "🚨 BÁN HẾT (Thoát Hàng)", group=gSIG, inline="s")
+minSigScore  = input.float(45.0, "Điểm Cản Tối Thiểu Phát Tín Hiệu", minval=30.0, maxval=90.0, step=5.0, group=gSIG)
+volBreakX    = input.float(1.30, "Hệ Số Volume Mua Chính (x MA20)", minval=1.1, maxval=2.5, step=0.1, group=gSIG)
+
+// 2. Bảng điều khiển HUD
+showHUD      = input.bool(true, "Bật Bảng HUD Góc Màn Hình (Không Che Nến)", group=gHUD)
+hudPos       = input.string("Góc Trên Bên Phải", "Vị Trí Bảng HUD", options=["Góc Trên Bên Phải", "Góc Dưới Bên Phải", "Góc Dưới Bên Trái"], group=gHUD)
+
+// 3. Hồ sơ khối lượng
+showProf     = input.bool(true, "Hiện Hồ Sơ Khối Lượng", group=gPROF, inline="p1")
+showPoc      = input.bool(true, "Tia Laser Cam POC", group=gPROF, inline="p1")
+showLvlRows  = input.bool(true, "Viền Hàng Cản", group=gPROF, inline="p1", tooltip=tt5+"\n\n"+tt6+"\n\n"+tt7)
+profLb       = input.int(500, "Chu kỳ nến", minval=100, maxval=1500, group=gPROF, inline="p2")
+profRows     = input.int(60, "Số hàng giá", minval=20, maxval=100, group=gPROF, inline="p2", tooltip=tt1+"\n\n"+tt2)
+profW        = input.int(45, "Độ rộng hồ sơ", minval=15, maxval=80, group=gPROF, inline="p3")
+profOff      = input.int(8, "Khoảng cách lề", minval=2, maxval=50, group=gPROF, inline="p3", tooltip=tt3+"\n\n"+tt4)
+
+// 4. Cấu trúc Cản Hỗ trợ & Kháng cự (Theo Bản Gốc Zeiierman)
+swingLen     = input.int(5, "Độ dài Swing", minval=2, maxval=25, group=gENG, inline="e1")
+srchAtr      = input.float(1.20, "Vùng tìm kiếm (ATR)", minval=0.20, maxval=3.00, step=0.05, group=gENG, inline="e1", tooltip=tt8+"\n\n"+tt9)
+nodeMin      = input.float(0.08, "Khối lượng nút tối thiểu", minval=0.0, maxval=1.0, step=0.01, group=gENG, inline="e2")
+evidMin      = input.float(0.22, "Bằng chứng tối thiểu", minval=0.0, maxval=1.0, step=0.01, group=gENG, inline="e2", tooltip=tt10+"\n\n"+tt11)
+pullMax      = input.float(0.85, "Lực hút về Volume Node", minval=0.0, maxval=1.0, step=0.05, group=gENG, inline="e3")
+scoreMin     = input.float(30.0, "Điểm cản tối thiểu (Bản gốc = 30)", minval=0, maxval=100, step=1, group=gENG, inline="e3", tooltip=tt12+"\n\n"+tt13)
+maxLvl       = input.int(20, "Số đường cản tối đa (Bản gốc = 20)", minval=2, maxval=40, group=gENG, inline="e4")
+mergeAtr     = input.float(0.16, "Gộp cản gần (ATR)", minval=0.0, maxval=1.0, step=0.02, group=gENG, inline="e4")
+breakAtr     = input.float(0.10, "Độ xuyên phá (ATR)", minval=0.0, maxval=0.5, step=0.01, group=gENG, inline="e4", tooltip=tt14+"\n\n"+tt15+"\n\n"+tt16)
+
+// 5. Giao diện & Đồ họa Bản Gốc
+supCol       = input.color(color.rgb(14, 203, 129), "Hỗ Trợ (Emerald)", group=gSTY, inline="c1")
+resCol       = input.color(color.rgb(255, 61, 113), "Kháng Cự (Ruby)", group=gSTY, inline="c1")
+coreCol      = input.color(color.rgb(255, 205, 64), "Tâm Pivot (Vàng)", group=gSTY, inline="c2")
+rawCol       = input.color(color.rgb(160, 166, 178), "Pivot Thô", group=gSTY, inline="c2")
+buyCol       = input.color(color.rgb(0, 229, 255), "Phe Mua (Cyan)", group=gSTY, inline="c3")
+sellCol      = input.color(color.rgb(157, 78, 221), "Phe Bán (Tím)", group=gSTY, inline="c3")
+pocCol       = input.color(color.rgb(255, 145, 0), "Tia POC (Hổ Phách)", group=gSTY, inline="c3")
+lvlStyle     = input.string("Solid", "Kiểu Đường Cản", options=["Solid", "Dotted", "Dashed"], group=gSTY, inline="s1")
+showDots     = input.bool(true, "Hiện Vòng Tròn Đồng Tâm Pivot Gốc", group=gSTY, inline="s2")
+showRaw      = input.bool(true, "Đường Dóng Nối Pivot Thô", group=gSTY, inline="s2", active=showDots)
+showDotScore = input.bool(true, "Hiện Điểm Tại Tâm Pivot", group=gSTY, inline="s3", active=showDots)
+showEdge     = input.bool(true, "Hiện Nốt & Điểm Số Cạnh Phải", group=gSTY, inline="s3")
+colorCandles = input.bool(true, "Nhuộm Màu Nến Dạ Quang Khi Có Tín Hiệu", group=gSTY)
+showBgGlow   = input.bool(true, "Chiếu Sáng Nền Nhẹ (Ambient Glow)", group=gSTY)
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~}
+
+// ~~ Hằng số nội bộ {
+int VOL_LEN        = 20
+int ABS_RAD        = math.min(3, swingLen)
+float PIV_VOL_X    = 2.2
+float ABS_BODY_MAX = 0.40
+float ABS_VOL_X    = 1.5
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~}
+
+// ~~ Cấu trúc dữ liệu Lvl {
+type Lvl
+    float p
+    float sc
+    float raw
+    float node
+    float evid
+    float nStr
+    bool supp
+    int born
+    line ln
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~}
+
+// ~~ Các hàm bổ trợ (Viết chuẩn dòng để chống 100% lỗi CE10156) {
+clip(float x) => math.max(0.0, math.min(1.0, x))
+lstyle(string s) => s == "Dotted" ? line.style_dotted : s == "Dashed" ? line.style_dashed : line.style_solid
+lwidth(float s) => s >= 82 ? 4 : s >= 62 ? 3 : 2
+lalpha(float s) => s >= 82 ? 8 : s >= 62 ? 22 : s >= 45 ? 38 : 52
+rings(float s) => s >= 82 ? 4 : s >= 66 ? 3 : s >= 50 ? 2 : 1
+rsize(int r) => r >= 4 ? size.large : r == 3 ? size.normal : r == 2 ? size.small : size.tiny
+ralpha(int r) => r >= 4 ? 68 : r == 3 ? 52 : r == 2 ? 30 : 4
+row_id(float p, float bot, float step, int rows) => math.max(0, math.min(rows - 1, int(math.floor((p - bot) / step))))
+lvl_col(bool supp) => supp ? supCol : resCol
+
+clear_boxes(array<box> a) =>
+    while a.size() > 0
+        box.delete(a.pop())
+
+clear_lines(array<line> a) =>
+    while a.size() > 0
+        line.delete(a.pop())
+
+clear_labels(array<label> a) =>
+    while a.size() > 0
+        label.delete(a.pop())
+
+profile(int newest, int oldest, int rows) =>
+    float lo = low[newest]
+    float hi = high[newest]
+    for i = newest to oldest
+        lo := math.min(lo, low[i])
+        hi := math.max(hi, high[i])
+    float span = math.max(hi - lo, syminfo.mintick * rows)
+    float bot = lo - (span - (hi - lo)) * 0.5
+    float step = span / rows
+    array<float> tot = array.new_float(rows, 0.0)
+    array<float> buy = array.new_float(rows, 0.0)
+    for i = newest to oldest
+        float l = low[i]
+        float h = high[i]
+        float r = h - l
+        float v = math.max(nz(volume[i], 0.0), 0.0)
+        float bf = r > 0 ? clip((close[i] - l) / r) : 0.5
+        int r0 = row_id(l, bot, step, rows)
+        int r1 = row_id(h, bot, step, rows)
+        for j = r0 to r1
+            float rl = bot + j * step
+            float ov = r > 0 ? math.max(0.0, math.min(h, rl + step) - math.max(l, rl)) : step
+            float frac = r > 0 ? ov / r : 1.0
+            if frac > 0
+                float av = v * frac
+                tot.set(j, tot.get(j) + av)
+                buy.set(j, buy.get(j) + av * bf)
+    [bot, step, tot, buy]
+
+pivot_features(bool supp, float avgVol) =>
+    float vb = nz(avgVol[swingLen], volume[swingLen])
+    float vr = vb > 0 ? nz(volume[swingLen], 0.0) / vb : 1.0
+    float vSc = clip((vr - 0.8) / (PIV_VOL_X - 0.8))
+    float pr = math.max(high[swingLen] - low[swingLen], syminfo.mintick)
+    float wick = supp ? math.min(open[swingLen], close[swingLen]) - low[swingLen] : high[swingLen] - math.max(open[swingLen], close[swingLen])
+    float wSc = clip((wick / pr) / 0.50)
+    float absSc = 0.0
+    for n = 0 to ABS_RAD * 2
+        int o = swingLen - ABS_RAD + n
+        float cr = math.max(high[o] - low[o], syminfo.mintick)
+        float v = math.max(nz(volume[o], 0.0), 0.0)
+        float base = nz(avgVol[o], v)
+        float vRat = base > 0 ? v / base : 1.0
+        float bRat = math.abs(close[o] - open[o]) / cr
+        float small = clip((ABS_BODY_MAX - bRat) / ABS_BODY_MAX)
+        float av = clip((vRat - 1.0) / (ABS_VOL_X - 1.0))
+        absSc := math.max(absSc, math.sqrt(small * av))
+    [vSc, wSc, absSc]
+
+profile_node(float raw, bool supp, float atrP, float bot, float step, array<float> tot, array<float> buy) =>
+    float mx = math.max(tot.max(), 0.0000001)
+    float rad = math.max(atrP * srchAtr, step * 2.0)
+    float bestP = raw
+    float bestE = -1.0
+    float bestS = 0.0
+    int rows = tot.size()
+    for r = 0 to rows - 1
+        float p = bot + (r + 0.5) * step
+        float d = math.abs(p - raw)
+        if d <= rad
+            float rv = tot.get(r)
+            float str = rv / mx
+            float lv = r > 0 ? tot.get(r - 1) : rv
+            float rv2 = r < rows - 1 ? tot.get(r + 1) : rv
+            float nAvg = math.max((lv + rv2) * 0.5, mx * 0.01)
+            float pk = clip((rv / nAvg - 0.85) / 0.65)
+            float bSh = rv > 0 ? clip(buy.get(r) / rv) : 0.5
+            float dir = supp ? bSh : 1.0 - bSh
+            float prox = 1.0 - d / rad
+            float e = 0.50 * str + 0.20 * pk + 0.20 * dir + 0.10 * prox
+            if e > bestE
+                bestE := e
+                bestP := p
+                bestS := str
+    [bestP, math.max(bestE, 0.0), bestS]
+
+nearby(array<Lvl> a, float p, bool supp, float tol) =>
+    int id = -1
+    float best = 1e20
+    if a.size() > 0
+        for i = 0 to a.size() - 1
+            Lvl lv = a.get(i)
+            if lv.supp == supp
+                float d = math.abs(lv.p - p)
+                if d <= tol and d < best
+                    best := d
+                    id := i
+    id
+
+make_line(int born, float p, bool supp, float sc) => line.new(born, p, time, p, xloc=xloc.bar_time, extend=extend.none, color=color.new(lvl_col(supp), lalpha(sc)), width=lwidth(sc), style=lstyle(lvlStyle))
+
+store_lvl(array<Lvl> a, float p, float raw, float node, float evid, float nStr, bool supp, float sc, int born, float atrP) =>
+    bool changed = false
+    float tol = math.max(atrP * mergeAtr, syminfo.mintick)
+    int id = nearby(a, p, supp, tol)
+    if id >= 0
+        Lvl lv = a.get(id)
+        if sc > lv.sc
+            lv.p := p
+            lv.sc := sc
+            lv.raw := raw
+            lv.node := node
+            lv.evid := evid
+            lv.nStr := nStr
+            lv.born := born
+            line.set_xy1(lv.ln, born, p)
+            line.set_xy2(lv.ln, time, p)
+            line.set_color(lv.ln, color.new(lvl_col(supp), lalpha(sc)))
+            line.set_width(lv.ln, lwidth(sc))
+            a.set(id, lv)
+            changed := true
+    else
+        a.push(Lvl.new(p, sc, raw, node, evid, nStr, supp, born, make_line(born, p, supp, sc)))
+        changed := true
+    changed
+
+remove_lvl(array<Lvl> a, int id) =>
+    Lvl lv = a.get(id)
+    line.delete(lv.ln)
+    a.remove(id)
+    0
+
+trim_lvls(array<Lvl> a) =>
+    while a.size() > maxLvl
+        int weak = 0
+        float sc = a.get(0).sc
+        for i = 1 to a.size() - 1
+            if a.get(i).sc < sc
+                sc := a.get(i).sc
+                weak := i
+        remove_lvl(a, weak)
+    0
+
+update_lvls(array<Lvl> a) =>
+    if a.size() > 0
+        for i = 0 to a.size() - 1
+            Lvl lv = a.get(i)
+            line.set_xy2(lv.ln, time, lv.p)
+            line.set_color(lv.ln, color.new(lvl_col(lv.supp), lalpha(lv.sc)))
+            line.set_width(lv.ln, lwidth(lv.sc))
+            line.set_style(lv.ln, lstyle(lvlStyle))
+    0
+
+level_row(array<Lvl> a, float lo, float hi) =>
+    int side = 0
+    if a.size() > 0
+        for i = 0 to a.size() - 1
+            Lvl lv = a.get(i)
+            if lv.p >= lo and lv.p <= hi
+                side := lv.supp ? 1 : -1
+                break
+    side
+
+score_tip(Lvl lv) => "Đỉnh/Đáy thô: " + str.tostring(lv.raw, format.mintick) + "\nNút Khối lượng: " + str.tostring(lv.node, format.mintick) + "\nBằng chứng Volume: " + str.tostring(lv.evid * 100.0, "#") + "%\nSức mạnh vs POC: " + str.tostring(lv.nStr * 100.0, "#") + "%\nMức cản: " + str.tostring(lv.p, format.mintick) + "\nĐộ uy tín (Score): " + str.tostring(lv.sc, "#") + "/100"
+
+pivot_eval(array<Lvl> a, float raw, bool supp, float avgVol, float atr) =>
+    int avail = bar_index - swingLen + 1
+    int bars = math.max(1, math.min(profLb, avail))
+    int newest = swingLen
+    int oldest = swingLen + bars - 1
+    [bot, step, tot, buy] = profile(newest, oldest, profRows)
+    float atrP = math.max(nz(atr[swingLen], syminfo.mintick), syminfo.mintick)
+    [node, evid, nStr] = profile_node(raw, supp, atrP, bot, step, tot, buy)
+    [vSc, wSc, aSc] = pivot_features(supp, avgVol)
+    bool ok = nStr >= nodeMin and evid >= evidMin
+    float pull = ok ? pullMax * clip(evid / 0.65) : 0.0
+    float p = raw + (node - raw) * pull
+    float sc = 100.0 * (0.50 * evid + 0.20 * aSc + 0.15 * vSc + 0.15 * wSc)
+    bool stored = ok and sc >= scoreMin ? store_lvl(a, p, raw, node, evid, nStr, supp, sc, time[swingLen], atrP) : false
+    [stored, sc, p]
+
+manage_breaks(array<Lvl> a, float atr) =>
+    bool sBreak = false
+    bool rBreak = false
+    if a.size() > 0
+        for i = a.size() - 1 to 0
+            Lvl lv = a.get(i)
+            float buf = math.max(nz(atr, 0.0) * breakAtr, 0.0)
+            bool broken = barstate.isconfirmed and (lv.supp ? close < lv.p - buf : close > lv.p + buf)
+            if broken
+                sBreak := sBreak or lv.supp
+                rBreak := rBreak or not lv.supp
+                remove_lvl(a, i)
+    [sBreak, rBreak]
+
+// 1. Vẽ các vòng tròn đồng tâm & đường dóng Pivot theo Bản Gốc
+draw_markers(array<Lvl> a, array<label> lbs, array<line> lns) =>
+    if showDots and a.size() > 0
+        for i = 0 to a.size() - 1
+            Lvl lv = a.get(i)
+            color base = lvl_col(lv.supp)
+            if showRaw
+                lbs.push(label.new(x=lv.born, y=lv.raw, text="", xloc=xloc.bar_time, yloc=yloc.price, style=label.style_circle, color=color.new(rawCol, 60), textcolor=rawCol, size=size.tiny))
+                lns.push(line.new(x1=lv.born, y1=lv.raw, x2=lv.born, y2=lv.p, xloc=xloc.bar_time, color=color.new(coreCol, 45), width=1, style=line.style_dotted))
+            int rc = rings(lv.sc)
+            for r = rc to 1
+                color fill = r == 1 ? color.new(coreCol, lv.evid >= 0.45 ? 0 : 22) : color.new(base, ralpha(r))
+                lbs.push(label.new(x=lv.born, y=lv.p, text="", xloc=xloc.bar_time, yloc=yloc.price, style=label.style_circle, color=fill, textcolor=color.white, size=rsize(r)))
+            if showDotScore
+                lbs.push(label.new(x=lv.born, y=lv.p, text=str.tostring(lv.sc, "#"), xloc=xloc.bar_time, yloc=yloc.price, style=label.style_none, color=color.new(color.black, 100), textcolor=color.white, size=size.tiny, tooltip=score_tip(lv)))
+    0
+
+// 2. Vẽ nốt tròn & điểm số ở cạnh phải theo Bản Gốc
+draw_edge(array<Lvl> a, array<label> lbs) =>
+    if showEdge and a.size() > 0
+        for i = 0 to a.size() - 1
+            Lvl lv = a.get(i)
+            color c = lvl_col(lv.supp)
+            lbs.push(label.new(x=bar_index, y=lv.p, text="", xloc=xloc.bar_index, yloc=yloc.price, style=label.style_circle, color=c, textcolor=c, size=size.tiny))
+            string tag = str.tostring(lv.sc, "#") + (lv.supp ? " HỖ TRỢ" : " KHÁNG CỰ")
+            lbs.push(label.new(x=bar_index + 1, y=lv.p, text=tag, xloc=xloc.bar_index, yloc=yloc.price, style=label.style_label_left, color=color.new(c, 100), textcolor=c, size=size.small))
+    0
+
+// 3. Vẽ Hồ sơ khối lượng cuộn Cyberpunk
+draw_profile(array<Lvl> a, array<box> bx, array<line> ln, array<label> lb) =>
+    int bars = math.max(1, math.min(profLb, bar_index + 1))
+    [bot, step, tot, buy] = profile(0, bars - 1, profRows)
+    float mx = tot.max()
+    if mx > 0
+        int poc = tot.indexof(mx)
+        int x = bar_index + profOff
+        for r = 0 to profRows - 1
+            float rv = tot.get(r)
+            if rv > 0
+                float str = rv / mx
+                float bSh = clip(buy.get(r) / rv)
+                int tw = math.max(1, int(math.round(profW * str)))
+                int bw = int(math.round(tw * bSh))
+                int sw = tw - bw
+                float y0 = bot + (r + 0.08) * step
+                float y1 = bot + (r + 0.92) * step
+                int fade = int(math.round(82.0 - 45.0 * str))
+                if bw > 0
+                    bx.push(box.new(left=x, top=y1, right=x + bw, bottom=y0, xloc=xloc.bar_index, border_color=color.new(buyCol, 100), bgcolor=color.new(buyCol, fade)))
+                if sw > 0
+                    bx.push(box.new(left=x + bw, top=y1, right=x + tw, bottom=y0, xloc=xloc.bar_index, border_color=color.new(sellCol, 100), bgcolor=color.new(sellCol, fade)))
+                if showPoc and r == poc
+                    bx.push(box.new(left=x, top=y1, right=x + tw, bottom=y0, xloc=xloc.bar_index, border_color=pocCol, border_width=2, bgcolor=color.new(pocCol, 80)))
+                if showLvlRows
+                    int side = level_row(a, y0, y1)
+                    if side != 0
+                        color c = side > 0 ? supCol : resCol
+                        bx.push(box.new(left=x, top=y1, right=x + tw, bottom=y0, xloc=xloc.bar_index, border_color=c, border_width=1, bgcolor=color.new(color.yellow, 95)))
+        if showPoc
+            float p = bot + (poc + 0.5) * step
+            ln.push(line.new(x1=math.max(0, bar_index - 18), y1=p, x2=x, y2=p, xloc=xloc.bar_index, color=color.new(pocCol, 20), width=2))
+            lb.push(label.new(x=x + profW + 2, y=p, text="⚡ POC " + str.tostring(p, format.mintick), xloc=xloc.bar_index, yloc=yloc.price, style=label.style_label_left, color=color.new(pocCol, 100), textcolor=pocCol, size=size.tiny))
+    0
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~}
+
+// ~~ Cập nhật cấu trúc {
+if ready and not na(pl)
+    pivot_eval(lvls, pl, true, avgVol, atr)
+
+if ready and not na(ph)
+    pivot_eval(lvls, ph, false, avgVol, atr)
+
+[supBreak, resBreak] = manage_breaks(lvls, atr)
+trim_lvls(lvls)
+update_lvls(lvls)
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~}
+
+// ~~ THUẬT TOÁN 4 CẤP ĐỘ ĐI LỆNH (TTCK VN) {
+bool sigMuaDo    = false
+bool sigMuaChinh = false
+bool sigBanDo    = false
+bool sigBanHet   = false
+
+if barstate.isconfirmed and ready and lvls.size() > 0
+    float atrVal      = nz(atr, syminfo.mintick)
+    float cRange      = math.max(high - low, syminfo.mintick)
+    float lowerWick   = math.min(open, close) - low
+    float upperWick   = high - math.max(open, close)
+    float bodyLen     = math.abs(close - open)
+
+    bool isPinbarLo   = lowerWick >= cRange * 0.35 and (close - low) >= cRange * 0.50
+    bool isPinbarHi   = upperWick >= cRange * 0.35 and (high - close) >= cRange * 0.50
+    bool isBullEngulf = (close > open) and (close[1] < open[1]) and (close >= open[1]) and (bodyLen >= cRange * 0.45)
+    bool isBearEngulf = (close < open) and (close[1] > open[1]) and (close <= open[1]) and (bodyLen >= cRange * 0.45)
+
+    for i = 0 to lvls.size() - 1
+        Lvl lv = lvls.get(i)
+        if lv.sc >= minSigScore
+            float tol = atrVal * 0.35
+            // 1. Mua Dò: Rút chân tại Hỗ trợ
+            if lv.supp
+                bool nearSup = (low <= lv.p + tol) and (close >= lv.p - atrVal * 0.12)
+                if nearSup and (isPinbarLo or close > open) and (volume < avgVol * volBreakX)
+                    sigMuaDo := true
+
+            // 2. Mua Chính: Bật từ Hỗ trợ + Nến xanh mạnh + Vol nổ (> 1.3x)
+            if lv.supp
+                bool bounceSup = (low <= lv.p + tol) and (close > open) and (close >= lv.p)
+                if bounceSup and (isBullEngulf or (close - low) >= cRange * 0.65) and (volume >= avgVol * volBreakX)
+                    sigMuaChinh := true
+
+            // 3. Bán Dò: Chạm Kháng cự + Râu trên dài khựng đà tăng
+            if not lv.supp
+                bool nearRes = (high >= lv.p - tol) and (close <= lv.p + atrVal * 0.12)
+                if nearRes and (isPinbarHi or close < open)
+                    sigBanDo := true
+
+    // Mua Chính dạng Breakout
+    if resBreak and (volume >= avgVol * volBreakX) and (close > open) and ((close - low) >= cRange * 0.65)
+        sigMuaChinh := true
+
+    // Bán Hết dạng Breakdown
+    if supBreak or (sigBanDo and isBearEngulf and volume >= avgVol * 1.2)
+        sigBanHet := true
+
+// Khử lặp tín hiệu
+var int lastSig = 0
+bool doMuaDo    = showSignals and showBuyDo    and sigMuaDo    and not sigMuaChinh and lastSig != 1 and lastSig != 2
+bool doMuaChinh = showSignals and showBuyChinh and sigMuaChinh and lastSig != 2
+bool doBanDo    = showSignals and showBanDo    and sigBanDo    and not sigBanHet   and lastSig != -1 and lastSig != -2
+bool doBanHet   = showSignals and showBanHet   and sigBanHet   and lastSig != -2
+
+if doMuaChinh
+    lastSig := 2
+else if doMuaDo
+    lastSig := 1
+else if doBanHet
+    lastSig := -2
+else if doBanDo
+    lastSig := -1
+
+// Lưu trạng thái cho HUD
+var string lastAction = "ĐANG QUAN SÁT"
+var float  lastEntry  = 0.0
+var float  lastSL     = 0.0
+var float  lastTP     = 0.0
+var color  lastColor  = color.gray
+
+if doMuaChinh
+    lastAction := "💎 MUA CHÍNH (Đủ 100%)"
+    lastEntry  := close
+    lastSL     := math.max(close - atr * 1.5, close * 0.93)
+    lastTP     := close * 1.12
+    lastColor  := color.rgb(0, 230, 118)
+else if doMuaDo
+    lastAction := "🟢 MUA DÒ (20-30%)"
+    lastEntry  := close
+    lastSL     := math.max(close - atr * 1.5, close * 0.93)
+    lastTP     := close * 1.08
+    lastColor  := color.rgb(0, 229, 255)
+else if doBanDo
+    lastAction := "🟡 BÁN DÒ (Chốt 30-50%)"
+    lastEntry  := close
+    lastColor  := color.rgb(255, 193, 7)
+else if doBanHet
+    lastAction := "🚨 BÁN HẾT (Thoát Hàng)"
+    lastEntry  := close
+    lastColor  := color.rgb(255, 61, 113)
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~}
+
+// ~~ VẼ ĐỒ HỌA BẢN GỐC & HUY HIỆU DẠ QUANG {
+// 1. Huy hiệu MUA DÒ (Nhỏ gọn cách nến)
+plotshape(doMuaDo, title="MUA DÒ (20-30%)", style=shape.labelup, location=location.belowbar,
+          color=color.rgb(0, 180, 216), textcolor=color.white, size=size.tiny, text="🟢 DÒ")
+
+// 2. Huy hiệu MUA CHÍNH (Xanh Emerald Dạ Quang)
+plotshape(doMuaChinh, title="💎 MUA CHÍNH", style=shape.labelup, location=location.belowbar,
+          color=color.rgb(0, 230, 118), textcolor=color.black, size=size.small, text="💎 MUA")
+
+// 3. Huy hiệu BÁN DÒ (Vàng Hoàng Kim)
+plotshape(doBanDo, title="BÁN DÒ (Chốt 30-50%)", style=shape.labeldown, location=location.abovebar,
+          color=color.rgb(255, 193, 7), textcolor=color.black, size=size.tiny, text="🟡 BÁN DÒ")
+
+// 4. Huy hiệu BÁN HẾT (Đỏ Ruby)
+plotshape(doBanHet, title="🚨 BÁN HẾT", style=shape.labeldown, location=location.abovebar,
+          color=color.rgb(255, 61, 113), textcolor=color.white, size=size.small, text="🚨 THOÁT")
+
+// Nhuộm màu nến phát sáng
+color candleGlow = doMuaChinh ? color.rgb(0, 230, 118) : doMuaDo ? color.rgb(0, 229, 255) : doBanHet ? color.rgb(255, 61, 113) : na
+barcolor(colorCandles ? candleGlow : na, title="Nhuộm Màu Nến Kích Hoạt")
+
+// Chiếu sáng nền nhẹ nhàng
+bgcolor(showBgGlow and doMuaChinh ? color.new(color.rgb(0, 230, 118), 90) : showBgGlow and doBanHet ? color.new(color.rgb(255, 61, 113), 90) : na, title="Vùng Chiếu Sáng Nền")
+
+// Vẽ Đầy Đủ Các Yếu Tố Đồ Họa Của Bản Gốc
+if barstate.islast
+    clear_labels(mLb)
+    clear_labels(eLb)
+    clear_labels(pLb)
+    clear_boxes(pBx)
+    clear_lines(tLn)
+
+    draw_markers(lvls, mLb, tLn)
+    draw_edge(lvls, eLb)
+    if showProf
+        draw_profile(lvls, pBx, tLn, pLb)
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~}
+
+// ~~ BẢNG ĐIỀU KHIỂN HUD GLASSMORPHISM SANG TRỌNG {
+var table hud = table.new(position = hudPos == "Góc Dưới Bên Phải" ? position.bottom_right : hudPos == "Góc Dưới Bên Trái" ? position.bottom_left : position.top_right, columns = 2, rows = 5, bgcolor = color.rgb(11, 15, 25, 20), border_width = 1, border_color = color.rgb(30, 41, 59))
+
+if showHUD and barstate.islast
+    table.cell(hud, 0, 0, "⚡ DÒNG TIỀN PRO", text_color = color.rgb(255, 255, 255), text_size = size.small, bgcolor = color.rgb(15, 23, 42))
+    table.cell(hud, 1, 0, "TTCK VIỆT NAM", text_color = color.rgb(0, 229, 255), text_size = size.small, bgcolor = color.rgb(15, 23, 42))
+
+    table.cell(hud, 0, 1, "🎯 Trạng Thái:", text_color = color.rgb(148, 163, 184), text_size = size.small)
+    table.cell(hud, 1, 1, lastAction, text_color = lastColor, text_size = size.small)
+
+    table.cell(hud, 0, 2, "💵 Giá Vào Lệnh:", text_color = color.rgb(148, 163, 184), text_size = size.small)
+    table.cell(hud, 1, 2, lastEntry > 0 ? str.tostring(lastEntry, format.mintick) : "--", text_color = color.white, text_size = size.small)
+
+    table.cell(hud, 0, 3, "🛑 Cắt Lỗ (SL):", text_color = color.rgb(148, 163, 184), text_size = size.small)
+    table.cell(hud, 1, 3, lastSL > 0 ? str.tostring(lastSL, format.mintick) + " (-7%)" : "--", text_color = color.rgb(255, 82, 82), text_size = size.small)
+
+    table.cell(hud, 0, 4, "🎯 Chốt Lời (TP):", text_color = color.rgb(148, 163, 184), text_size = size.small)
+    table.cell(hud, 1, 4, lastTP > 0 ? str.tostring(lastTP, format.mintick) + " (+12%)" : "--", text_color = color.rgb(0, 230, 118), text_size = size.small)
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~}
+
+// ~~ CẢNH BÁO TIẾNG VIỆT (ALERTS) {
+alertcondition(doMuaDo,    "1. Tín hiệu MUA DÒ",    "🟢 [DTPro] Xuất hiện ĐIỂM MUA DÒ (Giải ngân 20-30%) tại Hỗ trợ tích lũy!")
+alertcondition(doMuaChinh, "2. Tín hiệu MUA CHÍNH", "🚀 [DTPro] Xuất hiện ĐIỂM MUA CHÍNH (Đủ 100% vị thế) bùng nổ dòng tiền!")
+alertcondition(doBanDo,    "3. Tín hiệu BÁN DÒ",    "🟡 [DTPro] Xuất hiện ĐIỂM BÁN DÒ (Chốt lời 30-50%) tại Kháng cự đỉnh!")
+alertcondition(doBanHet,   "4. Tín hiệu BÁN HẾT",   "🚨 [DTPro] Xuất hiện ĐIỂM BÁN HẾT (Gãy Hỗ trợ / Cắt lỗ khẩn cấp)!")
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~}

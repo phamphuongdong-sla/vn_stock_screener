@@ -193,17 +193,17 @@ def fmt_stats_block(sym: str, bs: dict) -> str:
 
     lines = ["📊 *THỐNG KÊ 10 NĂM (CHỈ BÁO & VN-INDEX)*"]
 
-    # 1. 💎 Mua mạnh
+    # 1. 💎 Mua chính
     if dia_n > 0:
         dia_vni_str = f" | Cùng trend VNI: `{dia_vni_w}/{dia_vni_n}` (`{dia_vni_wr:.1f}%`)" if dia_vni_n > 0 else ""
-        lines.append(f"• 💎 Mua mạnh: *`{dia_w}/{dia_n}`* (`{dia_wr:.1f}%`){dia_vni_str}")
+        lines.append(f"• 💎 Mua chính: *`{dia_w}/{dia_n}`* (`{dia_wr:.1f}%`){dia_vni_str}")
     else:
-        lines.append("• 💎 Mua mạnh: _0 tín hiệu trong 10 năm_")
+        lines.append("• 💎 Mua chính: _0 tín hiệu trong 10 năm_")
 
-    # 2. 🟢 Mua chuẩn
+    # 2. 🟢 Mua dò
     if std_n > 0:
         std_vni_str = f" | Cùng trend VNI: `{std_vni_w}/{std_vni_n}` (`{std_vni_wr:.1f}%`)" if std_vni_n > 0 else ""
-        lines.append(f"• 🟢 Mua chuẩn: *`{std_w}/{std_n}`* (`{std_wr:.1f}%`){std_vni_str}")
+        lines.append(f"• 🟢 Mua dò: *`{std_w}/{std_n}`* (`{std_wr:.1f}%`){std_vni_str}")
 
     # 3. 📈 Toàn bộ lệnh MUA
     if tot_buy_n > 0:
@@ -212,7 +212,7 @@ def fmt_stats_block(sym: str, bs: dict) -> str:
 
     # 4. 🔴 Lệnh BÁN
     if sell_tot_n > 0:
-        sell_dia_str = f" (🔥 Bán mạnh: `{sell_dia_w}/{sell_dia_n}`)" if sell_dia_n > 0 else ""
+        sell_dia_str = f" (🚨 Bán hết: `{sell_dia_w}/{sell_dia_n}`)" if sell_dia_n > 0 else ""
         sell_vni_str = f" | Cùng trend VNI: `{sell_tot_vni_w}/{sell_tot_vni_n}` (`{sell_tot_vni_wr:.1f}%`)" if sell_tot_vni_n > 0 else ""
         lines.append(f"• 🔴 Lệnh BÁN: `{sell_tot_w}/{sell_tot_n}` (`{sell_tot_wr:.1f}%`) hạ tiếp{sell_dia_str}{sell_vni_str}")
 
@@ -304,22 +304,13 @@ def fmt_buy_alert(res: dict) -> str:
     cur_p      = res.get('price', 0.0)
     chg        = res.get('change_pct', 0.0)
     chg_str    = f" ({_pct(chg)})" if abs(chg) >= 0.01 else ""
-    is_diamond = res.get('buy_diamond', False)
-    vr         = res.get('vol_ratio', 0.0)
+    is_chinh   = res.get('sig_mua_chinh') or res.get('buy_diamond', False)
     t          = res.get('updated_time', '')
 
-    cur_atr    = res.get('atr', 0.0)
-    risk_val   = cur_atr * 1.5 if cur_atr > 0 else cur_p * 0.05
-    sl_calc    = cur_p - risk_val
-    tp1_calc   = cur_p + risk_val * config.DTPRO_RR1
-    tp2_calc   = cur_p + risk_val * config.DTPRO_RR2
-
-    sl_vnd     = format_vnd(sl_calc)
-    sl_pct     = _pct((sl_calc - cur_p) / cur_p * 100.0) if cur_p > 0 else "0.0%"
-    tp1_vnd    = format_vnd(tp1_calc)
-    tp1_pct    = _pct((tp1_calc - cur_p) / cur_p * 100.0) if cur_p > 0 else "0.0%"
-    tp2_vnd    = format_vnd(tp2_calc)
-    tp2_pct    = _pct((tp2_calc - cur_p) / cur_p * 100.0) if cur_p > 0 else "0.0%"
+    sl_vnd     = res.get('sl_vnd') or format_vnd(res.get('sl', cur_p * 0.93))
+    sl_pct     = _pct(res.get('sl_pct', -7.0))
+    tp1_vnd    = res.get('tp1_vnd') or format_vnd(res.get('tp1', cur_p * 1.12))
+    tp1_pct    = _pct(res.get('tp1_pct', 12.0 if is_chinh else 8.0))
 
     vni_info      = res.get('vni', {})
     vni_state_str = vni_info.get('state_str', '⚪ NGANG')
@@ -329,8 +320,23 @@ def fmt_buy_alert(res: dict) -> str:
     stock_state, _ = determine_stock_3state(res)
     relation, relation_badge, _, _ = calc_market_relation(vni_info.get('state', 'NGANG'), stock_state, sym)
 
-    tag = "💎 MUA MẠNH" if is_diamond else "🟢 MUA CHUẨN"
+    tag = "💎 MUA CHÍNH (Đủ 100% Vị Thế)" if is_chinh else "🟢 MUA DÒ (Giải Ngân 20-30%)"
     stats_block = fmt_stats_block(sym, res.get('buy_stats', {}))
+
+    # Cản & Volume Profile
+    near_sup = res.get('nearest_sup')
+    near_res = res.get('nearest_res')
+    poc_str  = res.get('poc_vnd', '')
+
+    c_lines = []
+    if near_res:
+        c_lines.append(f"• ⚔️ Kháng cự gần: `{format_vnd(near_res['price'])}` (Score {near_res['score']:.0f}/100 | {_pct(near_res['dist_pct'])})")
+    if near_sup:
+        c_lines.append(f"• 🛡️ Hỗ trợ gần: `{format_vnd(near_sup['price'])}` (Score {near_sup['score']:.0f}/100 | {_pct(near_sup['dist_pct'])})")
+    if poc_str:
+        poc_buy_pct = res.get('poc_buy_ratio', 0.5) * 100.0
+        c_lines.append(f"• ⚡ Vùng POC gom hàng: `{poc_str}` (Phe mua gom: `{poc_buy_pct:.0f}%`)")
+    sr_block = "\n".join(c_lines) + "\n\n" if c_lines else ""
 
     msg = (
         f"🚨 *TÍN HIỆU: {tag}*\n"
@@ -339,17 +345,19 @@ def fmt_buy_alert(res: dict) -> str:
         f"💰 *Giá mua (Entry):* `{price}`{chg_str}\n"
         f"⏰ *Kích hoạt:* _{t}_\n\n"
 
-        f"🎯 *KẾ HOẠCH GIẢI NGÂN (R:R)*\n"
+        f"🎯 *KẾ HOẠCH GIẢI NGÂN*\n"
         f"• 🛑 Cắt lỗ (SL): `{sl_vnd}` ({sl_pct})\n"
-        f"• 🏆 TP1: `{tp1_vnd}` ({tp1_pct}) — _Dời SL hòa vốn_\n"
-        f"• 🚀 TP2: `{tp2_vnd}` ({tp2_pct}) — _Chốt lời chính_\n\n"
+        f"• 🏆 Mục tiêu 1 (TP): `{tp1_vnd}` ({tp1_pct}) — _Chốt lời chủ động_\n\n"
+
+        f"📊 *HỒ SƠ KHỐI LƯỢNG & CẢN CẤU TRÚC*\n"
+        f"{sr_block}"
 
         f"🌐 *THỊ TRƯỜNG CHUNG (VN-INDEX)*\n"
         f"• Xu hướng: {vni_state_str} ({vni_p_str}) | Tương quan: *{relation_badge}*\n\n"
 
         f"━━━━━━━━━━━━━━━━━━━━\n"
         f"{stats_block}\n"
-        f"💡 _Khuyến nghị: Quản trị rủi ro tối đa 2% NAV/vị thế!_"
+        f"💡 _Khuyến nghị: Tuân thủ kỷ luật đi lệnh đúng tỷ trọng!_"
     )
     return msg
 
@@ -357,7 +365,7 @@ def fmt_buy_alert(res: dict) -> str:
 def fmt_detail(res: dict) -> str:
     """
     Format tin nhắn tra cứu chi tiết 1 mã, siêu đẹp, ngắn gọn, súc tích,
-    loại bỏ 100% câu từ thừa và trùng lặp.
+    hiển thị đầy đủ 4 cấp độ tín hiệu, cấu trúc cản & POC khối lượng.
     """
     sym       = res['symbol']
     ex        = res['exchange']
@@ -369,66 +377,87 @@ def fmt_detail(res: dict) -> str:
     cur_p     = res.get('price', 0.0)
     chg       = res.get('change_pct', 0.0)
     chg_str   = f" ({_pct(chg)})" if abs(chg) >= 0.01 else ""
-    vr        = res.get('vol_ratio', 0.0)
     t         = res.get('updated_time', '')
-    
-    cur_atr   = res.get('atr', 0.0)
-    risk_val  = cur_atr * 1.5 if cur_atr > 0 else cur_p * 0.05
-    sl_calc   = cur_p - risk_val
-    tp1_calc  = cur_p + risk_val * config.DTPRO_RR1
-    tp2_calc  = cur_p + risk_val * config.DTPRO_RR2
 
-    sl_vnd    = format_vnd(sl_calc)
-    sl_pct    = _pct((sl_calc - cur_p) / cur_p * 100.0) if cur_p > 0 else "0.0%"
-    tp1_vnd   = format_vnd(tp1_calc)
-    tp1_pct   = _pct((tp1_calc - cur_p) / cur_p * 100.0) if cur_p > 0 else "0.0%"
-    tp2_vnd   = format_vnd(tp2_calc)
-    tp2_pct   = _pct((tp2_calc - cur_p) / cur_p * 100.0) if cur_p > 0 else "0.0%"
+    sl_vnd    = res.get('sl_vnd') or format_vnd(res.get('sl', cur_p * 0.93))
+    sl_pct    = _pct(res.get('sl_pct', -7.0))
+    tp1_vnd   = res.get('tp1_vnd') or format_vnd(res.get('tp1', cur_p * 1.12))
+    tp1_pct   = _pct(res.get('tp1_pct', 12.0))
 
     vni_info      = res.get('vni', {})
-    vni_state     = vni_info.get('state', 'NGANG')
     vni_state_str = vni_info.get('state_str', '⚪ NGANG')
     vni_p         = vni_info.get('price', 0.0)
     vni_p_str     = f"{vni_p:,.0f} điểm".replace(",", ".") if vni_p > 0 else ""
 
     stock_state, _ = determine_stock_3state(res)
-    relation, relation_badge, _, _ = calc_market_relation(vni_state, stock_state, sym)
+    relation, relation_badge, _, _ = calc_market_relation(vni_info.get('state', 'NGANG'), stock_state, sym)
 
-    is_buy_today = res.get('buy_diamond') or res.get('buy_standard')
-    is_diamond   = res.get('buy_diamond', False)
-    active_pos   = res.get('active_pos', 0)
-    bars_ago     = res.get('bars_since_trigger', 0)
-    entry_val    = res.get('entry_price') or res.get('entry_p') or cur_p
-    entry_p      = res.get('entry_price_vnd') or (format_vnd(entry_val) if entry_val > 0 else price)
+    sig_chinh  = res.get('sig_mua_chinh', False)
+    sig_do     = res.get('sig_mua_do', False)
+    sig_ban_h  = res.get('sig_ban_het', False)
+    sig_ban_d  = res.get('sig_ban_do', False)
 
-    pnl = res.get('pnl_pct')
-    if pnl is None:
-        pnl = ((cur_p - entry_val) / entry_val * 100.0) if entry_val > 0 else 0.0
-    pnl_str = _pct(pnl)
+    active_pos = res.get('active_pos', 0)
+    pos_type   = res.get('pos_type', '')
+    bars_ago   = res.get('bars_since_trigger', 0)
+    entry_val  = res.get('entry_price') or cur_p
+    entry_p    = res.get('entry_price_vnd') or format_vnd(entry_val)
+    pnl_str    = _pct(res.get('pnl_pct', 0.0))
 
-    if is_buy_today:
-        tag = "💎 MUA MẠNH" if is_diamond else "🟢 MUA CHUẨN"
+    if sig_chinh:
         status_sec = (
-            f"🎯 *TÍN HIỆU HÔM NAY: {tag}*\n"
+            f"🎯 *TÍN HIỆU HÔM NAY: 💎 MUA CHÍNH (Đủ 100% Vị Thế)*\n"
             f"• 🛑 Cắt lỗ (SL): `{sl_vnd}` ({sl_pct})\n"
-            f"• 🏆 TP1: `{tp1_vnd}` ({tp1_pct}) — _Dời SL hòa vốn_\n"
-            f"• 🚀 TP2: `{tp2_vnd}` ({tp2_pct}) — _Chốt lời chính_\n"
+            f"• 🏆 Chốt lời (TP): `{tp1_vnd}` ({tp1_pct})\n"
+        )
+    elif sig_do:
+        status_sec = (
+            f"🎯 *TÍN HIỆU HÔM NAY: 🟢 MUA DÒ (Giải Ngân 20-30%)*\n"
+            f"• 🛑 Cắt lỗ (SL): `{sl_vnd}` ({sl_pct})\n"
+            f"• 🏆 Mục tiêu 1: `{tp1_vnd}` ({tp1_pct})\n"
+        )
+    elif sig_ban_h:
+        status_sec = (
+            f"🚨 *TÍN HIỆU HÔM NAY: 🚨 BÁN HẾT (Thoát Hàng/Cắt Lỗ)*\n"
+            f"• Cảnh báo: Thủng gãy vùng Hỗ trợ hoặc áp lực xả phân phối lớn!\n"
+        )
+    elif sig_ban_d:
+        status_sec = (
+            f"🟡 *TÍN HIỆU HÔM NAY: 🟡 BÁN DÒ (Chốt Lời 30-50%)*\n"
+            f"• Hành động: Chạm cản Kháng cự dày — Khuyên chốt lời từng phần!\n"
         )
     elif active_pos == 1:
         time_ago_str = f"`{bars_ago}` phiên trước" if bars_ago > 0 else "Phiên hôm nay"
         status_sec = (
-            f"🟢 *VỊ THẾ: ĐANG NẮM GIỮ (Không mua đuổi)*\n"
+            f"🟢 *VỊ THẾ: ĐANG NẮM GIỮ ({pos_type})*\n"
             f"• Lệnh từ: {time_ago_str} (Giá vào: `{entry_p}` • Lãi/lỗ: *`{pnl_str}`*)\n"
-            f"• Quản trị: SL `{format_vnd(res.get('sl', sl_calc))}` | TP1 `{format_vnd(res.get('tp1', tp1_calc))}` | TP2 `{format_vnd(res.get('tp2', tp2_calc))}`\n"
+            f"• Quản trị: SL `{sl_vnd}` | TP `{tp1_vnd}`\n"
         )
     else:
         status_sec = (
             f"🔴 *VỊ THẾ: ĐỨNG NGOÀI (Chưa có điểm mua)*\n"
-            f"• Đang nhịp điều chỉnh — Chờ dòng tiền đảo chiều xác nhận.\n"
+            f"• Đang nhịp điều chỉnh — Chờ dòng tiền test Hỗ trợ đảo chiều.\n"
         ) if stock_state == "GIẢM" else (
             f"⚪ *VỊ THẾ: ĐỨNG NGOÀI (Đang tích lũy)*\n"
-            f"• Đang đi ngang — Chờ tín hiệu bùng nổ xác nhận xu hướng mới.\n"
+            f"• Đang đi ngang — Chờ tín hiệu bùng nổ Mua Chính hoặc Mua Dò.\n"
         )
+
+    # Cản & Volume Profile
+    near_sup = res.get('nearest_sup')
+    near_res = res.get('nearest_res')
+    poc_str  = res.get('poc_vnd', '')
+    c_lines = []
+    if near_res:
+        c_lines.append(f"• ⚔️ Kháng cự gần: `{format_vnd(near_res['price'])}` (Score: `{near_res['score']:.0f}/100` | `{_pct(near_res['dist_pct'])}`)")
+    if near_sup:
+        c_lines.append(f"• 🛡️ Hỗ trợ gần: `{format_vnd(near_sup['price'])}` (Score: `{near_sup['score']:.0f}/100` | `{_pct(near_sup['dist_pct'])}`)")
+    if poc_str:
+        poc_buy_pct = res.get('poc_buy_ratio', 0.5) * 100.0
+        c_lines.append(f"• ⚡ Vùng POC gom hàng: `{poc_str}` (Phe mua: `{poc_buy_pct:.0f}%`)")
+    sr_sec = (
+        f"📊 *HỒ SƠ KHỐI LƯỢNG & CẢN CẤU TRÚC*\n"
+        + "\n".join(c_lines) + "\n\n"
+    ) if c_lines else ""
 
     stats_sec = fmt_stats_block(sym, res.get('buy_stats', {}))
 
@@ -438,6 +467,7 @@ def fmt_detail(res: dict) -> str:
         f"⏰ *Cập nhật:* _{t}_\n"
         f"━━━━━━━━━━━━━━━━━━━━\n"
         f"{status_sec}\n"
+        f"{sr_sec}"
         f"🌐 *THỊ TRƯỜNG CHUNG (VN-INDEX)*\n"
         f"• Xu hướng: {vni_state_str} ({vni_p_str}) | Tương quan: *{relation_badge}*\n\n"
         f"━━━━━━━━━━━━━━━━━━━━\n"
@@ -451,39 +481,41 @@ def fmt_scan_summary(signals: list, time_str: str = "") -> str:
     """Tóm tắt quét toàn sàn cho lệnh /scan."""
     if not signals:
         return (
-            f"🔍 *DÒNG TIỀN PRO — QUÉT TỰ ĐỘNG* {time_str}\n"
+            f"🔍 *HỒ SƠ DÒNG TIỀN & ĐI LỆNH 4 CẤP ĐỘ* {time_str}\n"
             f"━━━━━━━━━━━━━━━━━━━\n"
             f"⚪️ Không có điểm Mua/Bán mới trong phiên này.\n"
             f"_Gõ tên mã bất kỳ để tra cứu chi tiết._"
         )
     msg = (
-        f"🔥 *DÒNG TIỀN PRO — DANH SÁCH ĐIỂM MUA* {time_str}\n"
+        f"🔥 *HỒ SƠ DÒNG TIỀN — DANH SÁCH ĐIỂM MUA* {time_str}\n"
         f"Phát hiện *{len(signals)}* mã kích hoạt:\n"
         f"━━━━━━━━━━━━━━━━━━━\n"
     )
     for i, r in enumerate(signals[:10], 1):
-        icon  = "💎 MUA MẠNH" if r.get('buy_diamond') else "🟢 MUA"
+        icon  = "💎 MUA CHÍNH" if (r.get('sig_mua_chinh') or r.get('buy_diamond')) else "🟢 MUA DÒ"
         sym   = r['symbol']
         price = r['price_vnd']
         chg_s = _pct(r['change_pct'])
         msg += f"{i}. *{sym}* | {icon} | `{price}` ({chg_s})\n"
     if len(signals) > 10:
         msg += f"\n_...và {len(signals)-10} mã khác. Gõ tên mã để xem chi tiết._\n"
-    msg += "\n💡 _Gõ tên mã (VD: `HPG`, `SSI`) để xem đầy đủ kế hoạch Entry/SL/TP._"
+    msg += "\n💡 _Gõ tên mã (VD: `HPG`, `SSI`) để xem đầy đủ kế hoạch Entry/SL/TP & mốc cản POC._"
     return msg
 
 
 def fmt_welcome() -> str:
     return (
-        "🌊 *DÒNG TIỀN & XU HƯỚNG PRO — MASTER EDITION* 🌊\n"
+        "🌊 *HỒ SƠ MUA/BÁN & HỖ TRỢ KHÁNG CỰ ĐỘNG (DTPRO)* 🌊\n"
         "────────────────────────\n"
-        "Hệ thống phát hiện dòng tiền và lọc điểm mua tối ưu TTCK Việt Nam:\n"
-        "• 🧮 Nadaraya-Watson Gaussian Regression (500 nến, non-repaint)\n"
-        "• 📈 Keltner SuperTrend (EMA hlc3 10, ATR 14, factor 2.8)\n"
-        "• 💎 Tín hiệu *MUA MẠNH*: Hội tụ Đáy NW trong 7 nến + SuperTrend Đảo Chiều TĂNG\n"
-        "• 🟢 Tín hiệu *MUA*: SuperTrend Đảo Chiều TĂNG chuẩn\n"
-        "• 🕐 Xác nhận đa khung: Ngày (D) & Tuần (W)\n"
-        "• 🎯 Kế hoạch giao dịch: Entry, Cắt lỗ (SL), TP1, TP2\n\n"
+        "Hệ thống phát hiện dòng tiền và lọc điểm đi lệnh 4 cấp độ TTCK Việt Nam:\n"
+        "• 📊 Large Rolling Volume Profile (500 nến, phân bổ Mua/Bán)\n"
+        "• ⚡ Vùng POC Laser cam gom hàng khối lượng lớn nhất\n"
+        "• 🛡️ Profile-Guided Dynamic S/R: Hút giá về nút Volume, chấm điểm 0-100\n"
+        "• 🟢 *MUA DÒ* (20-30% vị thế): Test/rút chân Hỗ trợ tích lũy\n"
+        "• 💎 *MUA CHÍNH* (100% vị thế): Bật Hỗ trợ hoặc Breakout + Volume >= 1.3x\n"
+        "• 🟡 *BÁN DÒ* (Chốt 30-50%): Chạm Kháng cự cản đỉnh, râu trên dài\n"
+        "• 🚨 *BÁN HẾT* (Thoát Hàng): Thủng Hỗ trợ hoặc phân phối xả mạnh\n"
+        "• 🎯 Kế hoạch giao dịch: Entry, Cắt lỗ (SL -7%), Mục tiêu (TP +8% / +12%)\n\n"
         "📖 *CÁCH TRA CỨU:*\n"
         "• Gõ trực tiếp mã: `HPG`, `SSI`, `VND`, `VCB`...\n"
         "• Dùng lệnh: `/soi HPG` hoặc `/check SSI`\n"
@@ -496,13 +528,13 @@ def fmt_welcome() -> str:
 def fmt_status() -> str:
     s = "🟢 ĐANG TRONG GIỜ GIAO DỊCH" if is_trading_hour() else "🔴 NGOÀI GIỜ GIAO DỊCH"
     return (
-        f"🤖 *DÒNG TIỀN PRO — STATUS*\n"
+        f"🤖 *HỒ SƠ DÒNG TIỀN PRO — STATUS*\n"
         f"━━━━━━━━━━━━━━━━━━━\n"
         f"• Phiên thị trường: {s}\n"
         f"• Lịch quét tự động: Mỗi 5 phút trong phiên qua GitHub Actions\n"
-        f"• Kernel NW: {config.DTPRO_NW_WIN} nến | h={config.DTPRO_NW_H} | Cửa sổ: {config.DTPRO_LOOKBACK} nến\n"
-        f"• SuperTrend: EMA({config.DTPRO_ST_LEN}) × ATR({config.DTPRO_ATR_LEN}) × {config.DTPRO_ST_MULT}\n"
-        f"• Quản trị rủi ro: TP1 (+{config.DTPRO_RR1}R) | TP2 (+{config.DTPRO_RR2}R)\n\n"
+        f"• Volume Profile: 500 nến | 60 hàng giá | Phân bổ Buy/Sell volume\n"
+        f"• Dynamic S/R: Swing 5 | Bán kính 1.2 ATR | Merge 0.16 ATR | Break 0.10 ATR\n"
+        f"• Hệ số Mua Chính: Volume >= 1.3x MA20 | Cắt lỗ SL max 7%\n\n"
         f"_Gõ tên mã bất kỳ để phân tích ngay lập tức!_"
     )
 

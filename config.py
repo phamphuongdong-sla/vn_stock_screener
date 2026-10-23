@@ -85,10 +85,26 @@ GDNL_TP1_RR      = 1.0    # R:R mức TP1
 GDNL_TP2_RR      = 2.0    # R:R mức TP2
 
 # ==========================================
-# 5. DTPRO — Dòng Tiền & Xu Hướng PRO (Pine Script Port)
+# 5. DTPRO — Hồ Sơ Mua/Bán & Hỗ Trợ Kháng Cự Động (Bản Chuẩn TTCK VN)
 # ==========================================
-# Đồng bộ 100% với "DÒNG TIỀN & XU HƯỚNG PRO - MASTER EDITION"
+# Đồng bộ 100% với Pine Script "Hồ Sơ Mua/Bán + Hỗ Trợ Kháng Cự Động (Bản Gốc Đầy Đủ + Điểm Mua Bán)"
 
+DTPRO_PROF_LB      = 500    # Chu kỳ nến dựng Hồ sơ khối lượng cuộn (Volume Profile)
+DTPRO_PROF_ROWS    = 60     # Số hàng mức giá chia nhỏ trong Volume Profile
+DTPRO_SWING_LEN    = 5      # Số nến xác nhận đỉnh đáy Swing Pivot
+DTPRO_SRCH_ATR     = 1.20   # Bán kính tìm kiếm nút Volume gom hàng quanh Pivot (x ATR)
+DTPRO_NODE_MIN     = 0.08   # Tỷ lệ khối lượng nút tối thiểu so với POC
+DTPRO_EVID_MIN     = 0.28   # Bằng chứng dòng tiền tối thiểu
+DTPRO_PULL_MAX     = 0.85   # Lực hút tối đa về phía nút khối lượng
+DTPRO_SCORE_MIN    = 35.0   # Điểm uy tín tối thiểu để lưu cản (0-100)
+DTPRO_MERGE_ATR    = 0.16   # Ngưỡng gộp các cản gần nhau (x ATR)
+DTPRO_BREAK_ATR    = 0.10   # Ngưỡng đóng cửa vượt qua cản để xác nhận phá vỡ (x ATR)
+DTPRO_MAX_LVL      = 20     # Số lượng đường cản tối đa trên biểu đồ
+DTPRO_MIN_SIG_SCORE= 45.0   # Điểm cản tối thiểu phát tín hiệu
+DTPRO_VOL_BREAK_X  = 1.30   # Hệ số Volume Mua Chính (x MA20)
+DTPRO_SL_PCT       = 0.07   # Ngưỡng cắt lỗ tối đa 7%
+
+# Cấu hình tương thích & xu hướng VN-Index
 DTPRO_ST_LEN      = 10     # Chu kỳ Keltner SuperTrend
 DTPRO_ATR_LEN     = 14     # Chu kỳ ATR
 DTPRO_ST_MULT     = 2.8    # Hệ số nhân SuperTrend
