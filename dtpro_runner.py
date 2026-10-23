@@ -97,9 +97,9 @@ def save_alerted_stocks_today(alerted: Set[str]):
     if token and chat_id and token != "YOUR_BOT_TOKEN_HERE":
         try:
             state_text = (
-                f"🤖 [TRẠNG THÁI DÒNG TIỀN PRO] #DTPRO_STATE {today_str}\n"
+                f"🤖 [HỒ SƠ DÒNG TIỀN & ĐI LỆNH 4 CẤP ĐỘ] #DTPRO_STATE {today_str}\n"
                 f"⏰ Cập nhật: {datetime.now().strftime('%H:%M:%S %d/%m/%Y')}\n"
-                f"📊 Đã kích hoạt điểm mua hôm nay ({len(stock_list)} mã):\n"
+                f"📊 Đã kích hoạt điểm mua hôm nay (💎 Mua Chính / 🟢 Mua Dò) ({len(stock_list)} mã):\n"
                 f"STOCKS:{', '.join(stock_list)}"
             )
             r = requests.get(f"https://api.telegram.org/bot{token}/getChat?chat_id={chat_id}", timeout=5)
@@ -678,7 +678,7 @@ def run_github_actions():
                     if sent:
                         alerted_stocks_today.add(sym)
                         new_alerts += 1
-                        kind = "💎 MUA MẠNH" if sig.get('buy_diamond') else "🟢 MUA"
+                        kind = "💎 MUA CHÍNH" if (sig.get('sig_mua_chinh') or sig.get('buy_diamond')) else "🟢 MUA DÒ"
                         print(f"  ✅ [ĐÃ CẢNH BÁO] Mã {sym} ({kind}) tới Telegram thành công!")
 
                         # Lưu vào Database SQLite
@@ -878,12 +878,15 @@ def run_check(symbol: str):
     print(f"\n{'='*60}")
     print(f"  {res['symbol']} ({res['exchange']}) — {res['updated_time']}")
     print(f"  Giá: {res['price_vnd']} ({res['change_pct']:+.2f}%)")
-    print(f"  Xu hướng: {res['trend_label']}")
-    print(f"  Biên độ NW: {res['nw_zone_label']}")
-    print(f"  Xác nhận MTF: Ngày ({res['state_d_str']}) • Tuần ({res['state_w_str']})")
-    print(f"  Vị thế: {res['str_pos']}")
+    print(f"  Trạng thái: {res.get('action_str')}")
+    print(f"  Vùng POC gom hàng: {res.get('poc_vnd')} (Phe mua: {res.get('poc_buy_ratio', 0.5)*100:.0f}%)")
+    sup = res.get('nearest_sup')
+    res_c = res.get('nearest_res')
+    if sup:
+        print(f"  Hỗ trợ gần: {sup['price']:.2f} (Score {sup['score']:.0f}/100 | {sup['dist_pct']:+.1f}%)")
+    if res_c:
+        print(f"  Kháng cự gần: {res_c['price']:.2f} (Score {res_c['score']:.0f}/100 | {res_c['dist_pct']:+.1f}%)")
     print(f"  Khối lượng: {res['vol_ratio']:.1f}x MA20")
-    print(f"  Tín hiệu: {res['signal_str']}")
     print(f"  Kế hoạch: Entry {res['entry_price_vnd']} | SL {res['sl_vnd']} ({res['sl_pct']:+.1f}%) | TP1 {res['tp1_vnd']} | TP2 {res['tp2_vnd']}")
     print(f"{'='*60}\n")
 
