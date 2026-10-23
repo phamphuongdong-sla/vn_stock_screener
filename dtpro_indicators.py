@@ -195,7 +195,8 @@ def pivot_features(
     vols: np.ndarray,
     avg_vols: np.ndarray,
     p_idx: int,
-    supp: bool
+    supp: bool,
+    swing_len: int = 5,
 ) -> Tuple[float, float, float]:
     """
     Đánh giá đặc trưng nến đảo chiều quanh đỉnh/đáy:
@@ -203,10 +204,10 @@ def pivot_features(
       w_sc: Độ dài râu nến từ chối giá (Wick rejection)
       abs_sc: Sự hấp thụ cung cầu (Absorption score)
     """
-    PIV_VOL_X = 2.4
-    ABS_RAD = 2
-    ABS_BODY_MAX = 0.25
-    ABS_VOL_X = 1.8
+    PIV_VOL_X = 2.2
+    ABS_RAD = min(3, swing_len)
+    ABS_BODY_MAX = 0.40
+    ABS_VOL_X = 1.5
 
     vb = avg_vols[p_idx] if avg_vols[p_idx] > 0 else vols[p_idx]
     vr = vols[p_idx] / vb if vb > 0 else 1.0
@@ -260,9 +261,9 @@ def analyze_dtpro(
     swing_len: int = 5,
     srch_atr: float = 1.20,
     node_min: float = 0.08,
-    evid_min: float = 0.28,
+    evid_min: float = 0.22,
     pull_max: float = 0.85,
-    score_min: float = 35.0,
+    score_min: float = 30.0,
     merge_atr: float = 0.16,
     break_atr: float = 0.10,
     max_lvl: int = 20,
@@ -347,7 +348,7 @@ def analyze_dtpro(
                 bot, step, tot, buy = compute_volume_profile(highs, lows, closes, vols, oldest, newest, prof_rows)
                 atr_p = max(atr[p_idx], 1e-4)
                 node, evid, n_str = profile_node(raw, supp, atr_p, bot, step, tot, buy, srch_atr)
-                v_sc, w_sc, a_sc = pivot_features(highs, lows, opens, closes, vols, avg_vols, p_idx, supp)
+                v_sc, w_sc, a_sc = pivot_features(highs, lows, opens, closes, vols, avg_vols, p_idx, supp, swing_len=swing_len)
                 ok = (n_str >= node_min) and (evid >= evid_min)
                 pull = pull_max * clip(evid / 0.65) if ok else 0.0
                 p = raw + (node - raw) * pull

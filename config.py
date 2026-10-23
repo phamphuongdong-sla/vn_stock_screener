@@ -94,9 +94,9 @@ DTPRO_PROF_ROWS    = 60     # Số hàng mức giá chia nhỏ trong Volume Prof
 DTPRO_SWING_LEN    = 5      # Số nến xác nhận đỉnh đáy Swing Pivot
 DTPRO_SRCH_ATR     = 1.20   # Bán kính tìm kiếm nút Volume gom hàng quanh Pivot (x ATR)
 DTPRO_NODE_MIN     = 0.08   # Tỷ lệ khối lượng nút tối thiểu so với POC
-DTPRO_EVID_MIN     = 0.28   # Bằng chứng dòng tiền tối thiểu
+DTPRO_EVID_MIN     = 0.22   # Bằng chứng dòng tiền tối thiểu (Bản gốc = 0.22)
 DTPRO_PULL_MAX     = 0.85   # Lực hút tối đa về phía nút khối lượng
-DTPRO_SCORE_MIN    = 35.0   # Điểm uy tín tối thiểu để lưu cản (0-100)
+DTPRO_SCORE_MIN    = 30.0   # Điểm uy tín tối thiểu để lưu cản (Bản gốc = 30)
 DTPRO_MERGE_ATR    = 0.16   # Ngưỡng gộp các cản gần nhau (x ATR)
 DTPRO_BREAK_ATR    = 0.10   # Ngưỡng đóng cửa vượt qua cản để xác nhận phá vỡ (x ATR)
 DTPRO_MAX_LVL      = 20     # Số lượng đường cản tối đa trên biểu đồ
