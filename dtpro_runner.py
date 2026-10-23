@@ -18,7 +18,7 @@ import json
 import requests
 import threading
 from datetime import datetime
-from typing import Set, Optional, Dict, List
+from typing import Set, Optional, Dict, List, Tuple
 
 import config
 from screener import is_trading_hour, format_vnd
@@ -289,10 +289,29 @@ def calc_market_relation(vni_state: str, stock_state: str, sym: str):
     return relation, relation_badge, relation_str, comment
 
 
+def eval_sr_badge(score: float, is_supp: bool) -> Tuple[str, str]:
+    """
+    Đánh giá độ cứng và ý nghĩa thực chiến của mức cản theo thang điểm Score (0-100):
+    - Score >= 70: Vách thép / Cản rất dày (Cá mập gom hàng lượng cực lớn)
+    - Score >= 50: Cản cứng / Cản kỹ thuật uy tín (Dòng tiền tổ chức đỡ giá tốt)
+    - Score < 50:  Cản nhẹ / Hỗ trợ ngắn hạn (Nền phụ, cần quan sát)
+    """
+    if score >= 70:
+        badge = "🛡️ VÁCH THÉP" if is_supp else "⚔️ CẢN RẤT DÀY"
+        desc = "Điểm tựa dòng tiền tổ chức cực mạnh, xác suất đỡ giá rất cao (>90%)." if is_supp else "Áp lực chốt lời/hòa vốn lớn, nên chốt lời chủ động khi tiệm cận."
+    elif score >= 50:
+        badge = "💎 CẢN CỨNG" if is_supp else "🧱 CẢN ĐÁNG CHÚ Ý"
+        desc = "Vùng gom hàng uy tín, tạo lập đỡ giá tốt." if is_supp else "Cản kỹ thuật quan trọng, cần theo dõi volume khi chạm."
+    else:
+        badge = "⚪ CẢN NHẸ" if is_supp else "⚪ CẢN PHỤ"
+        desc = "Hỗ trợ ngắn hạn, nên tuân thủ kỷ luật dừng lỗ." if is_supp else "Cản phụ, dễ bứt phá nếu dòng tiền bùng nổ."
+    return badge, desc
+
+
 def fmt_buy_alert(res: dict) -> str:
     """
     Format thẻ cảnh báo điểm mua gửi tự động tới Telegram khi kích hoạt trong giờ giao dịch.
-    Ngắn gọn, súc tích, trực diện.
+    Ngắn gọn, súc tích, phân tích chi tiết độ uy tín (Score) của mốc Hỗ trợ bảo vệ.
     """
     sym        = res['symbol']
     ex         = res['exchange']
@@ -323,19 +342,35 @@ def fmt_buy_alert(res: dict) -> str:
     tag = "💎 MUA CHÍNH (Đủ 100% Vị Thế)" if is_chinh else "🟢 MUA DÒ (Giải Ngân 20-30%)"
     stats_block = fmt_stats_block(sym, res.get('buy_stats', {}))
 
-    # Cản & Volume Profile
+    # Cản & Volume Profile (Phân tích chi tiết độ cứng dựa trên Score)
     near_sup = res.get('nearest_sup')
     near_res = res.get('nearest_res')
     poc_str  = res.get('poc_vnd', '')
 
     c_lines = []
-    if near_res:
-        c_lines.append(f"• ⚔️ Kháng cự gần: `{format_vnd(near_res['price'])}` (Score {near_res['score']:.0f}/100 | {_pct(near_res['dist_pct'])})")
     if near_sup:
-        c_lines.append(f"• 🛡️ Hỗ trợ gần: `{format_vnd(near_sup['price'])}` (Score {near_sup['score']:.0f}/100 | {_pct(near_sup['dist_pct'])})")
+        sup_sc = near_sup['score']
+        sup_p  = format_vnd(near_sup['price'])
+        s_badge, s_desc = eval_sr_badge(sup_sc, True)
+        s_dist = abs(near_sup['dist_pct'])
+        safe_note = (
+            f"  ↳ Điểm mua sát Hỗ trợ (cách -{s_dist:.1f}%) → Điểm vào tối ưu, biên an toàn cực cao!"
+            if s_dist <= 2.5 else
+            f"  ↳ Cách Hỗ trợ -{s_dist:.1f}% → {s_desc}"
+        )
+        c_lines.append(f"• 🛡️ Hỗ trợ bảo vệ: `{sup_p}` (Score: `{sup_sc:.0f}/100` • *{s_badge}*)\n{safe_note}")
+
+    if near_res:
+        res_sc = near_res['score']
+        res_p  = format_vnd(near_res['price'])
+        r_badge, r_desc = eval_sr_badge(res_sc, False)
+        r_dist = near_res['dist_pct']
+        c_lines.append(f"• ⚔️ Kháng cự mục tiêu: `{res_p}` (Score: `{res_sc:.0f}/100` • *{r_badge}*)\n  ↳ Dư địa tăng lên cản: *`{_pct(r_dist)}`* — {r_desc}")
+
     if poc_str:
         poc_buy_pct = res.get('poc_buy_ratio', 0.5) * 100.0
-        c_lines.append(f"• ⚡ Vùng POC gom hàng: `{poc_str}` (Phe mua gom: `{poc_buy_pct:.0f}%`)")
+        c_lines.append(f"• ⚡ Vùng POC gom hàng: `{poc_str}` (Phe Mua gom: *`{poc_buy_pct:.0f}%`*)\n  ↳ Mức giá tập trung thanh khoản lớn nhất của chu kỳ tích lũy.")
+
     sr_block = "\n".join(c_lines) + "\n\n" if c_lines else ""
 
     msg = (
@@ -349,7 +384,7 @@ def fmt_buy_alert(res: dict) -> str:
         f"• 🛑 Cắt lỗ (SL): `{sl_vnd}` ({sl_pct})\n"
         f"• 🏆 Mục tiêu 1 (TP): `{tp1_vnd}` ({tp1_pct}) — _Chốt lời chủ động_\n\n"
 
-        f"📊 *HỒ SƠ KHỐI LƯỢNG & CẢN CẤU TRÚC*\n"
+        f"📊 *ĐIỂM TỰA CẢN & HỒ SƠ KHỐI LƯỢNG*\n"
         f"{sr_block}"
 
         f"🌐 *THỊ TRƯỜNG CHUNG (VN-INDEX)*\n"
@@ -442,20 +477,29 @@ def fmt_detail(res: dict) -> str:
             f"• Đang đi ngang — Chờ tín hiệu bùng nổ Mua Chính hoặc Mua Dò.\n"
         )
 
-    # Cản & Volume Profile
+    # Cản & Volume Profile (Phân tích chi tiết độ cứng dựa trên Score)
     near_sup = res.get('nearest_sup')
     near_res = res.get('nearest_res')
     poc_str  = res.get('poc_vnd', '')
     c_lines = []
-    if near_res:
-        c_lines.append(f"• ⚔️ Kháng cự gần: `{format_vnd(near_res['price'])}` (Score: `{near_res['score']:.0f}/100` | `{_pct(near_res['dist_pct'])}`)")
     if near_sup:
-        c_lines.append(f"• 🛡️ Hỗ trợ gần: `{format_vnd(near_sup['price'])}` (Score: `{near_sup['score']:.0f}/100` | `{_pct(near_sup['dist_pct'])}`)")
+        sup_sc = near_sup['score']
+        sup_p  = format_vnd(near_sup['price'])
+        s_badge, s_desc = eval_sr_badge(sup_sc, True)
+        s_dist = abs(near_sup['dist_pct'])
+        c_lines.append(f"• 🛡️ Hỗ trợ gần: `{sup_p}` (Score: `{sup_sc:.0f}/100` • *{s_badge}*) | Cách -{s_dist:.1f}%\n  ↳ {s_desc}")
+    if near_res:
+        res_sc = near_res['score']
+        res_p  = format_vnd(near_res['price'])
+        r_badge, r_desc = eval_sr_badge(res_sc, False)
+        r_dist = near_res['dist_pct']
+        c_lines.append(f"• ⚔️ Kháng cự gần: `{res_p}` (Score: `{res_sc:.0f}/100` • *{r_badge}*) | Cách {_pct(r_dist)}\n  ↳ {r_desc}")
     if poc_str:
         poc_buy_pct = res.get('poc_buy_ratio', 0.5) * 100.0
-        c_lines.append(f"• ⚡ Vùng POC gom hàng: `{poc_str}` (Phe mua: `{poc_buy_pct:.0f}%`)")
+        c_lines.append(f"• ⚡ Vùng POC gom hàng: `{poc_str}` (Phe Mua gom: `{poc_buy_pct:.0f}%`)")
+
     sr_sec = (
-        f"📊 *HỒ SƠ KHỐI LƯỢNG & CẢN CẤU TRÚC*\n"
+        f"📊 *HỒ SƠ KHỐI LƯỢNG & ĐIỂM TỰA CẢN (SCORE)*\n"
         + "\n".join(c_lines) + "\n\n"
     ) if c_lines else ""
 
