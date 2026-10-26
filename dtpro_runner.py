@@ -67,7 +67,7 @@ def load_alerted_stocks_today() -> Set[str]:
             if r.status_code == 200:
                 pinned = r.json().get("result", {}).get("pinned_message", {})
                 text = pinned.get("text", "")
-                if "#DTPRO_STATE" in text and today_str in text:
+                if ("#FMAB_STATE" in text or "#DTPRO_STATE" in text) and today_str in text:
                     parts = text.split("STOCKS:")
                     if len(parts) > 1:
                         stocks = [s.strip().upper() for s in parts[1].split(",") if s.strip()]
@@ -98,9 +98,9 @@ def save_alerted_stocks_today(alerted: Set[str]):
     if token and chat_id and token != "YOUR_BOT_TOKEN_HERE":
         try:
             state_text = (
-                f"🤖 [HỒ SƠ DÒNG TIỀN & ĐI LỆNH 4 CẤP ĐỘ] #DTPRO_STATE {today_str}\n"
+                f"🤖 [L1 FIBONACCI MA BAND — FMAB PRO] #FMAB_STATE {today_str}\n"
                 f"⏰ Cập nhật: {datetime.now().strftime('%H:%M:%S %d/%m/%Y')}\n"
-                f"📊 Đã kích hoạt điểm mua hôm nay (💎 Mua Chính / 🟢 Mua Dò) ({len(stock_list)} mã):\n"
+                f"📊 Đã kích hoạt điểm mua bứt phá Whale MA hôm nay ({len(stock_list)} mã):\n"
                 f"STOCKS:{', '.join(stock_list)}"
             )
             r = requests.get(f"https://api.telegram.org/bot{token}/getChat?chat_id={chat_id}", timeout=5)
@@ -108,7 +108,7 @@ def save_alerted_stocks_today(alerted: Set[str]):
             msg_id = pinned.get("message_id")
             pinned_text = pinned.get("text", "")
 
-            if msg_id and "#DTPRO_STATE" in pinned_text:
+            if msg_id and ("#FMAB_STATE" in pinned_text or "#DTPRO_STATE" in pinned_text):
                 requests.post(f"https://api.telegram.org/bot{token}/editMessageText", json={
                     "chat_id": chat_id,
                     "message_id": msg_id,
@@ -550,40 +550,35 @@ def fmt_scan_summary(signals: list, time_str: str = "") -> str:
 
 def fmt_welcome() -> str:
     return (
-        "🌊 *HỒ SƠ DÒNG TIỀN & FIBONACCI MA BAND (PRO)* 🌊\n"
+        "🐋 *[blackcat] L1 FIBONACCI MA BAND (FMAB PRO)* 🐋\n"
         "────────────────────────\n"
-        "Hệ thống phân tích kỹ thuật chuẩn TTCK Việt Nam:\n"
-        "1️⃣ *HỒ SƠ MUA/BÁN & ĐI LỆNH 4 CẤP ĐỘ (DTPRO):*\n"
-        "• 📊 Large Rolling Volume Profile (500 nến, phân bổ Mua/Bán)\n"
-        "• ⚡ Vùng POC Laser cam gom hàng khối lượng lớn nhất\n"
-        "• 🛡️ Dynamic S/R: Chấm điểm hỗ trợ/kháng cự 0-100\n"
-        "• 🟢 *MUA DÒ* (20-30%) | 💎 *MUA CHÍNH* (100% vị thế)\n"
-        "• 🟡 *BÁN DÒ* (Chốt 30-50%) | 🚨 *BÁN HẾT* (Cắt lỗ / Thoát hàng)\n\n"
-        "2️⃣ *FIBONACCI MA BAND (FMAB PRO):*\n"
-        "• 🐋 Whale MA (EMA 13) & Resistance MA (EMA 144 Fibonacci)\n"
-        "• 📈 Linreg Slope (21) & Trendline MA (EMA 50)\n"
-        "• 🎯 Điểm MUA bứt phá Whale MA kèm TP (+3x ATR) / SL (-2x ATR)\n\n"
+        "Hệ thống theo dấu chân cá mập và quản trị rủi ro chuyên sâu cho TTCK Việt Nam:\n"
+        "• 🌊 *Whale MA (EMA 13)*: Đường cá mập dẫn dắt dòng tiền ngắn hạn\n"
+        "• 🛡️ *Resistance MA (EMA 144 Fibonacci)*: Đường cản Fibonacci lớn tạo dải Bull/Bear Band\n"
+        "• 📈 *Slope Regression 21 & Trendline MA (EMA 50)*: Xác nhận xu hướng động lượng\n"
+        "• ⚡ *Lọc nhiễu Whipsaw*: Cơ chế Cooldown 3 nến & Khử nhiễu cùng thanh (Exclusivity)\n"
+        "• 🎯 *Quản trị rủi ro ATR 14*: Stop Loss (-2.0x ATR) & Take Profit (+3.0x ATR) — R:R = 1 : 1.5\n\n"
         "📖 *CÁCH TRA CỨU:*\n"
-        "• Gõ trực tiếp mã: `HPG`, `SSI`, `VND`, `TCB`...\n"
-        "• Tra cứu theo FMAB: `/fmab HPG`, `/fmab SSI`\n"
-        "• Quét điểm mua DTPRO: `/scan`\n"
-        "• Quét điểm mua FMAB: `/fmab_scan`\n"
-        "• `/status` — Xem trạng thái hệ thống\n\n"
-        "👉 _Hãy thử gõ ngay một mã như `HPG` hoặc `/fmab TCB` để xem kết quả!_"
+        "• Gõ trực tiếp mã: `HPG`, `SSI`, `TCB`, `VND`...\n"
+        "• Dùng lệnh: `/soi HPG` hoặc `/check SSI`\n"
+        "• `/scan` — Quét ngay các mã bứt phá điểm MUA trên toàn sàn\n"
+        "• `/status` — Xem trạng thái bot & giờ giao dịch\n\n"
+        "👉 _Hãy thử gõ ngay một mã như `HPG` hoặc `TCB` để xem phân tích!_"
     )
 
 
 def fmt_status() -> str:
     s = "🟢 ĐANG TRONG GIỜ GIAO DỊCH" if is_trading_hour() else "🔴 NGOÀI GIỜ GIAO DỊCH"
     return (
-        f"🤖 *HỒ SƠ DÒNG TIỀN & FMAB PRO — STATUS*\n"
+        f"🤖 *CHỈ BÁO DUY NHẤT: L1 FIBONACCI MA BAND (FMAB PRO)*\n"
         f"━━━━━━━━━━━━━━━━━━━\n"
         f"• Phiên thị trường: {s}\n"
-        f"• Lịch quét tự động: Mỗi 5 phút trong phiên qua GitHub Actions\n"
-        f"• Động cơ 1: Volume Profile 500 nến + Dynamic S/R 4 Cấp Độ\n"
-        f"• Động cơ 2: Fibonacci MA Band (Whale EMA 13, Res EMA 144, Slope 21)\n"
-        f"• Quản trị rủi ro: Cooldown 3 nến, Khử nhiễu Exclusivity, TP/SL ATR 14\n\n"
-        f"_Gõ tên mã (VD `HPG`) hoặc `/fmab TCB` để tra cứu tức thì!_"
+        f"• Tần suất quét tự động: Mỗi 3-5 phút trong giờ giao dịch\n"
+        f"• Đường trung bình: Whale EMA 13 | Resistance EMA 144 (Fibonacci)\n"
+        f"• Xu hướng & Động lượng: Linreg Slope 21 | Trendline EMA 50\n"
+        f"• Bộ lọc rủi ro: Cooldown 3 nến | Exclusivity True\n"
+        f"• Kế hoạch chốt lời/cắt lỗ: TP +3.0x ATR | SL -2.0x ATR (R:R 1.5)\n\n"
+        f"_Gõ tên bất kỳ mã nào (VD: `HPG`, `SSI`) để phân tích ngay!_"
     )
 
 
@@ -632,22 +627,8 @@ def process_updates(updates: list) -> int:
             gdnl_bot.send_message(chat_id, health_msg)
             continue
 
-        if cmd == "/SCAN":
+        if cmd in ["/SCAN", "/FMAB_SCAN", "/FMABSCAN", "/SCANFMAB"]:
             def _async_scan(target_chat):
-                try:
-                    sigs = dtpro_screener.run_dtpro_screener(buy_only=True)
-                    now_str = datetime.now().strftime('%H:%M %d/%m')
-                    summary_msg = fmt_scan_summary(sigs, f"[{now_str}]")
-                    gdnl_bot.send_message(target_chat, summary_msg)
-                except Exception as e:
-                    gdnl_bot.send_message(target_chat, f"❌ Lỗi quét: {e}")
-
-            gdnl_bot.send_message(chat_id, "🔍 Đang quét toàn sàn tìm điểm MUA DTPRO... Vui lòng chờ 15-30 giây.")
-            threading.Thread(target=_async_scan, args=(chat_id,), daemon=True).start()
-            continue
-
-        if cmd in ["/FMAB_SCAN", "/FMABSCAN", "/SCANFMAB"]:
-            def _async_fmab_scan(target_chat):
                 try:
                     sigs = fmab_screener.run_fmab_screener(buy_only=True)
                     now_str = datetime.now().strftime('%H:%M %d/%m')
@@ -656,27 +637,12 @@ def process_updates(updates: list) -> int:
                 except Exception as e:
                     gdnl_bot.send_message(target_chat, f"❌ Lỗi quét FMAB: {e}")
 
-            gdnl_bot.send_message(chat_id, "🔍 Đang quét toàn sàn theo chỉ báo Fibonacci MA Band (FMAB)... Vui lòng chờ 15-30 giây.")
-            threading.Thread(target=_async_fmab_scan, args=(chat_id,), daemon=True).start()
-            continue
-
-        if cmd == "/FMAB" and len(parts) > 1:
-            fmab_sym = parts[1].strip().upper()
-            def _async_fmab_analyze(t_chat, t_sym):
-                try:
-                    res = fmab_screener.analyze_single(t_sym)
-                    if res:
-                        gdnl_bot.send_message(t_chat, fmab_screener.fmt_fmab_detail(res))
-                    else:
-                        gdnl_bot.send_message(t_chat, f"❌ Không tìm thấy dữ liệu FMAB cho mã *{t_sym}*.")
-                except Exception as e:
-                    gdnl_bot.send_message(t_chat, f"❌ Lỗi phân tích FMAB {t_sym}: {e}")
-
-            threading.Thread(target=_async_fmab_analyze, args=(chat_id, fmab_sym), daemon=True).start()
+            gdnl_bot.send_message(chat_id, "🔍 Đang quét toàn sàn tìm điểm MUA theo L1 Fibonacci MA Band... Vui lòng chờ 15-30 giây.")
+            threading.Thread(target=_async_scan, args=(chat_id,), daemon=True).start()
             continue
 
         target = None
-        if cmd in ["/SOI", "/CHECK"] and len(parts) > 1:
+        if cmd in ["/SOI", "/CHECK", "/FMAB"] and len(parts) > 1:
             target = parts[1]
         elif 2 <= len(text_up) <= 5 and text_up.isalpha():
             target = text_up
@@ -684,9 +650,9 @@ def process_updates(updates: list) -> int:
         if target:
             def _async_analyze(t_chat, t_sym):
                 try:
-                    res = dtpro_screener.analyze_single(t_sym)
+                    res = fmab_screener.analyze_single(t_sym)
                     if res:
-                        gdnl_bot.send_message(t_chat, fmt_detail(res))
+                        gdnl_bot.send_message(t_chat, fmab_screener.fmt_fmab_detail(res))
                     else:
                         gdnl_bot.send_message(
                             t_chat,
@@ -708,13 +674,13 @@ def process_updates(updates: list) -> int:
 def run_github_actions():
     """
     Chế độ chạy trên GitHub Actions (mỗi 5 phút trong giờ giao dịch):
-    1. Trả lời ngay lập tức các tin nhắn tra cứu mà người dùng đã gửi tới Bot
-    2. Nếu trong giờ giao dịch: Quét toàn bộ sàn HOSE + HNX
-    3. Tự động bắn cảnh báo các mã mới kích hoạt điểm MUA (💎 MUA MẠNH hoặc 🟢 MUA)
+    1. Trả lời ngay lập tức các tin nhắn tra cứu mà người dùng đã gửi tới Bot theo FMAB
+    2. Nếu trong giờ giao dịch: Quét toàn bộ sàn HOSE + HNX theo L1 Fibonacci MA Band
+    3. Tự động bắn cảnh báo các mã mới kích hoạt điểm MUA (Bứt phá Whale MA)
     4. Cập nhật danh sách mã đã bắn hôm nay để chống gửi lặp lại
     """
     now_ts = datetime.now().strftime('%H:%M:%S %d/%m/%Y')
-    print(f"[{now_ts}] 🚀 Dòng Tiền PRO Bot — Khởi động trên GitHub Actions")
+    print(f"[{now_ts}] 🚀 L1 Fibonacci MA Band (FMAB Pro) Bot — Khởi động trên GitHub Actions")
 
     # 1. Trả lời tin nhắn người dùng
     print("[1/3] Đọc tin nhắn Telegram đang chờ...")
@@ -731,54 +697,49 @@ def run_github_actions():
     # 2. Quét thị trường trong giờ giao dịch & Bắn cảnh báo điểm MUA
     print("[2/3] Kiểm tra giờ giao dịch...")
     if is_trading_hour():
-        print("  → Đang trong giờ giao dịch! Bắt đầu quét điểm MUA trên toàn bộ thị trường...")
+        print("  → Đang trong giờ giao dịch! Bắt đầu quét điểm MUA FMAB trên toàn bộ thị trường...")
         alerted_stocks_today = load_alerted_stocks_today()
         print(f"  → Danh sách mã đã cảnh báo hôm nay: {sorted(list(alerted_stocks_today))}")
 
         try:
-            # Quét toàn sàn lấy các mã CÓ ĐIỂM MUA (💎 MUA MẠNH hoặc 🟢 MUA)
-            buy_signals = dtpro_screener.run_dtpro_screener(buy_only=True)
-            print(f"  → Tìm thấy {len(buy_signals)} mã có điểm MUA hôm nay.")
+            # Quét toàn sàn lấy các mã CÓ ĐIỂM MUA FMAB
+            buy_signals = fmab_screener.run_fmab_screener(buy_only=True)
+            print(f"  → Tìm thấy {len(buy_signals)} mã có điểm MUA FMAB hôm nay.")
 
             new_alerts = 0
             for sig in buy_signals:
                 sym = sig['symbol']
-                sig_time = sig.get('time', int(time.time()))
-                sig_type = "BUY_DIAMOND" if sig.get('buy_diamond') else "BUY_STANDARD"
+                sig_time = int(time.time())
+                sig_type = "FMAB_BUY"
 
                 # Chống bắn lặp 2 lớp: Database SQLite + Bộ nhớ phiên
                 if database.is_signal_exists(sym, '1D', sig_time, sig_type):
                     continue
                 if sym not in alerted_stocks_today:
-                    alert_card = fmt_buy_alert(sig)
+                    alert_card = fmab_screener.fmt_fmab_buy_alert(sig)
                     sent = gdnl_bot.send_alert_to_default(alert_card)
                     if sent:
                         alerted_stocks_today.add(sym)
                         new_alerts += 1
-                        kind = "💎 MUA CHÍNH" if (sig.get('sig_mua_chinh') or sig.get('buy_diamond')) else "🟢 MUA DÒ"
-                        print(f"  ✅ [ĐÃ CẢNH BÁO] Mã {sym} ({kind}) tới Telegram thành công!")
+                        print(f"  ✅ [ĐÃ CẢNH BÁO FMAB] Mã {sym} tới Telegram thành công!")
 
                         # Lưu vào Database SQLite
-                        stock_state, _ = determine_stock_3state(sig)
-                        vni_info = sig.get('vni', {})
-                        vni_state = vni_info.get('state', 'NGANG')
-                        rel, _, _, _ = calc_market_relation(vni_state, stock_state, sym)
                         database.save_signal({
                             'symbol': sym,
                             'timestamp': sig_time,
                             'timeframe': '1D',
                             'signal': 'BUY',
-                            'strength': 'DIAMOND' if sig.get('buy_diamond') else 'STANDARD',
+                            'strength': 'FMAB',
                             'entry': sig.get('price', 0.0),
-                            'sl': sig.get('sl', 0.0),
-                            'tp1': sig.get('tp1', 0.0),
-                            'tp2': sig.get('tp2', 0.0),
+                            'sl': sig.get('sl_price', 0.0),
+                            'tp1': sig.get('tp_price', 0.0),
+                            'tp2': sig.get('tp_price', 0.0),
                             'atr': sig.get('atr', 0.0),
-                            'stock_trend': stock_state,
-                            'trend_d': sig.get('state_d_str', 'TĂNG'),
-                            'trend_w': sig.get('state_w_str', 'TĂNG'),
-                            'vnindex_trend': vni_state,
-                            'market_relation': rel,
+                            'stock_trend': sig.get('trend_name', 'UPTREND'),
+                            'trend_d': sig.get('band_name', 'BULL BAND'),
+                            'trend_w': '1D',
+                            'vnindex_trend': 'UP',
+                            'market_relation': sig.get('confluence_tag', ''),
                             'status': 'ACTIVE',
                         })
                         time.sleep(0.5)
@@ -787,10 +748,10 @@ def run_github_actions():
                 save_alerted_stocks_today(alerted_stocks_today)
                 print(f"  → Đã cập nhật trạng thái: Tổng cộng {len(alerted_stocks_today)} mã đã cảnh báo hôm nay.")
             else:
-                print("  → Không có điểm MUA mới phát sinh trong lượt quét này.")
+                print("  → Không có điểm MUA FMAB mới phát sinh trong lượt quét này.")
 
         except Exception as e:
-            print(f"  → [Lỗi quét & cảnh báo] {e}")
+            print(f"  → [Lỗi quét & cảnh báo FMAB] {e}")
     else:
         print("  → Ngoài giờ giao dịch. Bỏ qua quét thị trường.")
 
@@ -855,63 +816,60 @@ def run_daemon(max_minutes: Optional[int] = None):
         print("  [Telegram Poller] Dừng luồng Telegram.", flush=True)
 
     def _market_scanner():
-        print("  [Market Scanner] Luồng quét thị trường tự động đã khởi động (Chu kỳ 3 phút).", flush=True)
+        print("  [Market Scanner] Luồng quét thị trường FMAB tự động đã khởi động (Chu kỳ 3 phút).", flush=True)
         while not stop_event.is_set():
             if is_trading_hour():
                 try:
                     alerted_stocks_today = load_alerted_stocks_today()
-                    buy_signals = dtpro_screener.run_dtpro_screener(buy_only=True)
+                    buy_signals = fmab_screener.run_fmab_screener(buy_only=True)
                     new_alerts = 0
                     for sig in buy_signals:
                         if stop_event.is_set():
                             break
                         sym = sig['symbol']
-                        sig_time = sig.get('time', int(time.time()))
-                        sig_type = "BUY_DIAMOND" if sig.get('buy_diamond') else "BUY_STANDARD"
+                        sig_time = int(time.time())
+                        sig_type = "FMAB_BUY"
 
                         if database.is_signal_exists(sym, '1D', sig_time, sig_type):
                             continue
                         if sym not in alerted_stocks_today:
-                            alert_card = fmt_buy_alert(sig)
+                            alert_card = fmab_screener.fmt_fmab_buy_alert(sig)
                             if gdnl_bot.send_alert_to_default(alert_card):
                                 alerted_stocks_today.add(sym)
                                 new_alerts += 1
-                                stock_state, _ = determine_stock_3state(sig)
-                                vni_info = sig.get('vni', {})
-                                vni_state = vni_info.get('state', 'NGANG')
-                                rel, _, _, _ = calc_market_relation(vni_state, stock_state, sym)
+                                print(f"  ✅ [ĐÃ CẢNH BÁO FMAB] Mã {sym} tới Telegram thành công!")
                                 database.save_signal({
                                     'symbol': sym,
                                     'timestamp': sig_time,
                                     'timeframe': '1D',
                                     'signal': 'BUY',
-                                    'strength': 'DIAMOND' if sig.get('buy_diamond') else 'STANDARD',
+                                    'strength': 'FMAB',
                                     'entry': sig.get('price', 0.0),
-                                    'sl': sig.get('sl', 0.0),
-                                    'tp1': sig.get('tp1', 0.0),
-                                    'tp2': sig.get('tp2', 0.0),
+                                    'sl': sig.get('sl_price', 0.0),
+                                    'tp1': sig.get('tp_price', 0.0),
+                                    'tp2': sig.get('tp_price', 0.0),
                                     'atr': sig.get('atr', 0.0),
-                                    'stock_trend': stock_state,
-                                    'trend_d': sig.get('state_d_str', 'TĂNG'),
-                                    'trend_w': sig.get('state_w_str', 'TĂNG'),
-                                    'vnindex_trend': vni_state,
-                                    'market_relation': rel,
+                                    'stock_trend': sig.get('trend_name', 'UPTREND'),
+                                    'trend_d': sig.get('band_name', 'BULL BAND'),
+                                    'trend_w': '1D',
+                                    'vnindex_trend': 'UP',
+                                    'market_relation': sig.get('confluence_tag', ''),
                                     'status': 'ACTIVE',
                                 })
                                 time.sleep(0.5)
                     if new_alerts > 0:
                         save_alerted_stocks_today(alerted_stocks_today)
                 except Exception as e:
-                    print(f"[Lỗi quét daemon] {e}", flush=True)
+                    print(f"[Lỗi quét daemon FMAB] {e}", flush=True)
 
             for _ in range(config.SCAN_INTERVAL_SECONDS):
                 if stop_event.is_set():
                     break
                 time.sleep(1.0)
-        print("  [Market Scanner] Dừng luồng quét thị trường.", flush=True)
+        print("  [Market Scanner] Dừng luồng quét thị trường FMAB.", flush=True)
 
-    t_poller = threading.Thread(target=_telegram_poller, daemon=True, name="DTPro-Poller")
-    t_scanner = threading.Thread(target=_market_scanner, daemon=True, name="DTPro-Scanner")
+    t_poller = threading.Thread(target=_telegram_poller, daemon=True, name="FMAB-Poller")
+    t_scanner = threading.Thread(target=_market_scanner, daemon=True, name="FMAB-Scanner")
     t_poller.start()
     t_scanner.start()
 
@@ -944,51 +902,32 @@ def run_daemon(max_minutes: Optional[int] = None):
 
 def run_check(symbol: str):
     """
-    Test tra cứu 1 mã đơn lẻ, in bảng điều khiển HUD và gửi tin nhắn Telegram.
+    Test tra cứu 1 mã đơn lẻ theo chỉ báo L1 Fibonacci MA Band (FMAB) và gửi tin nhắn Telegram.
     """
-    print(f"\n🔍 Phân tích chi tiết: {symbol.upper()} (Chỉ báo DÒNG TIỀN PRO)")
-    res = dtpro_screener.analyze_single(symbol)
+    print(f"\n🔍 Phân tích chi tiết: {symbol.upper()} (Chỉ báo L1 Fibonacci MA Band - FMAB Pro)")
+    res = fmab_screener.analyze_single(symbol)
     if not res:
         print(f"❌ Không tìm thấy dữ liệu cho mã '{symbol}'")
         return
 
-    print(f"\n{'='*60}")
-    print(f"  {res['symbol']} ({res['exchange']}) — {res['updated_time']}")
-    print(f"  Giá: {res['price_vnd']} ({res['change_pct']:+.2f}%)")
-    print(f"  Trạng thái: {res.get('action_str')}")
-    print(f"  Vùng POC gom hàng: {res.get('poc_vnd')} (Phe mua: {res.get('poc_buy_ratio', 0.5)*100:.0f}%)")
-    sup = res.get('nearest_sup')
-    res_c = res.get('nearest_res')
-    if sup:
-        print(f"  Hỗ trợ gần: {sup['price']:.2f} (Score {sup['score']:.0f}/100 | {sup['dist_pct']:+.1f}%)")
-    if res_c:
-        print(f"  Kháng cự gần: {res_c['price']:.2f} (Score {res_c['score']:.0f}/100 | {res_c['dist_pct']:+.1f}%)")
-    print(f"  Khối lượng: {res['vol_ratio']:.1f}x MA20")
-    print(f"  Kế hoạch: Entry {res['entry_price_vnd']} | SL {res['sl_vnd']} ({res['sl_pct']:+.1f}%) | TP1 {res['tp1_vnd']} | TP2 {res['tp2_vnd']}")
-    print(f"{'='*60}\n")
-
-    # Nếu có điểm mua hôm nay, test luôn định dạng cảnh báo mua
-    if res.get('buy_diamond') or res.get('buy_standard'):
-        msg = fmt_buy_alert(res)
-    else:
-        msg = fmt_detail(res)
-
+    msg = fmab_screener.fmt_fmab_detail(res)
+    print(msg)
     sent = gdnl_bot.send_alert_to_default(msg)
     print(f"{'✅ Đã gửi tin nhắn phân tích về Telegram thành công!' if sent else '⚠️ Không gửi được Telegram.'}")
 
 
 def run_scan():
     """
-    Test quét toàn sàn và in danh sách các mã có điểm MUA.
+    Test quét toàn sàn và in danh sách các mã có điểm MUA theo L1 Fibonacci MA Band.
     """
-    print("\n🔍 Quét toàn bộ thị trường tìm điểm MUA (DÒNG TIỀN PRO)...")
-    sigs = dtpro_screener.run_dtpro_screener(buy_only=True)
+    print("\n🔍 Quét toàn bộ thị trường tìm điểm MUA (L1 Fibonacci MA Band - FMAB Pro)...")
+    sigs = fmab_screener.run_fmab_screener(buy_only=True)
     now_str = datetime.now().strftime("%H:%M %d/%m")
-    summary = fmt_scan_summary(sigs, f"[{now_str}]")
+    summary = fmab_screener.fmt_fmab_scan_summary(sigs, f"[{now_str}]")
     print(summary)
     if sigs:
         gdnl_bot.send_alert_to_default(summary)
-        print(f"\n✅ Đã gửi danh sách {len(sigs)} mã có điểm MUA về Telegram.")
+        print(f"\n✅ Đã gửi danh sách {len(sigs)} mã có điểm MUA FMAB về Telegram.")
 
 
 # ─────────────────────────────────────────────────────────────
