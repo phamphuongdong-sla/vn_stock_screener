@@ -78,6 +78,10 @@ def analyze_single(symbol: str) -> Optional[Dict]:
     res['entry_price_vnd'] = format_vnd(res['entry_price']) if not np.isnan(res['entry_price']) else "—"
     res['sl_vnd'] = format_vnd(res['sl_price']) if not np.isnan(res['sl_price']) else "—"
     res['tp_vnd'] = format_vnd(res['tp_price']) if not np.isnan(res['tp_price']) else "—"
+    res['plan_entry_vnd'] = format_vnd(res.get('plan_entry_price', res['price']))
+    res['plan_sl_vnd'] = format_vnd(res.get('plan_sl_price', res['price'] - 2.0 * res['atr']))
+    res['plan_tp_vnd'] = format_vnd(res.get('plan_tp_price', res['price'] + 3.0 * res['atr']))
+    res['ma_exit_vnd'] = format_vnd(res.get('ma_exit_price', res['whale_ma']))
 
     return res
 
@@ -126,6 +130,10 @@ def _analyze_one(item: dict, exchange: str) -> Optional[Dict]:
     res['entry_price_vnd'] = format_vnd(res['entry_price']) if not np.isnan(res['entry_price']) else "—"
     res['sl_vnd'] = format_vnd(res['sl_price']) if not np.isnan(res['sl_price']) else "—"
     res['tp_vnd'] = format_vnd(res['tp_price']) if not np.isnan(res['tp_price']) else "—"
+    res['plan_entry_vnd'] = format_vnd(res.get('plan_entry_price', res['price']))
+    res['plan_sl_vnd'] = format_vnd(res.get('plan_sl_price', res['price'] - 2.0 * res['atr']))
+    res['plan_tp_vnd'] = format_vnd(res.get('plan_tp_price', res['price'] + 3.0 * res['atr']))
+    res['ma_exit_vnd'] = format_vnd(res.get('ma_exit_price', res['whale_ma']))
 
     return res
 
@@ -217,14 +225,17 @@ def fmt_fmab_detail(res: dict) -> str:
     action_title = res['action_title']
     action_detail = res['action_detail']
 
-    entry_vnd = res['entry_price_vnd']
-    sl_vnd = res['sl_vnd']
-    tp_vnd = res['tp_vnd']
-    sl_pct = res['sl_pct']
-    tp_pct = res['tp_pct']
-
     pos_state = res['pos_state']
-    pos_desc = "🟢 LONG (Đang giữ hàng)" if pos_state == 1 else ("🔴 SHORT" if pos_state == -1 else "⚪ FLAT (Tiền mặt)")
+    has_buy_signal = res.get('has_buy_signal', False)
+    profit_pct = res.get('profit_pct', 0.0)
+
+    # ── Kế hoạch giao dịch theo L1 Fibonacci MA Band (TradingView: OZhERgT3) ──
+    atr_val = res.get('atr', 0.0)
+    plan_entry_vnd = res.get('plan_entry_vnd', price_vnd)
+    plan_sl_vnd = res.get('plan_sl_vnd', '—')
+    plan_tp_vnd = res.get('plan_tp_vnd', '—')
+    plan_sl_pct = res.get('plan_sl_pct', -4.0)
+    plan_tp_pct = res.get('plan_tp_pct', 6.0)
 
     lines = [
         f"📊 *PHÂN TÍCH FIBONACCI MA BAND (FMAB)* 📊",
@@ -242,13 +253,40 @@ def fmt_fmab_detail(res: dict) -> str:
         f"• *Dải MA Band:* {band_name}",
         f"• *Động lượng:* {trend_name}",
         f"────────────────────────",
-        f"🛡️ *KẾ HOẠCH ĐI LỆNH (ATR {res['atr']:.2f}):*",
-        f"• Giá vào vị thế (Entry): `{entry_vnd}`",
-        f"• Cắt lỗ SL (-2.0x ATR): `{sl_vnd}` ({sl_pct:+.1f}%)",
-        f"• Chốt lời TP (+3.0x ATR): `{tp_vnd}` ({tp_pct:+.1f}%)",
-        f"• Tỷ lệ Lợi nhuận/Rủi ro (R:R): `1 : {res['rr_ratio']:.1f}`",
+    ]
+
+    if pos_state == 1:
+        lines += [
+            f"🛡️ *KẾ HOẠCH VỊ THẾ ĐANG NẮM GIỮ (LONG):*",
+            f"• Giá vào lệnh (Entry): `{res['entry_price_vnd']}` (Hiệu suất: `{profit_pct:+.2f}%`)",
+            f"• Chốt lời mục tiêu (+3.0x ATR): `{res['tp_vnd']}` ({res['tp_pct']:+.1f}%)",
+            f"• Cắt lỗ cố định (-2.0x ATR): `{res['sl_vnd']}` ({res['sl_pct']:+.1f}%)",
+            f"• Điểm thoát sớm (MA Exit): Đóng nến ngày gãy Whale MA `{w_vnd}`",
+            f"• Tỷ lệ Lợi nhuận / Rủi ro: `1 : 1.5` (Kỳ vọng +3 ATR / Rủi ro -2 ATR)",
+        ]
+    elif has_buy_signal:
+        lines += [
+            f"🎯 *KẾ HOẠCH VÀO LỆNH MUA MỚI HÔM NAY:*",
+            f"• Giá kích hoạt Mua (Entry): `{price_vnd}`",
+            f"• Chốt lời mục tiêu (+3.0x ATR): `{plan_tp_vnd}` ({plan_tp_pct:+.1f}%)",
+            f"• Cắt lỗ cố định (-2.0x ATR): `{plan_sl_vnd}` ({plan_sl_pct:+.1f}%)",
+            f"• Điểm thoát sớm (MA Exit): Đóng nến ngày gãy Whale MA `{w_vnd}`",
+            f"• Tỷ lệ Lợi nhuận / Rủi ro: `1 : 1.5` (Kỳ vọng +3 ATR / Rủi ro -2 ATR)",
+        ]
+    else:
+        lines += [
+            f"📋 *KẾ HOẠCH GIAO DỊCH DỰ KIẾN (CHỜ MUA):*",
+            f"• Điều kiện kích hoạt: Giá cắt lên & đóng nến trên Whale MA `{w_vnd}`",
+            f"• Giá vào tham chiếu (Entry): `{plan_entry_vnd}`",
+            f"• Chốt lời mục tiêu (+3.0x ATR): `{plan_tp_vnd}` ({plan_tp_pct:+.1f}%)",
+            f"• Cắt lỗ phòng thủ (-2.0x ATR): `{plan_sl_vnd}` ({plan_sl_pct:+.1f}%)",
+            f"• Điểm thoát bảo toàn vốn (MA Exit): Bán nếu đóng nến gãy Whale MA",
+            f"• Tỷ lệ Lợi nhuận / Rủi ro: `1 : 1.5` (Kỳ vọng +3 ATR / Rủi ro -2 ATR)",
+        ]
+
+    lines += [
         f"────────────────────────",
-        f"💡 _Hệ thống lọc bẫy Whipsaw với Cooldown 3 nến & Khử nhiễu cùng thanh._"
+        f"💡 _Chuẩn tác giả blackcat1402 (TradingView: OZhERgT3): Chốt lời TP = Entry + 3x ATR, Cắt lỗ SL = Entry - 2x ATR. Thoát lệnh khi gãy Whale MA._"
     ]
     return "\n".join(lines)
 
@@ -262,6 +300,11 @@ def fmt_fmab_buy_alert(res: dict) -> str:
     chg_icon = "🟢" if chg > 0 else "⚪"
     vol_ratio = res['vol_ratio']
 
+    plan_sl_vnd = res.get('plan_sl_vnd', res.get('sl_vnd', '—'))
+    plan_tp_vnd = res.get('plan_tp_vnd', res.get('tp_vnd', '—'))
+    plan_sl_pct = res.get('plan_sl_pct', res.get('sl_pct', 0.0))
+    plan_tp_pct = res.get('plan_tp_pct', res.get('tp_pct', 0.0))
+
     lines = [
         f"⚡ *[CẢNH BÁO FMAB] KÍCH HOẠT ĐIỂM MUA* ⚡",
         f"Mã: *{sym}* ({ex}) | Giá: *{price_vnd}* ({chg_icon} {chg:+.2f}%)",
@@ -269,16 +312,17 @@ def fmt_fmab_buy_alert(res: dict) -> str:
         f"────────────────────────",
         f"✨ *Bứt Phá:* Giá vừa cắt lên trên Whale MA ({res['whale_ma_vnd']})",
         f"🎯 *Đánh giá hợp lưu:* {res['confluence_tag']}",
-        f"🌊 *Dải Band:* {res['band_name']}",
-        f"📈 *Xu hướng:* {res['trend_name']}",
+        f"🌊 *Dải MA Band:* {res['band_name']}",
+        f"📈 *Động lượng:* {res['trend_name']}",
         f"────────────────────────",
-        f"🎯 *KẾ HOẠCH GIAO DỊCH CHUẨN:*",
+        f"🎯 *KẾ HOẠCH GIAO DỊCH CHUẨN (FMAB OZhERgT3):*",
         f"• Vùng mua Entry: `{price_vnd}`",
-        f"• Điểm Cắt Lỗ SL (-2.0x ATR): `{res['sl_vnd']}` ({res['sl_pct']:+.1f}%)",
-        f"• Điểm Chốt Lời TP (+3.0x ATR): `{res['tp_vnd']}` ({res['tp_pct']:+.1f}%)",
-        f"• Kỳ vọng R:R: `1 : {res['rr_ratio']:.1f}`",
+        f"• Chốt lời mục tiêu TP (+3.0x ATR): `{plan_tp_vnd}` ({plan_tp_pct:+.1f}%)",
+        f"• Cắt lỗ cố định SL (-2.0x ATR): `{plan_sl_vnd}` ({plan_sl_pct:+.1f}%)",
+        f"• Điểm thoát sớm (MA Exit): Đóng nến ngày thủng Whale MA `{res['whale_ma_vnd']}`",
+        f"• Tỷ lệ Lợi nhuận / Rủi ro: `1 : 1.5` (Kỳ vọng +3 ATR / Rủi ro -2 ATR)",
         f"────────────────────────",
-        f"👉 _Gõ `/{sym.lower()}` hoặc `/fmab {sym}` để xem biểu đồ chi tiết!_"
+        f"👉 _Gõ `/{sym.lower()}` để xem phân tích chi tiết!_"
     ]
     return "\n".join(lines)
 

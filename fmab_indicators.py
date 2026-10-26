@@ -199,7 +199,7 @@ def compute_fmab(
     entry_p = entry_prices[last_idx]
     entry_d = entry_dirs[last_idx]
 
-    # Tính TP / SL
+    # Tính TP / SL theo chuẩn tác giả blackcat1402 (TradingView: OZhERgT3)
     sl_price = np.nan
     tp_price = np.nan
     sl_pct = 0.0
@@ -213,6 +213,27 @@ def compute_fmab(
         tp_price = ref_entry + ref_dir * tp_mult * curr_atr
         sl_pct = ((sl_price / ref_entry) - 1.0) * 100.0
         tp_pct = ((tp_price / ref_entry) - 1.0) * 100.0
+
+    # Kế hoạch giao dịch dự kiến (Kể cả khi đang Flat chờ điểm kích hoạt bứt phá)
+    if curr_pos == 1:
+        plan_entry_price = ref_entry
+        plan_sl_price = sl_price
+        plan_tp_price = tp_price
+        plan_sl_pct = sl_pct
+        plan_tp_pct = tp_pct
+    elif has_buy_signal:
+        plan_entry_price = curr_c
+        plan_sl_price = curr_c - sl_mult * curr_atr
+        plan_tp_price = curr_c + tp_mult * curr_atr
+        plan_sl_pct = ((plan_sl_price / curr_c) - 1.0) * 100.0
+        plan_tp_pct = ((plan_tp_price / curr_c) - 1.0) * 100.0
+    else:
+        # Nếu đang Flat: Điểm vào dự kiến là vùng bứt phá Whale MA (hoặc giá hiện tại)
+        plan_entry_price = curr_w if curr_c < curr_w else curr_c
+        plan_sl_price = plan_entry_price - sl_mult * curr_atr
+        plan_tp_price = plan_entry_price + tp_mult * curr_atr
+        plan_sl_pct = ((plan_sl_price / plan_entry_price) - 1.0) * 100.0
+        plan_tp_pct = ((plan_tp_price / plan_entry_price) - 1.0) * 100.0
 
     # Trạng thái Dải (Bands) & Xu hướng
     is_bull_band = curr_w > curr_r
@@ -244,6 +265,7 @@ def compute_fmab(
         confluence_tag = "⚪ XU HƯỚNG YẾU (Dưới cản)"
 
     # Đánh giá hành động đề xuất
+    profit_pct = ((curr_c / ref_entry) - 1.0) * 100.0 if not np.isnan(ref_entry) else 0.0
     if has_buy_signal:
         action_title = "🟢 KÍCH HOẠT ĐIỂM MUA (BUY ENTRY)"
         action_detail = f"Giá ({curr_c:.2f}) vừa cắt lên trên Whale MA ({curr_w:.2f})."
@@ -251,12 +273,11 @@ def compute_fmab(
         action_title = "🔴 KÍCH HOẠT BÁN THOÁT HÀNG (EXIT)"
         action_detail = f"Giá ({curr_c:.2f}) vừa thủng xuống dưới Whale MA ({curr_w:.2f})."
     elif curr_pos == 1:
-        profit_pct = ((curr_c / ref_entry) - 1.0) * 100.0 if not np.isnan(ref_entry) else 0.0
         action_title = f"🟢 ĐANG NẮM GIỮ (LONG: {profit_pct:+.2f}%)"
         action_detail = f"Vị thế Long từ vùng giá {ref_entry:.2f}."
     else:
         action_title = "⚪ TIỀN MẶT / QUAN SÁT (CASH)"
-        action_detail = "Đứng ngoài thị trường, chờ điểm bứt phá qua Whale MA."
+        action_detail = f"Chờ giá bứt phá vượt qua Whale MA ({curr_w:.2f}) để kích hoạt điểm MUA."
 
     return {
         'price': curr_c,
@@ -286,5 +307,12 @@ def compute_fmab(
         'tp_price': tp_price,
         'sl_pct': sl_pct,
         'tp_pct': tp_pct,
-        'rr_ratio': abs(tp_pct / sl_pct) if sl_pct != 0 else 1.5,
+        'plan_entry_price': plan_entry_price,
+        'plan_sl_price': plan_sl_price,
+        'plan_tp_price': plan_tp_price,
+        'plan_sl_pct': plan_sl_pct,
+        'plan_tp_pct': plan_tp_pct,
+        'profit_pct': profit_pct,
+        'ma_exit_price': curr_w,
+        'rr_ratio': 1.5,
     }
