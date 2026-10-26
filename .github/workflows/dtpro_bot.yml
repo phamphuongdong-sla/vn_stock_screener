@@ -12,6 +12,8 @@ on:
     # Ca 4 (Đêm & Rạng sáng): 01:00 VN (18:00 UTC) — Trực ca đêm tới sáng
     - cron: '0 18 * * *'
 
+  push:
+    branches: [ main ]
   workflow_dispatch:   # Cho phép kích hoạt trực tiếp bằng tay bất cứ lúc nào
     inputs:
       duration_minutes:
