@@ -196,19 +196,25 @@ def get_ticker_history(symbol: str, count: int = 150, days: int = 400) -> Option
     now_ts = int(time.time())
     cache_key = (sym, days)
 
-    # 1. Kiểm tra cache RAM
+    # 1. Kiểm tra cache RAM chính xác
     with _history_lock:
-        if cache_key in _history_cache and (now_ts - _history_cache_time.get(cache_key, 0) < 120):
+        if cache_key in _history_cache and (now_ts - _history_cache_time.get(cache_key, 0) < 180):
             cached_df = _history_cache[cache_key]
             if count is not None:
                 return cached_df.tail(count).reset_index(drop=True)
             return cached_df.copy()
+        # Nếu có cache của sym với số nến đủ lớn (>= 150) và còn mới (< 180s), dùng luôn
+        for (s, d), c_df in _history_cache.items():
+            if s == sym and c_df is not None and len(c_df) >= 150 and (now_ts - _history_cache_time.get((s, d), 0) < 180):
+                if count is not None:
+                    return c_df.tail(count).reset_index(drop=True)
+                return c_df.copy()
 
     from_ts = now_ts - days * 86400
     url_dnse = f"https://services.entrade.com.vn/chart-api/v2/ohlcs/stock?from={from_ts}&to={now_ts}&symbol={sym}&resolution=1D"
     try:
         session = get_session()
-        resp = session.get(url_dnse, timeout=(1.5, 3.0))
+        resp = session.get(url_dnse, timeout=(2.5, 5.0))
         if resp.status_code == 200:
             data = resp.json()
             if data and "t" in data and len(data["t"]) >= 30:
@@ -230,13 +236,18 @@ def get_ticker_history(symbol: str, count: int = 150, days: int = 400) -> Option
     except Exception:
         pass
 
-    # Nếu lỗi mạng thì thử lấy từ cache cũ nếu có
+    # Nếu lỗi mạng thì thử lấy từ cache cũ bất kỳ của sym nếu có
     with _history_lock:
         if cache_key in _history_cache:
             cached_df = _history_cache[cache_key]
             if count is not None:
                 return cached_df.tail(count).reset_index(drop=True)
             return cached_df.copy()
+        for (s, d), c_df in _history_cache.items():
+            if s == sym and c_df is not None and len(c_df) >= 30:
+                if count is not None:
+                    return c_df.tail(count).reset_index(drop=True)
+                return c_df.copy()
 
     return None
 

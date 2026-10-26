@@ -586,8 +586,9 @@ def fmt_status() -> str:
 # 3. XỬ LÝ TIN NHẮN TỪ TELEGRAM
 # ─────────────────────────────────────────────────────────────
 
-def process_updates(updates: list) -> int:
+def process_updates(updates: list) -> tuple:
     last_id = 0
+    spawned_threads = []
     for update in updates:
         uid = update.get("update_id", 0)
         last_id = max(last_id, uid)
@@ -638,7 +639,9 @@ def process_updates(updates: list) -> int:
                     gdnl_bot.send_message(target_chat, f"❌ Lỗi quét FMAB: {e}")
 
             gdnl_bot.send_message(chat_id, "🔍 Đang quét toàn sàn tìm điểm MUA theo L1 Fibonacci MA Band... Vui lòng chờ 15-30 giây.")
-            threading.Thread(target=_async_scan, args=(chat_id,), daemon=True).start()
+            t = threading.Thread(target=_async_scan, args=(chat_id,), daemon=True)
+            t.start()
+            spawned_threads.append(t)
             continue
 
         target = None
@@ -662,9 +665,11 @@ def process_updates(updates: list) -> int:
                 except Exception as e:
                     gdnl_bot.send_message(t_chat, f"❌ Lỗi phân tích {t_sym}: {e}")
 
-            threading.Thread(target=_async_analyze, args=(chat_id, target), daemon=True).start()
+            t = threading.Thread(target=_async_analyze, args=(chat_id, target), daemon=True)
+            t.start()
+            spawned_threads.append(t)
 
-    return last_id
+    return last_id, spawned_threads
 
 
 # ─────────────────────────────────────────────────────────────
@@ -687,10 +692,14 @@ def run_github_actions():
     updates = gdnl_bot.get_pending_updates(offset=0)
     if updates:
         print(f"  → Có {len(updates)} tin nhắn cần xử lý.")
-        last_id = process_updates(updates)
+        last_id, spawned_threads = process_updates(updates)
         if last_id > 0:
             gdnl_bot.ack_update(last_id)
             print(f"  → Đã ack đến update_id={last_id}")
+        if spawned_threads:
+            print(f"  → Đang chờ {len(spawned_threads)} luồng phản hồi Telegram hoàn tất...")
+            for t in spawned_threads:
+                t.join(timeout=15.0)
     else:
         print("  → Không có tin nhắn mới.")
 
@@ -809,7 +818,7 @@ def run_daemon(max_minutes: Optional[int] = None):
             try:
                 updates = gdnl_bot.get_pending_updates(offset=last_uid + 1)
                 if updates:
-                    last_uid = process_updates(updates)
+                    last_uid, _ = process_updates(updates)
             except Exception as e:
                 print(f"[Lỗi polling Telegram] {e}", flush=True)
             time.sleep(1.0)

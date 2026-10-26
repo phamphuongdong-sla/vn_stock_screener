@@ -49,7 +49,12 @@ def analyze_single(symbol: str) -> Optional[Dict]:
     exchange = item.get("exchange_name", "HOSE")
     price, vol, high, low, chg, _ = _parse_item(item)
 
-    df = get_ticker_history(symbol, count=None, days=config.DTPRO_HISTORY_DAYS)
+    # Lấy lịch sử nến ngày (500 ngày tải nhanh ~0.1s, hoàn toàn đủ để EMA 144 và linreg hội tụ tuyệt đối)
+    df = get_ticker_history(symbol, count=None, days=500)
+    if df is None or len(df) < 50:
+        df = get_ticker_history(symbol, count=None, days=300)
+    if df is None or len(df) < 50:
+        df = get_ticker_history(symbol, count=None, days=config.DTPRO_HISTORY_DAYS)
     if df is None or len(df) < 50:
         return None
 
