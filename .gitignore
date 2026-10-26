@@ -19,3 +19,4 @@ alerted_stocks.json
 *.db-wal
 .DS_Store
 .env
+vnindex_bars.json

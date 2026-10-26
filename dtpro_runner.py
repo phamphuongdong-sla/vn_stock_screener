@@ -24,6 +24,7 @@ import config
 from screener import is_trading_hour, format_vnd
 import gdnl_bot
 import dtpro_screener
+import fmab_screener
 import database
 
 
@@ -549,37 +550,40 @@ def fmt_scan_summary(signals: list, time_str: str = "") -> str:
 
 def fmt_welcome() -> str:
     return (
-        "🌊 *HỒ SƠ MUA/BÁN & HỖ TRỢ KHÁNG CỰ ĐỘNG (DTPRO)* 🌊\n"
+        "🌊 *HỒ SƠ DÒNG TIỀN & FIBONACCI MA BAND (PRO)* 🌊\n"
         "────────────────────────\n"
-        "Hệ thống phát hiện dòng tiền và lọc điểm đi lệnh 4 cấp độ TTCK Việt Nam:\n"
+        "Hệ thống phân tích kỹ thuật chuẩn TTCK Việt Nam:\n"
+        "1️⃣ *HỒ SƠ MUA/BÁN & ĐI LỆNH 4 CẤP ĐỘ (DTPRO):*\n"
         "• 📊 Large Rolling Volume Profile (500 nến, phân bổ Mua/Bán)\n"
         "• ⚡ Vùng POC Laser cam gom hàng khối lượng lớn nhất\n"
-        "• 🛡️ Profile-Guided Dynamic S/R: Hút giá về nút Volume, chấm điểm 0-100\n"
-        "• 🟢 *MUA DÒ* (20-30% vị thế): Test/rút chân Hỗ trợ tích lũy\n"
-        "• 💎 *MUA CHÍNH* (100% vị thế): Bật Hỗ trợ hoặc Breakout + Volume >= 1.3x\n"
-        "• 🟡 *BÁN DÒ* (Chốt 30-50%): Chạm Kháng cự cản đỉnh, râu trên dài\n"
-        "• 🚨 *BÁN HẾT* (Thoát Hàng): Thủng Hỗ trợ hoặc phân phối xả mạnh\n"
-        "• 🎯 Kế hoạch giao dịch: Entry, Cắt lỗ (SL -7%), Mục tiêu (TP +8% / +12%)\n\n"
+        "• 🛡️ Dynamic S/R: Chấm điểm hỗ trợ/kháng cự 0-100\n"
+        "• 🟢 *MUA DÒ* (20-30%) | 💎 *MUA CHÍNH* (100% vị thế)\n"
+        "• 🟡 *BÁN DÒ* (Chốt 30-50%) | 🚨 *BÁN HẾT* (Cắt lỗ / Thoát hàng)\n\n"
+        "2️⃣ *FIBONACCI MA BAND (FMAB PRO):*\n"
+        "• 🐋 Whale MA (EMA 13) & Resistance MA (EMA 144 Fibonacci)\n"
+        "• 📈 Linreg Slope (21) & Trendline MA (EMA 50)\n"
+        "• 🎯 Điểm MUA bứt phá Whale MA kèm TP (+3x ATR) / SL (-2x ATR)\n\n"
         "📖 *CÁCH TRA CỨU:*\n"
-        "• Gõ trực tiếp mã: `HPG`, `SSI`, `VND`, `VCB`...\n"
-        "• Dùng lệnh: `/soi HPG` hoặc `/check SSI`\n"
-        "• `/scan` — Quét ngay danh sách điểm mua toàn sàn\n"
-        "• `/status` — Xem trạng thái bot & giờ giao dịch\n\n"
-        "👉 _Hãy thử gõ ngay một mã như `HPG` hoặc `SSI` để xem kết quả!_"
+        "• Gõ trực tiếp mã: `HPG`, `SSI`, `VND`, `TCB`...\n"
+        "• Tra cứu theo FMAB: `/fmab HPG`, `/fmab SSI`\n"
+        "• Quét điểm mua DTPRO: `/scan`\n"
+        "• Quét điểm mua FMAB: `/fmab_scan`\n"
+        "• `/status` — Xem trạng thái hệ thống\n\n"
+        "👉 _Hãy thử gõ ngay một mã như `HPG` hoặc `/fmab TCB` để xem kết quả!_"
     )
 
 
 def fmt_status() -> str:
     s = "🟢 ĐANG TRONG GIỜ GIAO DỊCH" if is_trading_hour() else "🔴 NGOÀI GIỜ GIAO DỊCH"
     return (
-        f"🤖 *HỒ SƠ DÒNG TIỀN PRO — STATUS*\n"
+        f"🤖 *HỒ SƠ DÒNG TIỀN & FMAB PRO — STATUS*\n"
         f"━━━━━━━━━━━━━━━━━━━\n"
         f"• Phiên thị trường: {s}\n"
         f"• Lịch quét tự động: Mỗi 5 phút trong phiên qua GitHub Actions\n"
-        f"• Volume Profile: 500 nến | 60 hàng giá | Phân bổ Buy/Sell volume\n"
-        f"• Dynamic S/R: Swing 5 | Bán kính 1.2 ATR | Merge 0.16 ATR | Break 0.10 ATR\n"
-        f"• Hệ số Mua Chính: Volume >= 1.3x MA20 | Cắt lỗ SL max 7%\n\n"
-        f"_Gõ tên mã bất kỳ để phân tích ngay lập tức!_"
+        f"• Động cơ 1: Volume Profile 500 nến + Dynamic S/R 4 Cấp Độ\n"
+        f"• Động cơ 2: Fibonacci MA Band (Whale EMA 13, Res EMA 144, Slope 21)\n"
+        f"• Quản trị rủi ro: Cooldown 3 nến, Khử nhiễu Exclusivity, TP/SL ATR 14\n\n"
+        f"_Gõ tên mã (VD `HPG`) hoặc `/fmab TCB` để tra cứu tức thì!_"
     )
 
 
@@ -638,8 +642,37 @@ def process_updates(updates: list) -> int:
                 except Exception as e:
                     gdnl_bot.send_message(target_chat, f"❌ Lỗi quét: {e}")
 
-            gdnl_bot.send_message(chat_id, "🔍 Đang quét toàn sàn tìm điểm MUA... Vui lòng chờ 15-30 giây.")
+            gdnl_bot.send_message(chat_id, "🔍 Đang quét toàn sàn tìm điểm MUA DTPRO... Vui lòng chờ 15-30 giây.")
             threading.Thread(target=_async_scan, args=(chat_id,), daemon=True).start()
+            continue
+
+        if cmd in ["/FMAB_SCAN", "/FMABSCAN", "/SCANFMAB"]:
+            def _async_fmab_scan(target_chat):
+                try:
+                    sigs = fmab_screener.run_fmab_screener(buy_only=True)
+                    now_str = datetime.now().strftime('%H:%M %d/%m')
+                    summary_msg = fmab_screener.fmt_fmab_scan_summary(sigs, f"[{now_str}]")
+                    gdnl_bot.send_message(target_chat, summary_msg)
+                except Exception as e:
+                    gdnl_bot.send_message(target_chat, f"❌ Lỗi quét FMAB: {e}")
+
+            gdnl_bot.send_message(chat_id, "🔍 Đang quét toàn sàn theo chỉ báo Fibonacci MA Band (FMAB)... Vui lòng chờ 15-30 giây.")
+            threading.Thread(target=_async_fmab_scan, args=(chat_id,), daemon=True).start()
+            continue
+
+        if cmd == "/FMAB" and len(parts) > 1:
+            fmab_sym = parts[1].strip().upper()
+            def _async_fmab_analyze(t_chat, t_sym):
+                try:
+                    res = fmab_screener.analyze_single(t_sym)
+                    if res:
+                        gdnl_bot.send_message(t_chat, fmab_screener.fmt_fmab_detail(res))
+                    else:
+                        gdnl_bot.send_message(t_chat, f"❌ Không tìm thấy dữ liệu FMAB cho mã *{t_sym}*.")
+                except Exception as e:
+                    gdnl_bot.send_message(t_chat, f"❌ Lỗi phân tích FMAB {t_sym}: {e}")
+
+            threading.Thread(target=_async_fmab_analyze, args=(chat_id, fmab_sym), daemon=True).start()
             continue
 
         target = None
@@ -981,6 +1014,26 @@ if __name__ == "__main__":
         run_daemon(max_minutes=max_m)
     elif args and args[0] == "--check" and len(args) >= 2:
         run_check(args[1])
+    elif args and args[0] == "--fmab" and len(args) >= 2:
+        sym = args[1].upper()
+        print(f"\n🔍 Phân tích chi tiết: {sym} (Chỉ báo FMAB PRO)")
+        res = fmab_screener.analyze_single(sym)
+        if res:
+            msg = fmab_screener.fmt_fmab_detail(res)
+            print(msg)
+            sent = gdnl_bot.send_alert_to_default(msg)
+            print(f"{'✅ Đã gửi tin nhắn phân tích về Telegram thành công!' if sent else '⚠️ Không gửi được Telegram.'}")
+        else:
+            print(f"❌ Không tìm thấy dữ liệu cho mã '{sym}'")
+    elif args and args[0] in ["--fmab-scan", "--fmabscan"]:
+        print("\n🔍 Quét toàn bộ thị trường tìm điểm MUA (FMAB PRO)...")
+        sigs = fmab_screener.run_fmab_screener(buy_only=True)
+        now_str = datetime.now().strftime("%H:%M %d/%m")
+        summary = fmab_screener.fmt_fmab_scan_summary(sigs, f"[{now_str}]")
+        print(summary)
+        if sigs:
+            gdnl_bot.send_alert_to_default(summary)
+            print(f"\n✅ Đã gửi danh sách {len(sigs)} mã có điểm MUA FMAB về Telegram.")
     elif args and args[0] == "--scan":
         run_scan()
     else:

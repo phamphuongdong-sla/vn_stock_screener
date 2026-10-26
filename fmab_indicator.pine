@@ -1,0 +1,222 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © blackcat1402 — Bản Chuẩn TTCK Việt Nam & Phái Sinh (DTPro Edition)
+//@version=6
+indicator(title = '[blackcat] L1 Fibonacci MA Band - VN Edition', shorttitle = 'FMAB Pro', overlay = true, max_labels_count = 500)
+
+// ==============================================================================
+// 1. NHÓM THAM SỐ ĐẦU VÀO (INPUT GROUPS)
+// ==============================================================================
+string GRP_VN    = "⭐ Chế Độ TTCK Việt Nam"
+string GRP_MA    = "🌊 Đường Trung Bình Fibonacci & Slope"
+string GRP_SIG   = "⚡ Quản Trị Tín Hiệu (Signal Governance)"
+string GRP_RISK  = "🎯 Quản Trị Rủi Ro (TP / SL)"
+string GRP_VIS   = "🎨 Giao Diện & Bảng Điều Khiển (Visual)"
+
+// Chế độ thị trường
+marketMode = input.string("Cổ Phiếu Cơ Sở (Long Only)", "Chế Độ Giao Dịch", options = ["Cổ Phiếu Cơ Sở (Long Only)", "Phái Sinh / 2 Chiều (Long & Short)"], group = GRP_VN, tooltip = "Cổ phiếu cơ sở VN chỉ cho phép Mua và Bán thoát hàng (Không có Short). Chọn Phái Sinh nếu đánh HĐTL VN30F.")
+bool isLongOnly = marketMode == "Cổ Phiếu Cơ Sở (Long Only)"
+
+// Moving Averages
+whaleLen  = input.int(13,   "Whale MA (EMA Cá Mập)",        minval = 1, group = GRP_MA, tooltip = "Đường EMA nhanh 13 theo dõi dấu chân dòng tiền cá mập.")
+resLen    = input.int(144,  "Resistance MA (EMA Cản Lớn)",  minval = 1, group = GRP_MA, tooltip = "Đường EMA chậm Fibonacci 144 xác định dải xu hướng chính.")
+slopeLen  = input.int(21,   "Độ dài Hồi Quy Tuyến Tính",    minval = 1, group = GRP_MA, tooltip = "Độ dài Fibonacci 21 tính độ dốc động lượng.")
+slopeMult = input.float(23.0, "Hệ số Nhân Độ Dốc (Multiplier)", minval = 0.1, step = 0.5, group = GRP_MA)
+trendLen  = input.int(50,   "Trendline EMA Length",         minval = 1, group = GRP_MA, tooltip = "Đường xu hướng tổng hợp EMA 50.")
+atrLen    = input.int(14,   "ATR Length",                   minval = 1, group = GRP_RISK)
+
+// Signal Governance
+useExclusivity = input.bool(true, "Khử Nhiễu Cùng Cây Nến (Exclusivity)", group = GRP_SIG, tooltip = "Loại bỏ hiện tượng vừa Báo Mua vừa Báo Bán trên cùng một cây nến.")
+cooldownBars   = input.int(3, "Số Nến Chờ Giữa 2 Lệnh (Cooldown)", minval = 0, group = GRP_SIG, tooltip = "Tránh bị bẫy whipsaw khi giá dao động quanh đường Whale MA.")
+
+// Risk Management
+useTPSL = input.bool(true, "Vẽ Mức Cắt Lỗ & Chốt Lời (TP/SL)", group = GRP_RISK)
+slMult  = input.float(2.0, "Cắt Lỗ Stop Loss (x ATR)",       minval = 0.5, step = 0.25, group = GRP_RISK)
+tpMult  = input.float(3.0, "Chốt Lời Take Profit (x ATR)",   minval = 0.5, step = 0.25, group = GRP_RISK)
+
+// Visual
+showDash   = input.bool(true,  "Bảng Thống Kê HUD (Dashboard)", group = GRP_VIS)
+showBG     = input.bool(true,  "Đổi Màu Nền Theo Vị Thế",       group = GRP_VIS)
+showLabels = input.bool(true,  "Hiển Thị Nhãn Tín Hiệu Đi Lệnh", group = GRP_VIS)
+
+// Màu sắc
+color C_LONG    = color.new(#00E676, 0)
+color C_SHORT   = color.new(#FF5252, 0)
+color C_EXIT    = color.new(#FF9800, 0)
+color C_BGLONG  = color.new(#00E676, 93)
+color C_BGSHORT = color.new(#FF5252, 93)
+
+// ==============================================================================
+// 2. TÍNH TOÁN KỸ THUẬT (CALCULATIONS)
+// ==============================================================================
+
+// Hàm tính độ dốc hồi quy tuyến tính (Pine Script standard)
+calculate_slope(src, length) =>
+    linear_regression_current  = ta.linreg(src, length, 0)
+    linear_regression_previous = ta.linreg(nz(src[1], src), length, 0)
+    (linear_regression_current - linear_regression_previous) / timeframe.multiplier
+
+// Đường Whale MA (EMA 13)
+whale_moving_average = ta.ema(close, whaleLen)
+
+// Đường Resistance MA (EMA 144)
+resistance_moving_average = ta.ema(close, resLen)
+
+// Đường Trendline MA (EMA 50 của nguồn hiệu chỉnh độ dốc)
+trendline_moving_average = ta.ema(calculate_slope(close, slopeLen) * slopeMult + close, trendLen)
+
+// Dải nến Bull / Bear Band giữa Whale MA và Resistance MA
+plotcandle(whale_moving_average, resistance_moving_average, whale_moving_average, resistance_moving_average, 
+           title = 'Bull Band (Whale > Res)', 
+           color = whale_moving_average > resistance_moving_average ? color.new(#2962FF, 30) : na)
+plotcandle(whale_moving_average, resistance_moving_average, whale_moving_average, resistance_moving_average, 
+           title = 'Bear Band (Whale < Res)', 
+           color = whale_moving_average < resistance_moving_average ? color.new(#E91E63, 30) : na)
+
+// Vẽ các đường trung bình chính
+plot(whale_moving_average, "Whale MA (EMA 13)", color = color.new(#FF7F00, 0), linewidth = 2, style = plot.style_linebr)
+plot(resistance_moving_average, "Resistance MA (EMA 144)", color = color.yellow, linewidth = 2, style = plot.style_linebr)
+
+// Đường Trendline MA đổi màu theo vị trí giá đóng cửa
+bool isBullTrend = close >= trendline_moving_average
+plot(trendline_moving_average, "Trendline MA", color = isBullTrend ? color.green : color.red, linewidth = 3, style = plot.style_linebr)
+
+// ==============================================================================
+// 3. LOGIC TÍN HIỆU & MÁY TRẠNG THÁI (STATE MACHINE)
+// ==============================================================================
+longEntryCond  = ta.crossover(close, whale_moving_average)
+shortEntryCond = ta.crossunder(close, whale_moving_average)
+longExitCond   = ta.crossunder(close, whale_moving_average)
+shortExitCond  = ta.crossover(close, whale_moving_average)
+
+var int posState      = 0     // +1: Long | 0: Flat (Tiền mặt) | -1: Short
+var int lastSignalBar = na
+
+cooldownOK = na(lastSignalBar) or cooldownBars == 0 or (bar_index - lastSignalBar > cooldownBars)
+
+rawLongEntry  = longEntryCond  and (posState <= 0) and cooldownOK
+rawShortEntry = shortEntryCond and (posState >= 0) and cooldownOK
+rawLongExit   = longExitCond   and (posState == 1)
+rawShortExit  = shortExitCond  and (posState == -1)
+
+longExit   = useExclusivity ? rawLongExit   and not rawLongEntry and not rawShortEntry : rawLongExit
+shortExit  = useExclusivity ? rawShortExit  and not rawLongEntry and not rawShortEntry : rawShortExit
+longEntry  = useExclusivity ? rawLongEntry  and not longExit and not shortExit : rawLongEntry
+shortEntry = useExclusivity ? rawShortEntry and not longExit and not shortExit : rawShortEntry
+
+if isLongOnly
+    // Ở thị trường cơ sở VN: Tín hiệu Short đổi thành lệnh Thoát vị thế (Bán bảo toàn vốn)
+    if longEntry
+        posState := 1
+        lastSignalBar := bar_index
+    else if shortEntry or longExit
+        posState := 0
+        lastSignalBar := bar_index
+else
+    // Ở thị trường phái sinh 2 chiều
+    if longEntry
+        posState := 1
+        lastSignalBar := bar_index
+    else if shortEntry
+        posState := -1
+        lastSignalBar := bar_index
+    else if longExit or shortExit
+        posState := 0
+        lastSignalBar := bar_index
+
+plot(posState, "Position State", display = display.data_window)
+
+// ==============================================================================
+// 4. MỨC CẮT LỖ & CHỐT LỜI THEO ATR (TP / SL LEVELS)
+// ==============================================================================
+atrVal = ta.atr(atrLen)
+var float entryPrice = na
+var int   entryDir   = 0
+
+if longEntry
+    entryPrice := close
+    entryDir   := 1
+if shortEntry
+    if not isLongOnly
+        entryPrice := close
+        entryDir   := -1
+    else
+        entryPrice := na
+        entryDir   := 0
+if (isLongOnly and (shortEntry or longExit)) or (not isLongOnly and (longExit or shortExit))
+    entryPrice := na
+    entryDir   := 0
+
+float slPrice = useTPSL and not na(entryPrice) and not na(atrVal) ? entryPrice - entryDir * slMult * atrVal : na
+float tpPrice = useTPSL and not na(entryPrice) and not na(atrVal) ? entryPrice + entryDir * tpMult * atrVal : na
+
+plot(slPrice, "Stop Loss (Cắt lỗ)",   color = color.red,  linewidth = 1, style = plot.style_linebr)
+plot(tpPrice, "Take Profit (Chốt lời)", color = color.teal, linewidth = 1, style = plot.style_linebr)
+
+// ==============================================================================
+// 5. HIỂN THỊ NHÃN & MÀU NỀN BIỂU ĐỒ (LABELS & HUD)
+// ==============================================================================
+if showLabels and longEntry
+    label.new(bar_index, low, '🟢 MUA\n' + str.tostring(close, format.mintick), 
+              style = label.style_label_up, color = C_LONG, textcolor = color.black, size = size.small)
+
+if showLabels
+    if isLongOnly
+        if shortEntry or longExit
+            label.new(bar_index, high, '🔴 THOÁT\n' + str.tostring(close, format.mintick), 
+                      style = label.style_label_down, color = C_SHORT, textcolor = color.white, size = size.small)
+    else
+        if shortEntry
+            label.new(bar_index, high, '🔴 SHORT\n' + str.tostring(close, format.mintick), 
+                      style = label.style_label_down, color = C_SHORT, textcolor = color.white, size = size.small)
+        if longExit or shortExit
+            label.new(bar_index, high, longExit ? 'XL' : 'XS', 
+                      style = label.style_xcross, color = C_EXIT, textcolor = color.white, size = size.tiny)
+
+// Màu nền theo vị thế
+color bgColor = showBG and posState == 1 ? C_BGLONG : (showBG and posState == -1 and not isLongOnly) ? C_BGSHORT : na
+bgcolor(bgColor, title = "Màu Nền Vị Thế")
+
+// Bảng HUD Thống Kê
+var table dash = table.new(position.top_right, 2, 6, bgcolor = color.new(#131722, 15), border_width = 1, border_color = color.gray)
+if showDash and barstate.islast
+    string posText = posState == 1 ? "🟢 NẮM GIỮ (LONG)" : (posState == -1 ? "🔴 BÁN (SHORT)" : "⚪ TIỀN MẶT (FLAT)")
+    color posColor = posState == 1 ? color.green : (posState == -1 ? color.red : color.gray)
+    
+    table.cell(dash, 0, 0, "Vị Thế Hiện Tại", text_color = color.white, text_size = size.small)
+    table.cell(dash, 1, 0, posText, text_color = posColor, text_size = size.small)
+    
+    table.cell(dash, 0, 1, "Whale MA (13)", text_color = color.white, text_size = size.small)
+    table.cell(dash, 1, 1, str.tostring(whale_moving_average, format.mintick), text_color = color.orange, text_size = size.small)
+
+    table.cell(dash, 0, 2, "Cản MA (144)", text_color = color.white, text_size = size.small)
+    table.cell(dash, 1, 2, str.tostring(resistance_moving_average, format.mintick), text_color = color.yellow, text_size = size.small)
+
+    table.cell(dash, 0, 3, "Trendline (50)", text_color = color.white, text_size = size.small)
+    table.cell(dash, 1, 3, str.tostring(trendline_moving_average, format.mintick), text_color = isBullTrend ? color.green : color.red, text_size = size.small)
+
+    table.cell(dash, 0, 4, "Biên Độ ATR (14)", text_color = color.white, text_size = size.small)
+    table.cell(dash, 1, 4, str.tostring(atrVal, format.mintick), text_color = color.aqua, text_size = size.small)
+
+    table.cell(dash, 0, 5, "Mục Tiêu TP / SL", text_color = color.white, text_size = size.small)
+    table.cell(dash, 1, 5, not na(tpPrice) ? str.tostring(tpPrice, format.mintick) + " / " + str.tostring(slPrice, format.mintick) : "—", text_color = color.white, text_size = size.small)
+
+// ==============================================================================
+// 6. THÔNG BÁO & CẢNH BÁO (ALERTS)
+// ==============================================================================
+if longEntry
+    alert('FMAB [MUA]: Giá ' + syminfo.ticker + ' cắt lên Whale MA tại ' + str.tostring(close, format.mintick), alert.freq_once_per_bar_close)
+if isLongOnly
+    if shortEntry or longExit
+        alert('FMAB [THOÁT]: Giá ' + syminfo.ticker + ' cắt xuống Whale MA tại ' + str.tostring(close, format.mintick), alert.freq_once_per_bar_close)
+else
+    if shortEntry
+        alert('FMAB [SELL]: Tín hiệu Bán/Short tại ' + str.tostring(close, format.mintick), alert.freq_once_per_bar_close)
+    if longExit
+        alert('FMAB [XL]: Thoát vị thế Long tại ' + str.tostring(close, format.mintick), alert.freq_once_per_bar_close)
+    if shortExit
+        alert('FMAB [XS]: Thoát vị thế Short tại ' + str.tostring(close, format.mintick), alert.freq_once_per_bar_close)
+
+alertcondition(longEntry,  'FMAB Điểm Mua (Buy)',   'FMAB: Giá cắt lên trên Whale MA (EMA 13)')
+alertcondition(shortEntry, 'FMAB Điểm Bán (Sell)',  'FMAB: Giá cắt xuống dưới Whale MA (EMA 13)')
+alertcondition(longExit,   'FMAB Thoát Long (Exit)', 'FMAB: Thoát vị thế Long')
+alertcondition(shortExit,  'FMAB Thoát Short (Exit)','FMAB: Thoát vị thế Short')
